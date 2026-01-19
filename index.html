@@ -19,11 +19,25 @@
             background-color: var(--bg);
             color: var(--text);
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
             min-height: 100vh;
             margin: 0;
             padding: 20px;
         }
+
+        /* --- AD CONTAINER STYLES --- */
+        .ad-container {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden; /* Phone par ad cut na ho */
+            background: transparent;
+        }
+        /* --------------------------- */
 
         .container {
             background: var(--card);
@@ -38,6 +52,26 @@
             text-align: center;
             color: var(--primary);
             margin-bottom: 1.5rem;
+        }
+
+        .coffee-btn {
+            background-color: #FFDD00;
+            color: #000;
+            font-weight: bold;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 30px;
+            display: block; /* Full width for easy clicking */
+            margin-top: 25px;
+            font-size: 1rem;
+            box-shadow: 0 4px 10px rgba(255, 221, 0, 0.3);
+            border: 2px solid #e1c300;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        .coffee-btn:hover { 
+            background-color: #ffe600; 
+            transform: translateY(-2px);
         }
 
         .section-title {
@@ -88,7 +122,6 @@
         }
         .btn-secondary:hover { background-color: #059669; }
 
-        /* Results Area */
         #dashboard {
             display: none;
             margin-top: 2rem;
@@ -113,7 +146,6 @@
         .stat-value { font-size: 1.5rem; font-weight: 700; }
         .big-percent { font-size: 2.5rem; font-weight: 800; color: var(--primary); }
 
-        /* Tools Section */
         .tools-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -145,6 +177,15 @@
             color: var(--primary);
         }
 
+        /* Footer styling */
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #888;
+            width: 100%;
+        }
+
         @media (max-width: 500px) {
             .tools-grid { grid-template-columns: 1fr; }
         }
@@ -157,6 +198,18 @@
 </head>
 <body>
 
+    <div class="ad-container">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : '34c1057749a4a60f3cbfef67e3b853e0',
+                'format' : 'iframe',
+                'height' : 90,
+                'width' : 728,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/34c1057749a4a60f3cbfef67e3b853e0/invoke.js"></script>
+    </div>
     <div class="container">
         <h1>College Attendance Tool</h1>
         
@@ -177,7 +230,6 @@
             </div>
 
             <div class="tools-grid">
-                
                 <div class="tool-card">
                     <div style="font-weight: bold; margin-bottom:5px;">Future Prediction</div>
                     <label style="font-size:0.8rem;">Add Classes (Present + Total):</label>
@@ -193,25 +245,40 @@
                     <button class="btn-secondary" style="background-color: #ef4444;" onclick="calculateRequired()">Calculate 'X'</button>
                     <div id="targetResult" class="result-text"></div>
                 </div>
-
             </div>
         </div>
+
+        <a href="https://www.buymeacoffee.com/Sambhav001" target="_blank" class="coffee-btn" id="coffeeLink">
+            ☕ Buy Developer a Coffee
+        </a>
     </div>
 
+    <footer>
+        <p>Sponsored</p>
+        <div class="ad-container">
+            <script type="text/javascript">
+                atOptions = {
+                    'key' : '34c1057749a4a60f3cbfef67e3b853e0',
+                    'format' : 'iframe',
+                    'height' : 90,
+                    'width' : 728,
+                    'params' : {}
+                };
+            </script>
+            <script type="text/javascript" src="//www.highperformanceformat.com/34c1057749a4a60f3cbfef67e3b853e0/invoke.js"></script>
+        </div>
+    </footer>
     <script>
-        // Global variables to store current state
+        // Logic Script
         let g_present = 0;
         let g_total = 0;
 
         function processReport() {
             const text = document.getElementById('inputData').value;
             const lines = text.split('\n');
-            
             let totalClasses = 0;
             let totalAttended = 0;
             let found = false;
-
-            // Regex matches last 5 numbers: Present, OD, Makeup, Absent, Percentage
             const regex = /(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+([0-9.]+)$/;
 
             lines.forEach(line => {
@@ -222,10 +289,8 @@
                     const od = parseInt(match[2]);
                     const makeup = parseInt(match[3]);
                     const absent = parseInt(match[4]);
-
                     const attended = present + od + makeup;
                     const totalSubject = attended + absent;
-
                     totalAttended += attended;
                     totalClasses += totalSubject;
                 }
@@ -236,79 +301,52 @@
                 return;
             }
 
-            // Update Global Variables
             g_present = totalAttended;
             g_total = totalClasses;
 
-            // Update UI
             document.getElementById('currentPresent').innerText = g_present;
             document.getElementById('currentTotal').innerText = g_total;
             document.getElementById('currentPercent').innerText = ((g_present / g_total) * 100).toFixed(2) + "%";
-            
             document.getElementById('dashboard').style.display = 'block';
-            
-            // Clear previous calculator results
             document.getElementById('futureResult').innerText = "";
             document.getElementById('targetResult').innerText = "";
         }
 
-        // Feature 1: Future Prediction
         function predictFuture() {
             const extra = parseInt(document.getElementById('futureInput').value);
-            
             if (isNaN(extra) || extra < 0) {
                 document.getElementById('futureResult').innerText = "Valid number daalein.";
                 return;
             }
-
-            // Logic: Add number to BOTH present and total
             const newPresent = g_present + extra;
             const newTotal = g_total + extra;
             const newPercent = (newPresent / newTotal) * 100;
-
             document.getElementById('futureResult').innerHTML = 
                 `New: ${newPercent.toFixed(2)}% <br><span style="font-size:0.8rem; color:#666;">(Attended ${newPresent}/${newTotal})</span>`;
         }
 
-        // Feature 2: Desired Attendance (Find X)
         function calculateRequired() {
             const target = parseFloat(document.getElementById('targetInput').value);
-            
             if (isNaN(target) || target <= 0 || target > 100) {
                 document.getElementById('targetResult').innerText = "Sahi % daalein (0-100).";
                 return;
             }
-
             const currentPercent = (g_present / g_total) * 100;
-
             if (currentPercent >= target) {
                 document.getElementById('targetResult').innerText = "Aap already target se upar hain! 🎉";
                 return;
             }
-
-            // Formula Derivation:
-            // (Present + x) / (Total + x) = Target/100
-            // Let T = Target/100
-            // P + x = T(Total + x)
-            // P + x = T*Total + T*x
-            // x - T*x = T*Total - P
-            // x(1 - T) = T*Total - P
-            // x = (T*Total - P) / (1 - T)
-
             const T = target / 100;
-            
-            // Edge case: If target is 100%, avoid division by zero (mathematically impossible if absent > 0)
             if (T >= 1) {
-                document.getElementById('targetResult').innerText = "100% possible nahi hai kyunki classes miss ho chuki hain.";
+                document.getElementById('targetResult').innerText = "100% possible nahi hai.";
                 return;
             }
-
             let x = (T * g_total - g_present) / (1 - T);
-            x = Math.ceil(x); // Always round up to next whole class
-
+            x = Math.ceil(x);
             document.getElementById('targetResult').innerHTML = 
                 `Required: <b>${x} classes</b><br><span style="font-size:0.8rem; color:#666;">(Lagataar leni hongi)</span>`;
         }
     </script>
 </body>
 </html>
+
