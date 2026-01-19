@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Attendance Manager</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --bg: #f3f4f6;
+            --card: #ffffff;
+            --text: #1f2937;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background: var(--card);
+            width: 100%;
+            max-width: 600px;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-weight: 700;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            color: #374151;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 5px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+
+        .btn-main {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: 0.2s;
+        }
+        .btn-main:hover { background-color: #4338ca; }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+            padding: 10px;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .btn-secondary:hover { background-color: #059669; }
+
+        /* Results Area */
+        #dashboard {
+            display: none;
+            margin-top: 2rem;
+            animation: fadeIn 0.5s;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            text-align: center;
+        }
+
+        .stat-value { font-size: 1.5rem; font-weight: 700; }
+        .big-percent { font-size: 2.5rem; font-weight: 800; color: var(--primary); }
+
+        /* Tools Section */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .tool-card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .result-text {
+            margin-top: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--primary);
+        }
+
+        @media (max-width: 500px) {
+            .tools-grid { grid-template-columns: 1fr; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>College Attendance Tool</h1>
+        
+        <p style="font-size: 0.9rem; color: #666;">Apna attendance report niche paste karein:</p>
+        <textarea id="inputData" placeholder="Paste full report here..."></textarea>
+        
+        <button class="btn-main" onclick="processReport()">1. Load Report Data</button>
+
+        <div id="dashboard">
+            <div class="section-title">Current Status</div>
+            <div class="stat-box">
+                <div>Overall Percentage</div>
+                <div class="big-percent" id="currentPercent">0%</div>
+                <div class="stat-grid" style="margin-bottom: 0; margin-top: 10px;">
+                    <div>Present: <span id="currentPresent">0</span></div>
+                    <div>Total: <span id="currentTotal">0</span></div>
+                </div>
+            </div>
+
+            <div class="tools-grid">
+                
+                <div class="tool-card">
+                    <div style="font-weight: bold; margin-bottom:5px;">Future Prediction</div>
+                    <label style="font-size:0.8rem;">Add Classes (Present + Total):</label>
+                    <input type="number" id="futureInput" placeholder="Ex: 5">
+                    <button class="btn-secondary" onclick="predictFuture()">Check Effect</button>
+                    <div id="futureResult" class="result-text"></div>
+                </div>
+
+                <div class="tool-card">
+                    <div style="font-weight: bold; margin-bottom:5px;">Target Calculator</div>
+                    <label style="font-size:0.8rem;">Desired Percentage (%):</label>
+                    <input type="number" id="targetInput" placeholder="Ex: 75">
+                    <button class="btn-secondary" style="background-color: #ef4444;" onclick="calculateRequired()">Calculate 'X'</button>
+                    <div id="targetResult" class="result-text"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables to store current state
+        let g_present = 0;
+        let g_total = 0;
+
+        function processReport() {
+            const text = document.getElementById('inputData').value;
+            const lines = text.split('\n');
+            
+            let totalClasses = 0;
+            let totalAttended = 0;
+            let found = false;
+
+            // Regex matches last 5 numbers: Present, OD, Makeup, Absent, Percentage
+            const regex = /(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+([0-9.]+)$/;
+
+            lines.forEach(line => {
+                const match = line.trim().match(regex);
+                if (match) {
+                    found = true;
+                    const present = parseInt(match[1]);
+                    const od = parseInt(match[2]);
+                    const makeup = parseInt(match[3]);
+                    const absent = parseInt(match[4]);
+
+                    const attended = present + od + makeup;
+                    const totalSubject = attended + absent;
+
+                    totalAttended += attended;
+                    totalClasses += totalSubject;
+                }
+            });
+
+            if (!found) {
+                alert("Data sahi se read nahi hua. Pura table header ke sath paste karein.");
+                return;
+            }
+
+            // Update Global Variables
+            g_present = totalAttended;
+            g_total = totalClasses;
+
+            // Update UI
+            document.getElementById('currentPresent').innerText = g_present;
+            document.getElementById('currentTotal').innerText = g_total;
+            document.getElementById('currentPercent').innerText = ((g_present / g_total) * 100).toFixed(2) + "%";
+            
+            document.getElementById('dashboard').style.display = 'block';
+            
+            // Clear previous calculator results
+            document.getElementById('futureResult').innerText = "";
+            document.getElementById('targetResult').innerText = "";
+        }
+
+        // Feature 1: Future Prediction
+        function predictFuture() {
+            const extra = parseInt(document.getElementById('futureInput').value);
+            
+            if (isNaN(extra) || extra < 0) {
+                document.getElementById('futureResult').innerText = "Valid number daalein.";
+                return;
+            }
+
+            // Logic: Add number to BOTH present and total
+            const newPresent = g_present + extra;
+            const newTotal = g_total + extra;
+            const newPercent = (newPresent / newTotal) * 100;
+
+            document.getElementById('futureResult').innerHTML = 
+                `New: ${newPercent.toFixed(2)}% <br><span style="font-size:0.8rem; color:#666;">(Attended ${newPresent}/${newTotal})</span>`;
+        }
+
+        // Feature 2: Desired Attendance (Find X)
+        function calculateRequired() {
+            const target = parseFloat(document.getElementById('targetInput').value);
+            
+            if (isNaN(target) || target <= 0 || target > 100) {
+                document.getElementById('targetResult').innerText = "Sahi % daalein (0-100).";
+                return;
+            }
+
+            const currentPercent = (g_present / g_total) * 100;
+
+            if (currentPercent >= target) {
+                document.getElementById('targetResult').innerText = "Aap already target se upar hain! 🎉";
+                return;
+            }
+
+            // Formula Derivation:
+            // (Present + x) / (Total + x) = Target/100
+            // Let T = Target/100
+            // P + x = T(Total + x)
+            // P + x = T*Total + T*x
+            // x - T*x = T*Total - P
+            // x(1 - T) = T*Total - P
+            // x = (T*Total - P) / (1 - T)
+
+            const T = target / 100;
+            
+            // Edge case: If target is 100%, avoid division by zero (mathematically impossible if absent > 0)
+            if (T >= 1) {
+                document.getElementById('targetResult').innerText = "100% possible nahi hai kyunki classes miss ho chuki hain.";
+                return;
+            }
+
+            let x = (T * g_total - g_present) / (1 - T);
+            x = Math.ceil(x); // Always round up to next whole class
+
+            document.getElementById('targetResult').innerHTML = 
+                `Required: <b>${x} classes</b><br><span style="font-size:0.8rem; color:#666;">(Lagataar leni hongi)</span>`;
+        }
+    </script>
+</body>
+</html>
