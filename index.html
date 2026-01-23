@@ -9,7 +9,7 @@
             --primary: #4f46e5;
             --secondary: #10b981;
             --danger: #ef4444;
-            --warning: #f59e0b; /* New color for Absent tool */
+            --warning: #f59e0b;
             --bg: #f3f4f6;
             --card: #ffffff;
             --text: #1f2937;
@@ -25,9 +25,22 @@
             min-height: 100vh;
             margin: 0;
             padding: 20px;
+            overflow-x: hidden; /* Prevent horizontal scroll during animation */
         }
 
-        /* --- AD CONTAINER STYLES --- */
+        /* --- ANIMATION CLASSES --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); /* Smooth Ease-Out */
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* ------------------------- */
+
         .ad-container {
             margin: 20px 0;
             display: flex;
@@ -38,41 +51,109 @@
             overflow: hidden; 
             background: transparent;
         }
-        /* --------------------------- */
 
         .container {
             background: var(--card);
             width: 100%;
-            max-width: 650px; /* Slightly wider for 3 boxes */
+            max-width: 650px;
             padding: 2rem;
             border-radius: 12px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         h1 {
             text-align: center;
             color: var(--primary);
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
+            width: 100%;
         }
 
-        .coffee-btn {
-            background-color: #FFDD00;
-            color: #000;
-            font-weight: bold;
-            text-decoration: none;
-            padding: 12px 20px;
-            border-radius: 30px;
-            display: block; 
-            margin-top: 25px;
-            font-size: 1rem;
-            box-shadow: 0 4px 10px rgba(255, 221, 0, 0.3);
-            border: 2px solid #e1c300;
-            text-align: center;
-            transition: transform 0.2s;
+        /* --- NEW CGPA BUTTONS STYLES --- */
+        .cgpa-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
-        .coffee-btn:hover { 
-            background-color: #ffe600; 
+
+        .cgpa-btn {
+            background-color: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .cgpa-btn:hover {
+            background-color: var(--primary);
+            color: white;
             transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+        }
+        /* ------------------------------- */
+
+        .donation-box {
+            margin-top: 30px;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            border: 2px dashed #cbd5e1;
+            width: 100%;
+            max-width: 280px;
+        }
+
+        .donation-title {
+            font-weight: 700;
+            color: #374151;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .qr-image {
+            width: 160px;
+            height: 160px;
+            border-radius: 8px;
+            border: 4px solid #fff;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .upi-btn {
+            background-color: #2563EB;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 15px;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .upi-btn:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-2px);
+        }
+
+        .upi-id-text {
+            font-family: monospace;
+            background: #e2e8f0;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: #475569;
+            margin-top: 10px;
+            display: inline-block;
         }
 
         .section-title {
@@ -82,6 +163,7 @@
             color: #374151;
             border-bottom: 2px solid #e5e7eb;
             padding-bottom: 5px;
+            width: 100%;
         }
 
         textarea {
@@ -126,7 +208,7 @@
         #dashboard {
             display: none;
             margin-top: 2rem;
-            animation: fadeIn 0.5s;
+            width: 100%;
         }
 
         .stat-grid {
@@ -147,7 +229,6 @@
         .stat-value { font-size: 1.5rem; font-weight: 700; }
         .big-percent { font-size: 2.5rem; font-weight: 800; color: var(--primary); }
 
-        /* Updated Grid to handle 3 items nicely */
         .tools-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -180,10 +261,9 @@
             font-weight: 600;
             font-size: 0.9rem;
             color: var(--primary);
-            min-height: 20px; /* Prevents jumping */
+            min-height: 20px;
         }
 
-        /* Footer styling */
         footer {
             margin-top: 30px;
             text-align: center;
@@ -195,16 +275,11 @@
         @media (max-width: 500px) {
             .tools-grid { grid-template-columns: 1fr; }
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
     </style>
 </head>
 <body>
 
-    <div class="ad-container">
+    <div class="ad-container reveal">
         <script type="text/javascript">
             atOptions = {
                 'key' : '34c1057749a4a60f3cbfef67e3b853e0',
@@ -216,17 +291,23 @@
         </script>
         <script type="text/javascript" src="//www.highperformanceformat.com/34c1057749a4a60f3cbfef67e3b853e0/invoke.js"></script>
     </div>
-    <div class="container">
+    
+    <div class="container reveal">
         <h1>College Attendance Tool</h1>
         
-        <p style="font-size: 0.9rem; color: #666;">Apna attendance report niche paste karein:</p>
+        <div class="cgpa-container">
+            <a href="https://cgpa-1sem.netlify.app/" target="_blank" class="cgpa-btn">1st Sem CGPA</a>
+            <a href="https://bestcgpa.netlify.app/" target="_blank" class="cgpa-btn">3rd Sem CGPA</a>
+        </div>
+
+        <p style="font-size: 0.9rem; color: #666; width: 100%;">Apna attendance report niche paste karein:</p>
         <textarea id="inputData" placeholder="Paste full report here..."></textarea>
         
         <button class="btn-main" onclick="processReport()">1. Load Report Data</button>
 
         <div id="dashboard">
-            <div class="section-title">Current Status</div>
-            <div class="stat-box">
+            <div class="section-title reveal">Current Status</div>
+            <div class="stat-box reveal">
                 <div>Overall Percentage</div>
                 <div class="big-percent" id="currentPercent">0%</div>
                 <div class="stat-grid" style="margin-bottom: 0; margin-top: 10px;">
@@ -236,7 +317,7 @@
             </div>
 
             <div class="tools-grid">
-                <div class="tool-card">
+                <div class="tool-card reveal">
                     <div>
                         <div style="font-weight: bold; margin-bottom:5px; color:var(--secondary);">Attend Future</div>
                         <label style="font-size:0.8rem;">Add Classes (Present + Total):</label>
@@ -248,7 +329,7 @@
                     </div>
                 </div>
 
-                <div class="tool-card">
+                <div class="tool-card reveal">
                     <div>
                         <div style="font-weight: bold; margin-bottom:5px; color:var(--warning);">Skip Classes (Absent)</div>
                         <label style="font-size:0.8rem;">Classes to miss (Increases Total only):</label>
@@ -260,7 +341,7 @@
                     </div>
                 </div>
 
-                <div class="tool-card">
+                <div class="tool-card reveal">
                     <div>
                         <div style="font-weight: bold; margin-bottom:5px; color:var(--danger);">Target Calculator</div>
                         <label style="font-size:0.8rem;">Desired Percentage (%):</label>
@@ -274,14 +355,31 @@
             </div>
         </div>
 
-        <a href="https://www.buymeacoffee.com/Sambhav001" target="_blank" class="coffee-btn" id="coffeeLink">
-            ☕ Buy Developer a Coffee
-        </a>
+        <div class="donation-box reveal">
+            <div class="donation-title">Support the Developer 🚀</div>
+            
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=upi%3A%2F%2Fpay%3Fpa%3Djainsambhav877%40oksbi%26pn%3DSambhav%26cu%3DINR" 
+                 alt="Scan to Pay" 
+                 class="qr-image">
+            
+            <br>
+            <div class="upi-id-text">jainsambhav877@oksbi</div>
+            
+            <br>
+            <a href="upi://pay?pa=jainsambhav877@oksbi&pn=Sambhav&cu=INR" class="upi-btn">
+                ⚡ Pay via UPI App
+            </a>
+            
+            <p style="font-size: 0.75rem; color: #94a3b8; margin-top: 10px;">
+                Works with GPay, PhonePe, Paytm
+            </p>
+        </div>
+
     </div>
 
     <footer>
         <p>Sponsored</p>
-        <div class="ad-container">
+        <div class="ad-container reveal">
             <script type="text/javascript">
                 atOptions = {
                     'key' : '34c1057749a4a60f3cbfef67e3b853e0',
@@ -295,6 +393,28 @@
         </div>
     </footer>
     <script>
+        // --- ANIMATION SCRIPT ---
+        function triggerAnimations() {
+            const reveals = document.querySelectorAll(".reveal");
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("active");
+                    }
+                });
+            }, {
+                threshold: 0.1 // Trigger when 10% of element is visible
+            });
+
+            reveals.forEach((element) => {
+                observer.observe(element);
+            });
+        }
+        
+        // Run animation check on load
+        window.addEventListener('load', triggerAnimations);
+        // ------------------------
+
         // Logic Script
         let g_present = 0;
         let g_total = 0;
@@ -343,7 +463,12 @@
             document.getElementById('absentResult').innerText = "";
             document.getElementById('targetResult').innerText = "";
             
-            document.getElementById('dashboard').style.display = 'block';
+            const dashboard = document.getElementById('dashboard');
+            dashboard.style.display = 'block';
+            
+            // Re-trigger animations for the newly revealed dashboard elements
+            // Slight delay to ensure DOM is updated
+            setTimeout(triggerAnimations, 100); 
         }
 
         // Tool 1: Future Present (Increases Present AND Total)
