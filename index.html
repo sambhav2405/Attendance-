@@ -10,14 +10,15 @@
     
     <style>
         :root {
-            --primary: #4f46e5;
-            --secondary: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --bg: #f3f4f6;
-            --card: #ffffff;
-            --text: #1f2937;
-        }
+    --primary: #059669;   /* Deep Forest Green */
+    --secondary: #0ea5e9; /* Sky Blue */
+    --danger: #dc2626;    /* Red */
+    --warning: #ca8a04;   /* Dark Gold */
+    
+    --bg: #f0fdf4;        /* Very light Mint Green tint */
+    --card: #ffffff;      /* White */
+    --text: #064e3b;      /* Dark Green text */
+}
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -239,28 +240,6 @@
             min-height: 20px;
         }
         
-        /* Auto Copy Box */
-        .copy-box {
-            background: #e0e7ff;
-            border: 1px solid #c7d2fe;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-size: 0.85rem;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        .copy-code {
-            background: #fff;
-            padding: 5px;
-            border-radius: 4px;
-            font-family: monospace;
-            word-break: break-all;
-            display: block;
-            margin-top: 5px;
-            user-select: all;
-        }
-
         footer {
             margin-top: 30px;
             text-align: center;
@@ -292,12 +271,6 @@
         <div class="cgpa-container">
             <a href="https://cgpa-1sem.netlify.app/" target="_blank" class="cgpa-btn">1st Sem CGPA</a>
             <a href="https://bestcgpa.netlify.app/" target="_blank" class="cgpa-btn">3rd Sem CGPA</a>
-        </div>
-
-        <div class="copy-box">
-            <strong>🚀 Quick Load Feature:</strong><br>
-            Bookmark this code. Click it when you are on the SKIT ERP Attendance page to auto-copy data!
-            <code class="copy-code">javascript:(function(){const t=document.body.innerText;navigator.clipboard.writeText(t).then(()=>{alert('Copied! Open App.')}).catch(e=>{prompt('Press Ctrl+C:',t)})})();</code>
         </div>
 
         <p style="font-size: 0.9rem; color: #666; width: 100%;">Paste full attendance report below:</p>
@@ -504,5 +477,4 @@
         }
     </script>
 </body>
-
 </html>
