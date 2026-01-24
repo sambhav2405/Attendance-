@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SKIT Attendance Manager</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4f46e5">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2921/2921222.png">
+    
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg: #f3f4f6;
+            --card: #ffffff;
+            --text: #1f2937;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* --- ANIMATION CLASSES --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .ad-container {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            overflow: hidden; 
+        }
+
+        .container {
+            background: var(--card);
+            width: 100%;
+            max-width: 650px;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            width: 100%;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        .cgpa-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .cgpa-btn {
+            background-color: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .cgpa-btn:hover {
+            background-color: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+        }
+
+        .donation-box {
+            margin-top: 30px;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            border: 2px dashed #cbd5e1;
+            width: 100%;
+            max-width: 280px;
+        }
+
+        .donation-title { font-weight: 700; color: #374151; margin-bottom: 15px; }
+        .qr-image { width: 160px; height: 160px; border-radius: 8px; border: 4px solid #fff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+
+        .upi-btn {
+            background-color: #2563EB;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 15px;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+            transition: transform 0.2s;
+        }
+        .upi-btn:hover { transform: translateY(-2px); background-color: #1d4ed8; }
+
+        .section-title {
+            font-weight: 700;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            color: #374151;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 5px;
+            width: 100%;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+
+        .btn-main {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: 0.2s;
+        }
+        .btn-main:hover { background-color: #4338ca; }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+            padding: 10px;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        #dashboard {
+            display: none;
+            margin-top: 2rem;
+            width: 100%;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            text-align: center;
+        }
+
+        .big-percent { font-size: 2.5rem; font-weight: 800; color: var(--primary); }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .tool-card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .result-text {
+            margin-top: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--primary);
+            min-height: 20px;
+        }
+        
+        /* Auto Copy Box */
+        .copy-box {
+            background: #e0e7ff;
+            border: 1px solid #c7d2fe;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .copy-code {
+            background: #fff;
+            padding: 5px;
+            border-radius: 4px;
+            font-family: monospace;
+            word-break: break-all;
+            display: block;
+            margin-top: 5px;
+            user-select: all;
+        }
+
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #888;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ad-container reveal">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : '34c1057749a4a60f3cbfef67e3b853e0',
+                'format' : 'iframe',
+                'height' : 90,
+                'width' : 728,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/34c1057749a4a60f3cbfef67e3b853e0/invoke.js"></script>
+    </div>
+    
+    <div class="container reveal">
+        <h1>SKIT Attendance Manager</h1>
+        <p class="subtitle">Calculates Safe Bunks, Targets & More</p>
+        
+        <div class="cgpa-container">
+            <a href="https://cgpa-1sem.netlify.app/" target="_blank" class="cgpa-btn">1st Sem CGPA</a>
+            <a href="https://bestcgpa.netlify.app/" target="_blank" class="cgpa-btn">3rd Sem CGPA</a>
+        </div>
+
+        <div class="copy-box">
+            <strong>🚀 Quick Load Feature:</strong><br>
+            Bookmark this code. Click it when you are on the SKIT ERP Attendance page to auto-copy data!
+            <code class="copy-code">javascript:(function(){const t=document.body.innerText;navigator.clipboard.writeText(t).then(()=>{alert('Copied! Open App.')}).catch(e=>{prompt('Press Ctrl+C:',t)})})();</code>
+        </div>
+
+        <p style="font-size: 0.9rem; color: #666; width: 100%;">Paste full attendance report below:</p>
+        <textarea id="inputData" placeholder="Present | OD | Makeup | Absent | % ..."></textarea>
+        
+        <button class="btn-main" onclick="processReport()"> Load Report Data</button>
+
+        <div id="dashboard">
+            <div class="section-title reveal">Current Status</div>
+            <div class="stat-box reveal">
+                <div>Overall Percentage</div>
+                <div class="big-percent" id="currentPercent">0%</div>
+                <div class="stat-grid" style="margin-bottom: 0; margin-top: 10px;">
+                    <div>Present: <span id="currentPresent">0</span></div>
+                    <div>Total: <span id="currentTotal">0</span></div>
+                </div>
+            </div>
+
+            <div class="tools-grid">
+                <div class="tool-card reveal">
+                    <div>
+                        <div style="font-weight: bold; margin-bottom:5px; color:var(--secondary);">Attend Future</div>
+                        <label style="font-size:0.8rem;">Add Classes:</label>
+                        <input type="number" id="futureInput" placeholder="Ex: 5">
+                    </div>
+                    <div>
+                        <button class="btn-secondary" onclick="predictFuture()">Check Increase</button>
+                        <div id="futureResult" class="result-text"></div>
+                    </div>
+                </div>
+
+                <div class="tool-card reveal">
+                    <div>
+                        <div style="font-weight: bold; margin-bottom:5px; color:var(--warning);">Safe Bunk?</div>
+                        <label style="font-size:0.8rem;">Miss Classes:</label>
+                        <input type="number" id="absentInput" placeholder="Ex: 2">
+                    </div>
+                    <div>
+                        <button class="btn-secondary" style="background-color: var(--warning);" onclick="predictAbsent()">Check Drop</button>
+                        <div id="absentResult" class="result-text" style="color: var(--warning);"></div>
+                    </div>
+                </div>
+
+                <div class="tool-card reveal">
+                    <div>
+                        <div style="font-weight: bold; margin-bottom:5px; color:var(--danger);">Target Calculator</div>
+                        <label style="font-size:0.8rem;">Desired %:</label>
+                        <input type="number" id="targetInput" placeholder="Ex: 75">
+                    </div>
+                    <div>
+                        <button class="btn-secondary" style="background-color: var(--danger);" onclick="calculateRequired()">Calculate 'X'</button>
+                        <div id="targetResult" class="result-text" style="color: var(--danger);"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="donation-box reveal">
+            <div class="donation-title">Support the Developer 🚀</div>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=upi%3A%2F%2Fpay%3Fpa%3Djainsambhav877%40oksbi%26pn%3DSambhav%26cu%3DINR" alt="Scan to Pay" class="qr-image">
+            <br>
+            <div style="margin-top:10px; font-family:monospace; background:#e2e8f0; padding:4px 8px; border-radius:4px; display:inline-block; font-size:0.8rem;">jainsambhav877@oksbi</div>
+            <br>
+            <a href="upi://pay?pa=jainsambhav877@oksbi&pn=Sambhav&cu=INR" class="upi-btn">⚡ Pay via UPI App</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>Sponsored</p>
+        <div class="ad-container reveal">
+            <script type="text/javascript">
+                atOptions = {
+                    'key' : '34c1057749a4a60f3cbfef67e3b853e0',
+                    'format' : 'iframe',
+                    'height' : 90,
+                    'width' : 728,
+                    'params' : {}
+                };
+            </script>
+            <script type="text/javascript" src="//www.highperformanceformat.com/34c1057749a4a60f3cbfef67e3b853e0/invoke.js"></script>
+        </div>
+    </footer>
+
+    <script>
+        // --- ANIMATION SCRIPT ---
+        function triggerAnimations() {
+            const reveals = document.querySelectorAll(".reveal");
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) entry.target.classList.add("active");
+                });
+            }, { threshold: 0.1 });
+            reveals.forEach((element) => observer.observe(element));
+        }
+
+        // --- PWA: REGISTER SERVICE WORKER ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('SW Registered'))
+                    .catch(err => console.log('SW Fail:', err));
+            });
+        }
+
+        // --- MAIN LOGIC ---
+        let g_present = 0;
+        let g_total = 0;
+
+        window.addEventListener('load', () => {
+            triggerAnimations();
+            // Load from LocalStorage
+            const savedData = localStorage.getItem('skit_attendance_data');
+            if (savedData) {
+                document.getElementById('inputData').value = savedData;
+                processReport(false); 
+                console.log("Data restored.");
+            }
+        });
+
+        function processReport(showAlert = true) {
+            const text = document.getElementById('inputData').value;
+            const lines = text.split('\n');
+            let totalClasses = 0;
+            let totalAttended = 0;
+            let found = false;
+            
+            const regex = /(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+([0-9.]+)$/;
+
+            lines.forEach(line => {
+                const match = line.trim().match(regex);
+                if (match) {
+                    found = true;
+                    const present = parseInt(match[1]);
+                    const od = parseInt(match[2]);
+                    const makeup = parseInt(match[3]);
+                    const absent = parseInt(match[4]);
+                    
+                    const attended = present + od + makeup;
+                    const totalSubject = attended + absent;
+                    
+                    totalAttended += attended;
+                    totalClasses += totalSubject;
+                }
+            });
+
+            if (!found) {
+                if(showAlert) alert("Please paste the full table from SKIT ERP.");
+                return;
+            }
+
+            // Save to LocalStorage
+            localStorage.setItem('skit_attendance_data', text);
+
+            g_present = totalAttended;
+            g_total = totalClasses;
+
+            document.getElementById('currentPresent').innerText = g_present;
+            document.getElementById('currentTotal').innerText = g_total;
+            document.getElementById('currentPercent').innerText = ((g_present / g_total) * 100).toFixed(2) + "%";
+            
+            // Clear tools
+            document.getElementById('futureResult').innerText = "";
+            document.getElementById('absentResult').innerText = "";
+            document.getElementById('targetResult').innerText = "";
+            
+            document.getElementById('dashboard').style.display = 'block';
+            setTimeout(triggerAnimations, 100); 
+        }
+
+        function predictFuture() {
+            const extra = parseInt(document.getElementById('futureInput').value);
+            if (isNaN(extra) || extra < 0) return;
+            const newPresent = g_present + extra;
+            const newTotal = g_total + extra;
+            const newPercent = (newPresent / newTotal) * 100;
+            document.getElementById('futureResult').innerHTML = `New: ${newPercent.toFixed(2)}%`;
+        }
+
+        function predictAbsent() {
+            const missed = parseInt(document.getElementById('absentInput').value);
+            if (isNaN(missed) || missed < 0) return;
+            const newTotal = g_total + missed;
+            const newPercent = (g_present / newTotal) * 100;
+            const drop = ((g_present / g_total) * 100) - newPercent;
+            document.getElementById('absentResult').innerHTML = `New: ${newPercent.toFixed(2)}% (Drop: ${drop.toFixed(2)}%)`;
+        }
+
+        function calculateRequired() {
+            const target = parseFloat(document.getElementById('targetInput').value);
+            if (isNaN(target) || target <= 0 || target > 100) return;
+            const currentPercent = (g_present / g_total) * 100;
+            if (currentPercent >= target) {
+                document.getElementById('targetResult').innerText = "Target Achieved! 🎉";
+                return;
+            }
+            const T = target / 100;
+            if (T >= 1) {
+                document.getElementById('targetResult').innerText = "Impossible.";
+                return;
+            }
+            let x = (T * g_total - g_present) / (1 - T);
+            x = Math.ceil(x);
+            document.getElementById('targetResult').innerHTML = `Need <b>${x}</b> classes`;
+        }
+    </script>
+</body>
+
+</html>
