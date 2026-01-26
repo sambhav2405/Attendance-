@@ -1,487 +1,531 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4XQ0JK7ELF"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-4XQ0JK7ELF');
+    </script>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SKIT Attendance Manager</title>
-    <link rel="manifest" href="manifest.json">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SKIT Attendance Pro</title>
     <meta name="theme-color" content="#4f46e5">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2921/2921222.png">
     
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
     <style>
-     :root {
-    --primary: #059669;   /* Deep Forest Green */
-    --secondary: #0ea5e9; /* Sky Blue */
-    --danger: #dc2626;    /* Red */
-    --warning: #ca8a04;   /* Dark Gold */
-    
-    --bg: #f0fdf4;        /* Very light Mint Green tint */
-    --card: #ffffff;      /* White */
-    --text: #064e3b;      /* Dark Green text */
-}
+        :root {
+            --theme-color: #4f46e5; 
+            --glass-bg: rgba(255, 255, 255, 0.90);
+            --glass-border: rgba(255, 255, 255, 0.6);
+            --text-main: #1f2937;
+            --text-light: #6b7280;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            font-family: 'Poppins', sans-serif;
+            /* Midnight Bloom Background */
+            background-color: #000428;
+            background-image: linear-gradient(135deg, #000428 0%, #004e92 50%, #6a11cb 100%);
+            background-attachment: fixed;
+            background-size: cover;
+            color: var(--text-main);
             min-height: 100vh;
             margin: 0;
-            padding: 20px;
-            overflow-x: hidden;
-        }
-
-        /* --- ANIMATION CLASSES --- */
-        .reveal {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .ad-container {
-            margin: 20px 0;
-            display: flex;
-            justify-content: center;
-            width: 100%;
-            overflow: hidden; 
-        }
-
-        .container {
-            background: var(--card);
-            width: 100%;
-            max-width: 650px;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 20px 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
-        h1 {
-            text-align: center;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
+        /* --- Glassmorphism Card --- */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
             width: 100%;
+            max-width: 600px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
         }
 
+        /* --- Header --- */
+        h1 {
+            font-size: 1.5rem;
+            text-align: center;
+            margin: 0 0 5px 0;
+            color: var(--theme-color);
+            font-weight: 700;
+        }
+        
         .subtitle {
             text-align: center;
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 20px;
         }
 
-        .cgpa-container {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .cgpa-btn {
-            background-color: transparent;
-            border: 2px solid var(--primary);
-            color: var(--primary);
-            padding: 8px 16px;
-            border-radius: 20px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
-        }
-
-        .cgpa-btn:hover {
-            background-color: var(--primary);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
-        }
-
-        .donation-box {
-            margin-top: 30px;
-            background: #f8fafc;
-            padding: 20px;
-            border-radius: 16px;
-            text-align: center;
-            border: 2px dashed #cbd5e1;
-            width: 100%;
-            max-width: 280px;
-        }
-
-        .donation-title { font-weight: 700; color: #374151; margin-bottom: 15px; }
-        .qr-image { width: 160px; height: 160px; border-radius: 8px; border: 4px solid #fff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-
-        .upi-btn {
-            background-color: #2563EB;
-            color: white;
-            padding: 10px 24px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            display: inline-block;
-            margin-top: 15px;
-            font-size: 0.95rem;
-            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
-            transition: transform 0.2s;
-        }
-        .upi-btn:hover { transform: translateY(-2px); background-color: #1d4ed8; }
-
-        .section-title {
-            font-weight: 700;
-            margin-top: 20px;
-            margin-bottom: 10px;
-            color: #374151;
-            border-bottom: 2px solid #e5e7eb;
-            padding-bottom: 5px;
-            width: 100%;
-        }
-
+        /* --- Inputs --- */
         textarea {
             width: 100%;
-            height: 120px;
-            padding: 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
+            height: 100px;
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px solid #e5e7eb;
             font-family: monospace;
-            font-size: 0.85rem;
-            resize: vertical;
-            box-sizing: border-box;
+            font-size: 0.9rem;
+            resize: none;
+            transition: border 0.2s;
+            outline: none;
         }
+        
+        textarea:focus { border-color: var(--theme-color); }
 
         .btn-main {
             width: 100%;
-            padding: 12px;
-            background-color: var(--primary);
+            padding: 14px;
+            background: var(--theme-color);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 1rem;
-            transition: 0.2s;
-        }
-        .btn-main:hover { background-color: #4338ca; }
-
-        .btn-secondary {
-            background-color: var(--secondary);
-            padding: 10px;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            width: 100%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s, background 0.2s;
             margin-top: 10px;
         }
 
-        #dashboard {
-            display: none;
-            margin-top: 2rem;
-            width: 100%;
+        .btn-main:active { transform: scale(0.98); }
+
+        /* --- Dashboard --- */
+        #dashboard { display: none; animation: slideUp 0.5s ease; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .stat-grid {
+        /* --- Score Circle --- */
+        .score-circle {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border: 5px solid var(--theme-color);
+        }
+
+        .score-val { font-size: 2.2rem; font-weight: 800; color: var(--theme-color); }
+        
+        .status-badge {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--theme-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .funny-msg {
+            text-align: center;
+            font-size: 0.9rem;
+            font-style: italic;
+            color: #555;
+            margin-bottom: 20px;
+            background: rgba(255,255,255,0.5);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        /* --- Stats Grid --- */
+        .stats-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
             margin-bottom: 20px;
         }
 
-        .stat-box {
+        .stat-item {
             background: #f9fafb;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #e5e7eb;
+            padding: 10px;
+            border-radius: 12px;
             text-align: center;
         }
+        .stat-val { font-weight: 700; font-size: 1.1rem; color: #333; }
+        .stat-label { font-size: 0.8rem; color: #777; }
 
-        .big-percent { font-size: 2.5rem; font-weight: 800; color: var(--primary); }
-
-        .tools-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
+        /* --- Tools Section --- */
+        .tool-header {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin: 15px 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
-        .tool-card {
-            background: #fff;
-            border: 1px solid #e5e7eb;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        .tool-row {
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 5px;
         }
 
         input[type="number"] {
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            border: 1px solid #d1d5db;
-            border-radius: 4px;
-            box-sizing: border-box;
+            width: 70px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
         }
 
-        .result-text {
-            margin-top: 10px;
+        .btn-action {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: #eef2ff;
+            color: var(--theme-color);
             font-weight: 600;
             font-size: 0.9rem;
-            color: var(--primary);
-            min-height: 20px;
+            cursor: pointer;
         }
         
-        footer {
-            margin-top: 30px;
-            text-align: center;
-            font-size: 0.8rem;
-            color: #888;
-            width: 100%;
+        .result-text {
+            font-size: 0.85rem; 
+            color: #666; 
+            margin-bottom: 15px; 
+            margin-left: 2px;
         }
+
+        /* --- Share Button --- */
+        .btn-share {
+            background: #25D366; /* WhatsApp Green */
+            color: white;
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+        }
+
+        /* --- QR Section --- */
+        .qr-container {
+            margin-top: 15px;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            display: inline-block;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* --- Helper Classes for Colors --- */
+        .color-elite { --theme-color: #059669; } /* Green */
+        .color-safe { --theme-color: #0ea5e9; } /* Blue */
+        .color-risky { --theme-color: #f59e0b; } /* Orange */
+        .color-danger { --theme-color: #ea580c; } /* Dark Orange */
+        .color-critical { --theme-color: #dc2626; } /* Red */
+
     </style>
 </head>
 <body>
 
-    <div class="ad-container reveal">
-        <script type="text/javascript">
-            atOptions = {
-                'key' : '34c1057749a4a60f3cbfef67e3b853e0',
-                'format' : 'iframe',
-                'height' : 90,
-                'width' : 728,
-                'params' : {}
-            };
-        </script>
-        <script type="text/javascript" src="//www.highperformanceformat.com/34c1057749a4a60f3cbfef67e3b853e0/invoke.js"></script>
-    </div>
-    
-    <div class="container reveal">
-        <h1>SKIT Attendance Manager</h1>
-        <p class="subtitle">Calculates Safe Bunks, Targets & More</p>
-        
-        <div class="cgpa-container">
-            <a href="https://cgpa-1sem.netlify.app/" target="_blank" class="cgpa-btn">1st Sem CGPA</a>
-            <a href="https://bestcgpa.netlify.app/" target="_blank" class="cgpa-btn">3rd Sem CGPA</a>
+    <div class="glass-card" id="mainContainer">
+        <h1>SKIT Attendance Pro</h1>
+        <p class="subtitle">Smart Tracker & Bunk Predictor</p>
+
+        <div id="inputSection">
+            <p style="font-size: 0.9rem; color: #555; margin-bottom: 8px;">
+                <i class="fas fa-clipboard"></i> Paste Full Report:
+            </p>
+            <textarea id="inputData" placeholder="Copy table from ERP and paste here..."></textarea>
+            <button class="btn-main" onclick="processReport()">Calculate My Fate 🚀</button>
+            <div style="text-align:center; margin-top:15px;">
+                 <a href="https://erp.skit.ac.in/reports/student_aggregate" style="color:#666; font-size:0.8rem; text-decoration:none;">Where do I copy from?</a>
+            </div>
         </div>
-<img 
-  src="Gallery_1769264131620.png" 
-  alt="Attendance Copy Guide"
-  style="width:100%; max-width:500px; margin-bottom:15px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.15);"
-/>
-        <p style="font-size: 0.9rem; color: #666; width: 100%;">Paste full attendance report below:</p>
-        <textarea id="inputData" placeholder="Present | OD | Makeup | Absent | % ..."></textarea>
-        
-        <button class="btn-main" onclick="processReport()"> Load Report Data</button>
 
         <div id="dashboard">
-            <div class="section-title reveal">Current Status</div>
-            <div class="stat-box reveal">
-                <div>Overall Percentage</div>
-                <div class="big-percent" id="currentPercent">0%</div>
-                <div class="stat-grid" style="margin-bottom: 0; margin-top: 10px;">
-                    <div>Present: <span id="currentPresent">0</span></div>
-                    <div>Total: <span id="currentTotal">0</span></div>
+            
+            <div class="status-badge" id="statusBadge">Checking...</div>
+            
+            <div class="score-circle">
+                <span class="score-val" id="percentDisplay">0%</span>
+            </div>
+
+            <div class="funny-msg" id="funnyMsg">"Calculating..."</div>
+
+            <div class="stats-row">
+                <div class="stat-item">
+                    <div class="stat-val" id="attendedVal">0</div>
+                    <div class="stat-label">Attended</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-val" id="totalVal">0</div>
+                    <div class="stat-label">Total Held</div>
                 </div>
             </div>
 
-            <div class="tools-grid">
-                <div class="tool-card reveal">
-                    <div>
-                        <div style="font-weight: bold; margin-bottom:5px; color:var(--secondary);">Attend Future</div>
-                        <label style="font-size:0.8rem;">Add Classes:</label>
-                        <input type="number" id="futureInput" placeholder="Ex: 5">
-                    </div>
-                    <div>
-                        <button class="btn-secondary" onclick="predictFuture()">Check Increase</button>
-                        <div id="futureResult" class="result-text"></div>
-                    </div>
-                </div>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
 
-                <div class="tool-card reveal">
-                    <div>
-                        <div style="font-weight: bold; margin-bottom:5px; color:var(--warning);">Safe Bunk?</div>
-                        <label style="font-size:0.8rem;">Miss Classes:</label>
-                        <input type="number" id="absentInput" placeholder="Ex: 2">
-                    </div>
-                    <div>
-                        <button class="btn-secondary" style="background-color: var(--warning);" onclick="predictAbsent()">Check Drop</button>
-                        <div id="absentResult" class="result-text" style="color: var(--warning);"></div>
-                    </div>
-                </div>
-
-                <div class="tool-card reveal">
-                    <div>
-                        <div style="font-weight: bold; margin-bottom:5px; color:var(--danger);">Target Calculator</div>
-                        <label style="font-size:0.8rem;">Desired %:</label>
-                        <input type="number" id="targetInput" placeholder="Ex: 75">
-                    </div>
-                    <div>
-                        <button class="btn-secondary" style="background-color: var(--danger);" onclick="calculateRequired()">Calculate 'X'</button>
-                        <div id="targetResult" class="result-text" style="color: var(--danger);"></div>
-                    </div>
-                </div>
+            <div class="tool-header" style="color: #2563EB;">
+                <i class="fas fa-plus-circle"></i> Attend Future Classes
             </div>
-        </div>
+            <div class="tool-row">
+                <input type="number" id="futureInput" placeholder="Days">
+                <button class="btn-action" style="background:#eff6ff; color:#2563EB;" onclick="checkFuture()">Check Boost 🚀</button>
+            </div>
+            <div id="futureResult" class="result-text"></div>
 
-        <div class="donation-box reveal">
-            <div class="donation-title">Support the Developer 🚀</div>
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=upi%3A%2F%2Fpay%3Fpa%3Djainsambhav877%40oksbi%26pn%3DSambhav%26cu%3DINR" alt="Scan to Pay" class="qr-image">
-            <br>
-            <div style="margin-top:10px; font-family:monospace; background:#e2e8f0; padding:4px 8px; border-radius:4px; display:inline-block; font-size:0.8rem;">jainsambhav877@oksbi</div>
-            <br>
-            <a href="upi://pay?pa=jainsambhav877@oksbi&pn=Sambhav&cu=INR" class="upi-btn">⚡ Pay via UPI App</a>
+            <div class="tool-header" style="color: #f59e0b;">
+                <i class="fas fa-bed"></i> Can I Bunk?
+            </div>
+            <div class="tool-row">
+                <input type="number" id="bunkInput" placeholder="Days">
+                <button class="btn-action" style="background:#fffbeb; color:#f59e0b;" onclick="checkBunk()">Check Drop 📉</button>
+            </div>
+            <div id="bunkResult" class="result-text"></div>
+
+            <div class="tool-header" style="color: #059669;">
+                <i class="fas fa-bullseye"></i> Reach Target
+            </div>
+            <div class="tool-row">
+                <input type="number" id="targetInput" placeholder="75%">
+                <button class="btn-action" style="background:#ecfdf5; color:#059669;" onclick="calcTarget()">Classes Needed 📈</button>
+            </div>
+            <div id="targetResult" class="result-text"></div>
+
+            <button class="btn-share" onclick="shareResult()">
+                <i class="fab fa-whatsapp"></i> Share Status
+            </button>
+            
+            <button style="background:transparent; border:none; color:#666; width:100%; margin-top:15px; font-size:0.8rem; text-decoration:underline;" onclick="resetApp()">
+                Check Another
+            </button>
         </div>
     </div>
 
-    <footer>
-        <p>Sponsored</p>
-        <div class="ad-container reveal">
-            <script type="text/javascript">
-                atOptions = {
-                    'key' : '34c1057749a4a60f3cbfef67e3b853e0',
-                    'format' : 'iframe',
-                    'height' : 90,
-                    'width' : 728,
-                    'params' : {}
-                };
-            </script>
-            <script type="text/javascript" src="//www.highperformanceformat.com/34c1057749a4a60f3cbfef67e3b853e0/invoke.js"></script>
+    <div class="glass-card" style="text-align: center; padding: 20px;">
+        <p style="margin: 0; font-weight: 600; font-size: 0.9rem;">Enjoying the Safe Bunks?</p>
+        <p style="font-size: 0.8rem; color: #666; margin-bottom: 15px;">Support the Developer ☕</p>
+        
+        <div class="qr-container">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=jainsambhav877@oksbi&pn=Sambhav&cu=INR" 
+                 alt="Scan to Pay" width="150" height="150">
         </div>
-    </footer>
+        
+        <br><br>
+        <a href="upi://pay?pa=jainsambhav877@oksbi&pn=Sambhav&cu=INR" 
+           style="background:#2563EB; color:white; padding:10px 24px; border-radius:30px; text-decoration:none; font-size:0.9rem; font-weight:600; display:inline-block; box-shadow: 0 4px 10px rgba(37,99,235,0.3);">
+           Pay via UPI App
+        </a>
+    </div>
 
     <script>
-        // --- ANIMATION SCRIPT ---
-        function triggerAnimations() {
-            const reveals = document.querySelectorAll(".reveal");
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) entry.target.classList.add("active");
-                });
-            }, { threshold: 0.1 });
-            reveals.forEach((element) => observer.observe(element));
-        }
-
-        // --- PWA: REGISTER SERVICE WORKER ---
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('SW Registered'))
-                    .catch(err => console.log('SW Fail:', err));
-            });
-        }
-
-        // --- MAIN LOGIC ---
+        // Global Variables
         let g_present = 0;
         let g_total = 0;
+        let g_percent = 0;
 
+        // On Load
         window.addEventListener('load', () => {
-            triggerAnimations();
-            // Load from LocalStorage
-            const savedData = localStorage.getItem('skit_attendance_data');
-            if (savedData) {
-                document.getElementById('inputData').value = savedData;
-                processReport(false); 
-                console.log("Data restored.");
+            const saved = localStorage.getItem('skit_data');
+            if(saved) {
+                document.getElementById('inputData').value = saved;
             }
         });
 
-        function processReport(showAlert = true) {
+        function resetApp() {
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('inputSection').style.display = 'block';
+            document.getElementById('inputData').value = "";
+            localStorage.removeItem('skit_data');
+            
+            // Clear inputs
+            document.getElementById('futureInput').value = "";
+            document.getElementById('bunkInput').value = "";
+            document.getElementById('targetInput').value = "";
+            
+            // Clear results
+            document.getElementById('futureResult').innerText = "";
+            document.getElementById('bunkResult').innerText = "";
+            document.getElementById('targetResult').innerText = "";
+        }
+
+        function processReport() {
             const text = document.getElementById('inputData').value;
             const lines = text.split('\n');
             let totalClasses = 0;
             let totalAttended = 0;
             let found = false;
             
+            // Regex to parse ERP lines
             const regex = /(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+([0-9.]+)$/;
 
             lines.forEach(line => {
                 const match = line.trim().match(regex);
                 if (match) {
                     found = true;
-                    const present = parseInt(match[1]);
-                    const od = parseInt(match[2]);
-                    const makeup = parseInt(match[3]);
+                    const attended = parseInt(match[1]) + parseInt(match[2]) + parseInt(match[3]);
                     const absent = parseInt(match[4]);
-                    
-                    const attended = present + od + makeup;
-                    const totalSubject = attended + absent;
-                    
                     totalAttended += attended;
-                    totalClasses += totalSubject;
+                    totalClasses += (attended + absent);
                 }
             });
 
             if (!found) {
-                if(showAlert) alert("Please paste the full table from SKIT ERP.");
+                alert("❌ Data not found! Please copy the full table from SKIT ERP.");
                 return;
             }
 
-            // Save to LocalStorage
-            localStorage.setItem('skit_attendance_data', text);
+            localStorage.setItem('skit_data', text);
 
             g_present = totalAttended;
             g_total = totalClasses;
+            g_percent = ((g_present / g_total) * 100).toFixed(2);
 
-            document.getElementById('currentPresent').innerText = g_present;
-            document.getElementById('currentTotal').innerText = g_total;
-            document.getElementById('currentPercent').innerText = ((g_present / g_total) * 100).toFixed(2) + "%";
+            updateDashboard();
+        }
+
+        function updateDashboard() {
+            const mainCard = document.getElementById('mainContainer');
+            const statusBadge = document.getElementById('statusBadge');
+            const funnyMsg = document.getElementById('funnyMsg');
             
-            // Clear tools
-            document.getElementById('futureResult').innerText = "";
-            document.getElementById('absentResult').innerText = "";
-            document.getElementById('targetResult').innerText = "";
-            
+            document.getElementById('attendedVal').innerText = g_present;
+            document.getElementById('totalVal').innerText = g_total;
+            document.getElementById('percentDisplay').innerText = g_percent + "%";
+
+            // Categorization Logic
+            let msg = "";
+            let themeClass = "";
+            let badgeText = "";
+            const p = parseFloat(g_percent);
+
+            mainCard.classList.remove('color-elite', 'color-safe', 'color-risky', 'color-danger', 'color-critical');
+
+            if (p >= 85) {
+                themeClass = "color-elite";
+                badgeText = "👑 ELITE STUDENT";
+                msg = "Attendance itni high ki HOD bhi autograph maange. Nerd Alert! 🤓";
+            } else if (p >= 75) {
+                themeClass = "color-safe";
+                badgeText = "😎 SAFE ZONE";
+                msg = "Perfect balance. Life set hai, bas maintain rakhna bhai. ✨";
+            } else if (p >= 65) {
+                themeClass = "color-risky";
+                badgeText = "⚠️ WARNING ZONE";
+                msg = "Living on the edge? Ek-do bunk aur game over. Sambhal ja! 🛑";
+            } else if (p >= 45) {
+                themeClass = "color-danger";
+                badgeText = "🔥 DANGER ZONE";
+                msg = "HOD Room loading... Mummy ko call aane wala hai. Prayers sent. 🙏";
+            } else {
+                themeClass = "color-critical";
+                badgeText = "💀 LEGENDARY";
+                msg = "College is temporary, Backlogs are permanent. Next sem phodenge! 🗿";
+            }
+
+            mainCard.classList.add(themeClass);
+            statusBadge.innerText = badgeText;
+            funnyMsg.innerText = `"${msg}"`;
+
+            document.getElementById('inputSection').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
-            setTimeout(triggerAnimations, 100); 
         }
 
-        function predictFuture() {
+        // --- Tool: Attend Future ---
+        function checkFuture() {
             const extra = parseInt(document.getElementById('futureInput').value);
-            if (isNaN(extra) || extra < 0) return;
-            const newPresent = g_present + extra;
+            if(!extra) return;
+            
             const newTotal = g_total + extra;
+            const newPresent = g_present + extra;
             const newPercent = (newPresent / newTotal) * 100;
-            document.getElementById('futureResult').innerHTML = `New: ${newPercent.toFixed(2)}%`;
+            const boost = newPercent - parseFloat(g_percent);
+            
+            document.getElementById('futureResult').innerHTML = 
+                `New %: <b>${newPercent.toFixed(2)}%</b> <span style="color:var(--theme-color)">(+${boost.toFixed(2)}%)</span>`;
         }
 
-        function predictAbsent() {
-            const missed = parseInt(document.getElementById('absentInput').value);
-            if (isNaN(missed) || missed < 0) return;
-            const newTotal = g_total + missed;
+        // --- Tool: Bunk ---
+        function checkBunk() {
+            const bunk = parseInt(document.getElementById('bunkInput').value);
+            if(!bunk) return;
+            
+            const newTotal = g_total + bunk;
             const newPercent = (g_present / newTotal) * 100;
-            const drop = ((g_present / g_total) * 100) - newPercent;
-            document.getElementById('absentResult').innerHTML = `New: ${newPercent.toFixed(2)}% (Drop: ${drop.toFixed(2)}%)`;
+            const drop = parseFloat(g_percent) - newPercent;
+            
+            document.getElementById('bunkResult').innerHTML = 
+                `New %: <b>${newPercent.toFixed(2)}%</b> <span style="color:red">(-${drop.toFixed(2)}%)</span>`;
         }
 
-        function calculateRequired() {
+        // --- Tool: Target ---
+        function calcTarget() {
             const target = parseFloat(document.getElementById('targetInput').value);
-            if (isNaN(target) || target <= 0 || target > 100) return;
-            const currentPercent = (g_present / g_total) * 100;
-            if (currentPercent >= target) {
-                document.getElementById('targetResult').innerText = "Target Achieved! 🎉";
-                return;
+            if(!target) return;
+            
+            const p = target / 100;
+            if(p >= 1 || target <= parseFloat(g_percent)) {
+                 document.getElementById('targetResult').innerText = "Target already met or invalid!";
+                 return;
             }
-            const T = target / 100;
-            if (T >= 1) {
-                document.getElementById('targetResult').innerText = "Impossible.";
-                return;
+
+            let required = (p * g_total - g_present) / (1 - p);
+            required = Math.ceil(required);
+            
+            document.getElementById('targetResult').innerHTML = 
+                `You need to attend <b>${required}</b> more classes continuously.`;
+        }
+
+        // --- Share Logic ---
+        function shareResult() {
+            const p = parseFloat(g_percent);
+            let shareText = "";
+
+            if (p >= 85) shareText = `🤓 My Attendance is ${p}%. I attend classes so you don't have to. #SKITTopper`;
+            else if (p >= 75) shareText = `😎 My Attendance is ${p}%. Chill vibes only. Safe Zone. #SKITManager`;
+            else if (p >= 65) shareText = `💀 My Attendance is ${p}%. Risk hai toh Ishq hai. #LivingOnEdge`;
+            else if (p >= 45) shareText = `🆘 My Attendance is ${p}%. Send prayers, HOD is watching. #DangerZone`;
+            else shareText = `🗿 My Attendance is ${p}%. Legend status achieved. #BacklogWarrior`;
+
+            shareText += `\n\nCheck yours here: https://skit-attendance.netlify.app`; // Put your real URL here
+
+            if (navigator.share) {
+                navigator.share({
+                    title: 'SKIT Attendance Status',
+                    text: shareText
+                }).catch(console.error);
+            } else {
+                window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
             }
-            let x = (T * g_total - g_present) / (1 - T);
-            x = Math.ceil(x);
-            document.getElementById('targetResult').innerHTML = `Need <b>${x}</b> classes`;
         }
     </script>
 </body>
 </html>
-
-
-
