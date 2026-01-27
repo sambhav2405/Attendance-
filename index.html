@@ -120,22 +120,40 @@
         }
 
         /* --- Score Circle --- */
-        .score-circle {
-            position: relative;
-            width: 150px;
-            height: 150px;
-            margin: 0 auto 20px auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            background: white;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            border: 5px solid var(--theme-color);
-        }
+       .score-circle {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 20px auto;
+    border-radius: 50%;
+    background:
+        conic-gradient(
+            var(--theme-color) 0deg,
+            #e5e7eb 0deg
+        );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
 
-        .score-val { font-size: 2.2rem; font-weight: 800; color: var(--theme-color); }
-        
+.score-circle::before {
+    content: "";
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    background: white;
+    border-radius: 50%;
+}
+
+
+      .score-val {
+    position: relative;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--theme-color);
+}
+
         .status-badge {
             text-align: center;
             font-size: 1.2rem;
@@ -421,7 +439,7 @@
             
             document.getElementById('attendedVal').innerText = g_present;
             document.getElementById('totalVal').innerText = g_total;
-            document.getElementById('percentDisplay').innerText = g_percent + "%";
+animateCircle(parseFloat(g_percent));
 
             // Categorization Logic
             let msg = "";
@@ -528,8 +546,33 @@
                 window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
             }
         }
+function animateCircle(target) {
+    const circle = document.querySelector('.score-circle');
+    const text = document.getElementById('percentDisplay');
+
+    let current = 0;
+    const step = target / 60; // animation smoothness (60 frames)
+
+    const interval = setInterval(() => {
+        current += step;
+
+        if (current >= target) {
+            current = target;
+            clearInterval(interval);
+        }
+
+        text.innerText = current.toFixed(2) + "%";
+
+        circle.style.background = `
+            conic-gradient(
+                var(--theme-color) ${current * 3.6}deg,
+                #e5e7eb ${current * 3.6}deg
+            )
+        `;
+    }, 16); // ~60fps
+}
+
     </script>
 </body>
 </html>
-
 
