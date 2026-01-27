@@ -248,7 +248,7 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
-        /* --- CGPA CALCULATOR STYLES (NEW) --- */
+        /* --- CGPA CALCULATOR STYLES --- */
         .divider {
             display: flex;
             align-items: center;
@@ -361,7 +361,7 @@
                 <i class="fas fa-plus-circle"></i> Attend Future Classes
             </div>
             <div class="tool-row">
-                <input type="number" id="futureInput" placeholder="Days">
+                <input type="number" id="futureInput" placeholder="classes">
                 <button class="btn-action" style="background:#eff6ff; color:#2563EB;" onclick="checkFuture()">Check Boost 🚀</button>
             </div>
             <div id="futureResult" class="result-text"></div>
@@ -370,7 +370,7 @@
                 <i class="fas fa-bed"></i> Can I Bunk?
             </div>
             <div class="tool-row">
-                <input type="number" id="bunkInput" placeholder="Days">
+                <input type="number" id="bunkInput" placeholder="classes">
                 <button class="btn-action" style="background:#fffbeb; color:#f59e0b;" onclick="checkBunk()">Check Drop 📉</button>
             </div>
             <div id="bunkResult" class="result-text"></div>
@@ -383,6 +383,16 @@
                 <button class="btn-action" style="background:#ecfdf5; color:#059669;" onclick="calcTarget()">Classes Needed 📈</button>
             </div>
             <div id="targetResult" class="result-text"></div>
+
+            <div class="tool-header" style="color: #db2777;">
+                <i class="fas fa-file-signature"></i> Add OD(On Duty)
+            </div>
+            <div class="tool-row">
+                <input type="number" id="odInput" placeholder="classes">
+                <button class="btn-action" style="background:#fce7f3; color:#db2777;" onclick="checkOD()">Check Impact 🏥</button>
+            </div>
+            <div id="odResult" class="result-text"></div>
+
 
             <div class="tool-header" style="color: #6a11cb; margin-top: 25px;">
                 <i class="fas fa-calculator"></i> Check Your Grades
@@ -445,10 +455,12 @@
             document.getElementById('futureInput').value = "";
             document.getElementById('bunkInput').value = "";
             document.getElementById('targetInput').value = "";
+            document.getElementById('odInput').value = ""; // Clear OD input
             
             document.getElementById('futureResult').innerText = "";
             document.getElementById('bunkResult').innerText = "";
             document.getElementById('targetResult').innerText = "";
+            document.getElementById('odResult').innerText = ""; // Clear OD result
         }
 
         function processReport() {
@@ -574,6 +586,22 @@
                 `You need to attend <b>${required}</b> more classes continuously.`;
         }
 
+        // --- NEW OD CALCULATOR FUNCTION ---
+        function checkOD() {
+            const od = parseInt(document.getElementById('odInput').value);
+            if(!od) return;
+            
+            // Logic: Increase Numerator (Present), Denominator (Total) stays same
+            const newPresent = g_present + od;
+            const newTotal = g_total; 
+            
+            const newPercent = (newPresent / newTotal) * 100;
+            const boost = newPercent - parseFloat(g_percent);
+            
+            document.getElementById('odResult').innerHTML = 
+                `New %: <b>${newPercent.toFixed(2)}%</b> <span style="color:#db2777">(+${boost.toFixed(2)}%)</span>`;
+        }
+
         function shareResult() {
             const p = parseFloat(g_percent);
             let shareText = "";
@@ -615,4 +643,4 @@
         }
     </script>
 </body>
-</html>     
+</html>
