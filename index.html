@@ -11,18 +11,17 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SKIT Academic Pro</title>
+    <title>SKIT Academic Pro v4.4</title>
     <meta name="theme-color" content="#4f46e5">
 
     <link rel="icon" type="image/jpeg" href="unnamed.jpg">
-    <link rel="apple-touch-icon" href="unnamed.jpg">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
             --theme-color: #4f46e5; 
-            --glass-bg: rgba(255, 255, 255, 0.90);
+            --glass-bg: rgba(255, 255, 255, 0.95);
             --glass-border: rgba(255, 255, 255, 0.6);
             --text-main: #1f2937;
             --text-light: #6b7280;
@@ -183,112 +182,157 @@
         .stat-val { font-weight: 700; font-size: 1.1rem; color: #333; }
         .stat-label { font-size: 0.8rem; color: #777; }
 
-        /* --- Tools Section --- */
-        .tool-header {
-            font-size: 0.95rem;
+        /* --- Collapsible Buttons --- */
+        .toggle-btn {
+            width: 100%;
+            background: linear-gradient(to right, #f3f4f6, #fff);
+            border: 1px solid #e5e7eb;
+            padding: 14px;
+            border-radius: 12px;
             font-weight: 600;
-            margin: 15px 0 10px 0;
+            color: #333;
+            text-align: left;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 8px;
+            cursor: pointer;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+        .toggle-btn:hover { transform: translateY(-2px); }
+        .toggle-btn.active { border-left: 4px solid var(--theme-color); background: #f8fafc; }
+        .toggle-btn i.fa-chevron-down { transition: transform 0.3s; }
+        .toggle-btn.active i.fa-chevron-down { transform: rotate(180deg); }
+
+        .collapsible-content {
+            display: none;
+            padding: 5px 0;
+            animation: slideDown 0.3s ease forwards;
+        }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- Time Travel Grid (3x2 Layout) --- */
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3 Columns */
+            gap: 10px; /* Comfortable gap */
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        .day-input { text-align: center; }
+        .day-input label { 
+            display: block; 
+            font-size: 0.7rem; 
+            color: #666; 
+            margin-bottom: 4px; 
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .day-input input {
+            width: 100%; 
+            padding: 10px 0; 
+            border: 1px solid #ddd; 
+            border-radius: 10px;
+            text-align: center; 
+            font-weight: bold; 
+            font-size: 1rem;
+            background: #fff;
+            color: #333;
+            transition: border-color 0.2s;
+        }
+        .day-input input:focus { border-color: var(--theme-color); outline: none; background: #f0f9ff; }
+
+        /* --- Subject Cards --- */
+        .sub-card {
+            background: white;
+            padding: 15px;
+            border-radius: 14px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+            border: 1px solid #f0f0f0;
+            border-left: 5px solid #ccc;
         }
         
-        .tool-row {
+        .sub-header {
             display: flex;
-            gap: 10px;
-            margin-bottom: 5px;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
         }
+        
+        .sub-name { 
+            font-weight: 700; font-size: 0.9rem; color: #333; 
+            flex: 1; padding-right: 10px; word-wrap: break-word; 
+        }
+        
+        .sub-percent { font-weight: 800; font-size: 1rem; white-space: nowrap; }
+        
+        .progress-track {
+            width: 100%; height: 8px; background: #e5e7eb; border-radius: 10px; overflow: hidden; margin-bottom: 8px;
+        }
+        .progress-fill { height: 100%; border-radius: 10px; transition: width 1s ease-in-out; }
+        
+        .sub-msg { font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 4px; display: inline-block; }
+        .msg-danger { background: #fee2e2; color: #dc2626; }
+        .msg-safe { background: #dcfce7; color: #166534; }
+
+
+        /* --- Tools Section --- */
+        .tool-header {
+            font-size: 0.95rem; font-weight: 600; margin: 15px 0 10px 0;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .tool-row { display: flex; gap: 10px; margin-bottom: 5px; }
 
         input[type="number"] {
-            width: 70px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            text-align: center;
-            font-weight: bold;
+            width: 70px; padding: 10px; border: 1px solid #ddd;
+            border-radius: 8px; text-align: center; font-weight: bold;
         }
 
         .btn-action {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 8px;
-            background: #eef2ff;
-            color: var(--theme-color);
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
+            flex: 1; padding: 10px; border: none; border-radius: 8px;
+            background: #eef2ff; color: var(--theme-color); font-weight: 600;
+            font-size: 0.9rem; cursor: pointer;
         }
         
         .result-text { font-size: 0.85rem; color: #666; margin-bottom: 15px; margin-left: 2px; }
 
         .btn-share {
-            background: #25D366; 
-            color: white;
-            width: 100%;
-            margin-top: 20px;
-            padding: 12px;
-            border-radius: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
+            background: #25D366; color: white; width: 100%; margin-top: 20px;
+            padding: 12px; border-radius: 50px; display: flex;
+            align-items: center; justify-content: center; gap: 10px;
+            font-weight: 600; border: none; cursor: pointer;
             box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
         }
 
         .qr-container {
-            margin-top: 15px;
-            background: white;
-            padding: 10px;
-            border-radius: 10px;
-            display: inline-block;
+            margin-top: 15px; background: white; padding: 10px;
+            border-radius: 10px; display: inline-block;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
         /* --- CGPA CALCULATOR STYLES --- */
         .divider {
-            display: flex;
-            align-items: center;
-            text-align: center;
-            margin: 25px 0 15px 0;
-            color: #aaa;
-            font-size: 0.8rem;
-            font-weight: 600;
-            letter-spacing: 1px;
+            display: flex; align-items: center; text-align: center;
+            margin: 25px 0 15px 0; color: #aaa; font-size: 0.8rem;
+            font-weight: 600; letter-spacing: 1px;
         }
         .divider::before, .divider::after {
-            content: '';
-            flex: 1;
-            border-bottom: 1px solid #e5e7eb;
+            content: ''; flex: 1; border-bottom: 1px solid #e5e7eb;
         }
         .divider span { padding: 0 10px; }
 
-        .cgpa-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
+        .cgpa-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .cgpa-card {
-            background: white;
-            border: 2px solid transparent;
-            padding: 15px 10px;
-            border-radius: 12px;
-            text-align: center;
-            text-decoration: none;
-            color: var(--text-main);
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
+            background: white; border: 2px solid transparent; padding: 15px 10px;
+            border-radius: 12px; text-align: center; text-decoration: none;
+            color: var(--text-main); transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex;
+            flex-direction: column; align-items: center; gap: 8px;
         }
         .cgpa-card:hover {
-            transform: translateY(-3px);
-            border-color: var(--theme-color);
+            transform: translateY(-3px); border-color: var(--theme-color);
             box-shadow: 0 5px 15px rgba(79, 70, 229, 0.15);
         }
         .cgpa-icon { font-size: 1.5rem; color: var(--theme-color); }
@@ -307,7 +351,7 @@
 <body>
 
     <div class="glass-card" id="mainContainer">
-        <h1>SKIT Academic Pro</h1>
+        <h1>SKIT Academic Pro <span style="font-size:0.5em; vertical-align:super;">v4.4</span></h1>
         <p class="subtitle">Attendance & CGPA Manager</p>
 
         <div id="inputSection">
@@ -318,22 +362,9 @@
             <button class="btn-main" onclick="processReport()">Calculate Attendance 🚀</button>
             <div style="text-align:center; margin-top:10px;">
                  <a href="https://erp.skit.ac.in/reports/student_aggregate" 
-   style="
-     display: inline-block; 
-     background-color: #EEF2FF; 
-     color: #4F46E5; 
-     font-weight: 600; 
-     font-size: 0.85rem; 
-     text-decoration: none; 
-     padding: 8px 16px; 
-     border-radius: 50px; 
-     box-shadow: 0 2px 4px rgba(79, 70, 229, 0.1); 
-     border: 1px solid #E0E7FF; 
-     margin-top: 12px;
-     font-family: sans-serif;">
-   Where do I copy from? 🤔
-</a>
-
+                   style="display: inline-block; background-color: #EEF2FF; color: #4F46E5; font-weight: 600; font-size: 0.85rem; text-decoration: none; padding: 8px 16px; border-radius: 50px; box-shadow: 0 2px 4px rgba(79, 70, 229, 0.1); border: 1px solid #E0E7FF; margin-top: 12px; font-family: sans-serif;">
+                   Where do I copy from? 🤔
+                </a>
             </div>
 
             <div class="divider"><span>OR CALCULATE CGPA</span></div>
@@ -372,6 +403,33 @@
             </div>
 
             <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+            <button class="toggle-btn" onclick="toggleSection('timeTravel', this)">
+                <span><i class="fas fa-calendar-alt" style="margin-right:8px; color:#6a11cb;"></i> <b>75% Prediction Date</b></span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div id="timeTravel" class="collapsible-content">
+                <p style="font-size:0.75rem; color:#555; margin-bottom:10px;">Edit daily classes (Sun & Holidays are off):</p>
+                <div class="schedule-grid">
+                    <div class="day-input"><label>Mon</label><input type="number" id="sch_mon" value="5"></div>
+                    <div class="day-input"><label>Tue</label><input type="number" id="sch_tue" value="5"></div>
+                    <div class="day-input"><label>Wed</label><input type="number" id="sch_wed" value="5"></div>
+                    <div class="day-input"><label>Thu</label><input type="number" id="sch_thu" value="6"></div>
+                    <div class="day-input"><label>Fri</label><input type="number" id="sch_fri" value="5"></div>
+                    <div class="day-input"><label>Sat</label><input type="number" id="sch_sat" value="5"></div>
+                </div>
+                <button class="btn-action" style="width:100%; background: #6a11cb; color:white; margin-bottom:10px;" onclick="calculateDate()">
+                    📅 When will I reach 75%?
+                </button>
+                <div id="dateResult" class="result-text" style="background:#f3f4f6; padding:10px; border-radius:8px; display:none; border-left: 4px solid #6a11cb;"></div>
+            </div>
+
+            <button class="toggle-btn" onclick="toggleSection('subjectList', this)">
+                <span><i class="fas fa-list-ul" style="margin-right:8px;"></i> Subject Breakdown</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div id="subjectList" class="collapsible-content">
+            </div>
 
             <div class="tool-header" style="color: #2563EB;">
                 <i class="fas fa-plus-circle"></i> Attend Future Classes
@@ -453,50 +511,77 @@
         let g_present = 0;
         let g_total = 0;
         let g_percent = 0;
+        let g_subjects = [];
 
         // On Load
         window.addEventListener('load', () => {
-            const saved = localStorage.getItem('skit_data');
+            const saved = localStorage.getItem('skit_data_v4_2');
             if(saved) {
                 document.getElementById('inputData').value = saved;
             }
         });
 
+        function toggleSection(id, btn) {
+            const el = document.getElementById(id);
+            if (el.style.display === "block") {
+                el.style.display = "none";
+                btn.classList.remove("active");
+            } else {
+                el.style.display = "block";
+                btn.classList.add("active");
+            }
+        }
+
         function resetApp() {
             document.getElementById('dashboard').style.display = 'none';
             document.getElementById('inputSection').style.display = 'block';
             document.getElementById('inputData').value = "";
-            localStorage.removeItem('skit_data');
+            localStorage.removeItem('skit_data_v4_2');
             
-            document.getElementById('futureInput').value = "";
-            document.getElementById('bunkInput').value = "";
-            document.getElementById('targetInput').value = "";
-            document.getElementById('odInput').value = ""; // Clear OD input
+            // Clear inputs
+            ['futureInput', 'bunkInput', 'targetInput', 'odInput'].forEach(id => {
+                document.getElementById(id).value = "";
+            });
+            ['futureResult', 'bunkResult', 'targetResult', 'odResult'].forEach(id => {
+                document.getElementById(id).innerText = "";
+            });
             
-            document.getElementById('futureResult').innerText = "";
-            document.getElementById('bunkResult').innerText = "";
-            document.getElementById('targetResult').innerText = "";
-            document.getElementById('odResult').innerText = ""; // Clear OD result
+            g_subjects = [];
         }
 
         function processReport() {
             const text = document.getElementById('inputData').value;
             const lines = text.split('\n');
-            let totalClasses = 0;
-            let totalAttended = 0;
+            
+            g_present = 0;
+            g_total = 0;
+            g_subjects = [];
             let found = false;
             
-            // Regex to parse ERP lines
-            const regex = /(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+([0-9.]+)$/;
+            // Regex to capture Subject Name + Numbers
+            const regex = /^(.*?)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+([0-9.]+)$/;
 
             lines.forEach(line => {
                 const match = line.trim().match(regex);
                 if (match) {
                     found = true;
-                    const attended = parseInt(match[1]) + parseInt(match[2]) + parseInt(match[3]);
-                    const absent = parseInt(match[4]);
-                    totalAttended += attended;
-                    totalClasses += (attended + absent);
+                    // Extract data
+                    const rawName = match[1].replace(/^\d+\s+/, '').trim(); // Remove leading numbers
+                    const attended = parseInt(match[2]) + parseInt(match[3]) + parseInt(match[4]);
+                    const absent = parseInt(match[5]);
+                    const total = attended + absent;
+                    
+                    if(total > 0) {
+                        g_present += attended;
+                        g_total += total;
+                        
+                        g_subjects.push({
+                            name: rawName,
+                            attended: attended,
+                            total: total,
+                            percent: ((attended / total) * 100).toFixed(2)
+                        });
+                    }
                 }
             });
 
@@ -505,10 +590,7 @@
                 return;
             }
 
-            localStorage.setItem('skit_data', text);
-
-            g_present = totalAttended;
-            g_total = totalClasses;
+            localStorage.setItem('skit_data_v4_2', text);
             g_percent = ((g_present / g_total) * 100).toFixed(2);
 
             updateDashboard();
@@ -556,8 +638,136 @@
             statusBadge.innerText = badgeText;
             funnyMsg.innerText = `"${msg}"`;
 
+            // Render Subjects
+            renderSubjects();
+
             document.getElementById('inputSection').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
+        }
+
+        function renderSubjects() {
+            const list = document.getElementById('subjectList');
+            list.innerHTML = "";
+            
+            g_subjects.forEach(sub => {
+                let color = "#4f46e5"; 
+                let msgHtml = "";
+                let p = parseFloat(sub.percent);
+                let reqClasses = 0;
+
+                // LOGIC: Calculate classes needed for 75%
+                if(p < 75) {
+                    color = "#dc2626"; // Red
+                    // Formula: (Present + x) / (Total + x) = 0.75
+                    reqClasses = Math.ceil((0.75 * sub.total - sub.attended) / 0.25);
+                    msgHtml = `<div class="sub-msg msg-danger">⚠️ Attend <b>${reqClasses}</b> more classes for 75%</div>`;
+                } else {
+                    color = "#059669"; // Green
+                    // Formula for Safe Bunks: (Present) / (Total + x) = 0.75
+                    let bunks = Math.floor((sub.attended / 0.75) - sub.total);
+                    if (bunks > 0) msgHtml = `<div class="sub-msg msg-safe">✅ Safe to bunk <b>${bunks}</b> classes</div>`;
+                    else msgHtml = `<div class="sub-msg" style="background:#f3f4f6; color:#555">Exact 75% or near. Don't bunk!</div>`;
+                }
+
+                list.innerHTML += `
+                    <div class="sub-card" style="border-left-color:${color}">
+                        <div class="sub-header">
+                            <span class="sub-name">${sub.name}</span>
+                            <span class="sub-percent" style="color:${color}">${sub.percent}%</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width:${sub.percent}%; background:${color};"></div>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:0.75rem; color:#666;">${sub.attended}/${sub.total}</span>
+                            ${msgHtml}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // --- NEW TIME TRAVEL LOGIC (SIMPLE SUNDAY SKIP) ---
+        function calculateDate() {
+            if(parseFloat(g_percent) >= 75) {
+                document.getElementById('dateResult').style.display = 'block';
+                document.getElementById('dateResult').innerHTML = "<b>Relax!</b> You are already above 75%. <br>Enjoy your life! 😎";
+                return;
+            }
+
+            // Holidays for 2026
+            const holidays = [
+                "2026-02-15", // Mahashivratri
+                "2026-03-02", "2026-03-03", // Holi
+                "2026-03-26", // Ram Navmi
+                "2026-08-15", // Independence Day
+                "2026-08-28", // Raksha Bandhan
+                "2026-09-04", // Janmashtami
+                "2026-10-20"  // Dussehra
+            ];
+            
+            // Function to check if a date is a holiday or Sunday
+            function isHolidayOrSunday(date) {
+                if (date.getDay() === 0) return true; // Sunday
+
+                // Check Specific Holidays
+                const dStr = date.toISOString().split('T')[0];
+                if (holidays.includes(dStr)) return true;
+
+                // Autumn Break: 6 to 15 Nov
+                const autumnStart = new Date("2026-11-06");
+                const autumnEnd = new Date("2026-11-15");
+                if (date >= autumnStart && date <= autumnEnd) return true;
+
+                // Winter Break: 25 to 31 Dec
+                const winterStart = new Date("2026-12-25");
+                const winterEnd = new Date("2026-12-31");
+                if (date >= winterStart && date <= winterEnd) return true;
+
+                return false;
+            }
+
+            // 1. Get Weekly Schedule
+            const schedule = [
+                0, // Sunday
+                parseInt(document.getElementById('sch_mon').value) || 0,
+                parseInt(document.getElementById('sch_tue').value) || 0,
+                parseInt(document.getElementById('sch_wed').value) || 0,
+                parseInt(document.getElementById('sch_thu').value) || 0,
+                parseInt(document.getElementById('sch_fri').value) || 0,
+                parseInt(document.getElementById('sch_sat').value) || 0
+            ];
+
+            // 2. Calculate Total Classes Needed
+            let needed = Math.ceil((0.75 * g_total - g_present) / 0.25);
+            let daysPassed = 0;
+            let currentDate = new Date(); 
+
+            // 3. Loop days
+            while (needed > 0) {
+                currentDate.setDate(currentDate.getDate() + 1);
+                daysPassed++;
+                
+                if (isHolidayOrSunday(currentDate)) continue; // Skip holidays
+
+                let dayIndex = currentDate.getDay(); 
+                let classesToday = schedule[dayIndex];
+                needed -= classesToday;
+
+                if(daysPassed > 365) {
+                    document.getElementById('dateResult').style.display = 'block';
+                    document.getElementById('dateResult').innerHTML = "⚠️ Schedule is empty or target too far.";
+                    return;
+                }
+            }
+
+            // 4. Show Result
+            const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
+            const dateString = currentDate.toLocaleDateString('en-IN', options);
+
+            document.getElementById('dateResult').style.display = 'block';
+            document.getElementById('dateResult').innerHTML = 
+                `If you attend daily (excluding holidays):<br><b style="font-size:1.1rem; color:#6a11cb;">${dateString}</b><br><span style="font-size:0.8rem">(${daysPassed} days from now)</span>`;
         }
 
         function checkFuture() {
@@ -602,12 +812,10 @@
                 `You need to attend <b>${required}</b> more classes continuously.`;
         }
 
-        // --- NEW OD CALCULATOR FUNCTION ---
         function checkOD() {
             const od = parseInt(document.getElementById('odInput').value);
             if(!od) return;
             
-            // Logic: Increase Numerator (Present), Denominator (Total) stays same
             const newPresent = g_present + od;
             const newTotal = g_total; 
             
