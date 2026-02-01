@@ -892,6 +892,25 @@
                 circle.style.background = `conic-gradient(var(--theme-color) ${current * 3.6}deg, #e5e7eb ${current * 3.6}deg)`;
             }, 16); 
         }
+        if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      // sw.js?v=... lagane se browser hamesha nayi SW file fetch karega
+      navigator.serviceWorker.register('/sw.js?v=' + Date.now()).then(reg => {
+        
+        // Agar naya worker milta hai
+        reg.onupdatefound = () => {
+          const newWorker = reg.installing;
+          newWorker.onstatechange = () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // Jaise hi naya version download hoga, page apne aap refresh ho jayega
+              window.location.reload();
+            }
+          };
+        };
+
+      }).catch(err => console.log("Service Worker Error:", err));
+    });
+  }
     </script>
 </body>
 </html>
