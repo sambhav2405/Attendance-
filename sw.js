@@ -1,40 +1,39 @@
-const CACHE_NAME = 'skit-attendance-v2'; // I changed v1 to v2 to force update
+const CACHE_NAME = 'skit-attendance-v3'; // Version badal diya hai force update ke liye
 const ASSETS = [
   '/',
   '/index.html',
   '/manifest.json'
 ];
 
-// 1. Install Event: Cache new files & Activate immediately
+// Install Event
 self.addEventListener('install', (e) => {
-  self.skipWaiting(); // Forces the new worker to take over immediately
+  self.skipWaiting(); 
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
   );
 });
 
-// 2. Activate Event: Delete OLD Cache (The Fix)
+// Activate Event: Purane cache ko delete karne ke liye
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keyList) => {
       return Promise.all(
         keyList.map((key) => {
           if (key !== CACHE_NAME) {
-            console.log('Removing old cache', key);
             return caches.delete(key);
           }
         })
       );
     })
   );
-  return self.clients.claim(); // Take control of the page immediately
+  return self.clients.claim();
 });
 
-// 3. Fetch Event: serve from cache
+// Fetch Event: Pehle Network se check karega, fir Cache se (Network-First)
 self.addEventListener('fetch', (e) => {
   e.respondWith(
-    caches.match(e.request).then((response) => {
-      return response || fetch(e.request);
+    fetch(e.request).catch(() => {
+      return caches.match(e.request);
     })
   );
 });
