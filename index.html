@@ -11,7 +11,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SKIT Academic Pro v5.0</title>
+    <title>SKIT Academic Pro v5.1</title>
     <meta name="theme-color" content="#4f46e5">
 
     <link rel="icon" type="image/jpeg" href="unnamed.jpg">
@@ -298,6 +298,21 @@
         
         .result-text { font-size: 0.85rem; color: #666; margin-bottom: 15px; margin-left: 2px; }
 
+        /* --- INFO BUTTON STYLES (NEW) --- */
+        .info-btn {
+            background: none; border: none; color: #9ca3af;
+            cursor: pointer; margin-left: auto; font-size: 1rem;
+            padding: 5px;
+        }
+        .info-btn:hover { color: var(--theme-color); }
+        
+        .info-text {
+            display: none; font-size: 0.8rem; color: #4b5563;
+            background: #f3f4f6; padding: 10px; border-radius: 8px;
+            margin-bottom: 10px; border-left: 3px solid var(--theme-color);
+            line-height: 1.4;
+        }
+
         .btn-share {
             background: #25D366; color: white; width: 100%; margin-top: 20px;
             padding: 12px; border-radius: 50px; display: flex;
@@ -365,13 +380,18 @@
 <body>
 
     <div class="glass-card" id="mainContainer">
-        <h1>SKIT Academic Pro <span style="font-size:0.5em; vertical-align:super;">v5.0</span></h1>
+        <h1>Academic Pro <span style="font-size:0.5em; vertical-align:super;">v5.5</span></h1>
         <p class="subtitle">Attendance & CGPA Manager</p>
 
         <div id="inputSection">
-            <p style="font-size: 0.9rem; color: #555; margin-bottom: 8px;">
-                <i class="fas fa-clipboard"></i> Paste Full Attendance Report:
+            <p style="font-size: 0.9rem; color: #555; margin-bottom: 8px; display:flex; align-items:center; justify-content:space-between;">
+                <span><i class="fas fa-clipboard"></i> Paste Full Attendance Report:</span>
+                <button class="info-btn" onclick="toggleInfo('infoPaste')"><i class="fas fa-info-circle"></i></button>
             </p>
+            <div id="infoPaste" class="info-text">
+                <b>हिंदी:</b> ERP Login करें > Reports > Student Aggregate Attendance पर जाएं। पूरी टेबल (Subject से % तक) कॉपी करें और यहाँ पेस्ट करें।
+            </div>
+
             <textarea id="inputData" placeholder="Copy table from ERP and paste here..."></textarea>
             <button class="btn-main" onclick="processReport()">Calculate Attendance 🚀</button>
             <div style="text-align:center; margin-top:10px;">
@@ -419,9 +439,21 @@
             <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
 
             <button class="toggle-btn" onclick="toggleSection('timeTravel', this)">
-                <span><i class="fas fa-calendar-alt" style="margin-right:8px; color:#6a11cb;"></i> <b>75% Prediction Date</b></span>
-                <i class="fas fa-chevron-down"></i>
+                <div style="display:flex; align-items:center;">
+                    <i class="fas fa-calendar-alt" style="margin-right:8px; color:#6a11cb;"></i> 
+                    <b>75% Prediction Date</b>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span class="info-btn" onclick="event.stopPropagation(); toggleInfo('infoDate')" style="margin:0;">
+                        <i class="fas fa-info-circle"></i>
+                    </span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
             </button>
+            <div id="infoDate" class="info-text">
+                <b>हिंदी:</b> यह कैलकुलेट करता है कि अगर आप आज से रोज़ (छुट्टियों को छोड़कर) कॉलेज जाएं, तो आपकी 75% अटेंडेंस किस तारीख को पूरी होगी।
+            </div>
+
             <div id="timeTravel" class="collapsible-content">
                 <p style="font-size:0.75rem; color:#555; margin-bottom:10px;">Edit daily classes (Sun & Holidays are off):</p>
                 <div class="schedule-grid">
@@ -439,14 +471,30 @@
             </div>
 
             <button class="toggle-btn" onclick="toggleSection('subjectList', this)">
-                <span><i class="fas fa-list-ul" style="margin-right:8px;"></i> Subject Breakdown</span>
-                <i class="fas fa-chevron-down"></i>
+                <div style="display:flex; align-items:center;">
+                    <i class="fas fa-list-ul" style="margin-right:8px;"></i> 
+                    <b>Subject Breakdown</b>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span class="info-btn" onclick="event.stopPropagation(); toggleInfo('infoSub')" style="margin:0;">
+                        <i class="fas fa-info-circle"></i>
+                    </span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
             </button>
+            <div id="infoSub" class="info-text">
+                <b>हिंदी:</b> हर सब्जेक्ट की अलग-अलग अटेंडेंस देखें। जानें कि किसमें बंक मार सकते हैं (हरा) और किसमें क्लास लेनी पड़ेगी (लाल)।
+            </div>
+            
             <div id="subjectList" class="collapsible-content">
             </div>
 
             <div class="tool-header" style="color: #2563EB;">
                 <i class="fas fa-plus-circle"></i> Attend Future Classes
+                <button class="info-btn" onclick="toggleInfo('infoFuture')"><i class="fas fa-info-circle"></i></button>
+            </div>
+            <div id="infoFuture" class="info-text">
+                <b>हिंदी:</b> चेक करें कि अगर आप आने वाली क्लासेस अटेंड करते हैं तो आपकी % कितनी बढ़ेगी।
             </div>
             <div class="tool-row">
                 <input type="number" id="futureInput" placeholder="classes">
@@ -456,6 +504,10 @@
 
             <div class="tool-header" style="color: #f59e0b;">
                 <i class="fas fa-bed"></i> Can I Bunk?
+                <button class="info-btn" onclick="toggleInfo('infoBunk')"><i class="fas fa-info-circle"></i></button>
+            </div>
+            <div id="infoBunk" class="info-text">
+                <b>हिंदी:</b> चेक करें कि अगर आप क्लासेस छोड़ते (Bunk) हैं तो आपकी % कितनी गिरेगी।
             </div>
             <div class="tool-row">
                 <input type="number" id="bunkInput" placeholder="classes">
@@ -465,6 +517,10 @@
 
             <div class="tool-header" style="color: #059669;">
                 <i class="fas fa-bullseye"></i> Reach Target
+                <button class="info-btn" onclick="toggleInfo('infoTarget')"><i class="fas fa-info-circle"></i></button>
+            </div>
+            <div id="infoTarget" class="info-text">
+                <b>हिंदी:</b> पता करें कि अपनी मनचाही % (जैसे 75%) तक पहुँचने के लिए आपको लगातार कितनी क्लासेस लेनी होंगी।
             </div>
             <div class="tool-row">
                 <input type="number" id="targetInput" placeholder="%">
@@ -474,12 +530,30 @@
 
             <div class="tool-header" style="color: #db2777;">
                 <i class="fas fa-file-signature"></i> Add OD(On Duty)
+                <button class="info-btn" onclick="toggleInfo('infoOD')"><i class="fas fa-info-circle"></i></button>
+            </div>
+            <div id="infoOD" class="info-text">
+                <b>हिंदी:</b> अगर आपको कॉलेज से OD (On Duty) मिली है, तो उसे यहाँ जोड़कर अपनी बढ़ी हुई % देखें।
             </div>
             <div class="tool-row">
                 <input type="number" id="odInput" placeholder="classes">
                 <button class="btn-action" style="background:#fce7f3; color:#db2777;" onclick="checkOD()">Check Impact 🏥</button>
             </div>
             <div id="odResult" class="result-text"></div>
+
+            <div class="tool-header" style="color: #7c3aed;">
+                <i class="fas fa-balance-scale"></i> Mix Mode (Attend + Bunk)
+                <button class="info-btn" onclick="toggleInfo('infoMix')"><i class="fas fa-info-circle"></i></button>
+            </div>
+            <div id="infoMix" class="info-text">
+                <b>हिंदी:</b> एक साथ देखें: अगर आप कुछ क्लास अटेंड करें और उसके बाद कुछ बंक करें, तो फाइनल % क्या होगी।
+            </div>
+            <div class="tool-row">
+                <input type="number" id="mixAttend" placeholder="Attend" style="width: 35%;">
+                <input type="number" id="mixBunk" placeholder="Bunk" style="width: 35%;">
+                <button class="btn-action" style="background:#f3e8ff; color:#7c3aed;" onclick="calcMix()">Calc 🧮</button>
+            </div>
+            <div id="mixResult" class="result-text"></div>
 
 
             <div class="tool-header" style="color: #6a11cb; margin-top: 25px;">
@@ -550,6 +624,16 @@
             }
         }
 
+        // --- NEW FUNCTION: TOGGLE INFO ---
+        function toggleInfo(id) {
+            const el = document.getElementById(id);
+            if (el.style.display === "block") {
+                el.style.display = "none";
+            } else {
+                el.style.display = "block";
+            }
+        }
+
         function resetApp() {
             document.getElementById('dashboard').style.display = 'none';
             document.getElementById('inputSection').style.display = 'block';
@@ -557,13 +641,17 @@
             localStorage.removeItem('skit_data_v4_2');
             
             // Clear inputs
-            ['futureInput', 'bunkInput', 'targetInput', 'odInput'].forEach(id => {
+            ['futureInput', 'bunkInput', 'targetInput', 'odInput', 'mixAttend', 'mixBunk'].forEach(id => {
                 document.getElementById(id).value = "";
             });
-            ['futureResult', 'bunkResult', 'targetResult', 'odResult'].forEach(id => {
+            ['futureResult', 'bunkResult', 'targetResult', 'odResult', 'mixResult'].forEach(id => {
                 document.getElementById(id).innerText = "";
             });
             
+            // Hide all infos
+            const infos = document.querySelectorAll('.info-text');
+            infos.forEach(i => i.style.display = 'none');
+
             g_subjects = [];
         }
 
@@ -851,6 +939,26 @@
             
             document.getElementById('odResult').innerHTML = 
                 `New %: <b>${newPercent.toFixed(2)}%</b> <span style="color:#db2777">(+${boost.toFixed(2)}%)</span>`;
+        }
+
+        // --- NEW FEATURE: MIX CALCULATOR LOGIC ---
+        function calcMix() {
+            const att = parseInt(document.getElementById('mixAttend').value) || 0;
+            const bnk = parseInt(document.getElementById('mixBunk').value) || 0;
+
+            if(att === 0 && bnk === 0) return;
+
+            const newPresent = g_present + att;
+            const newTotal = g_total + att + bnk;
+            const newPercent = (newPresent / newTotal) * 100;
+            
+            const diff = newPercent - parseFloat(g_percent);
+            let diffStr = "";
+            if(diff >= 0) diffStr = `<span style="color:var(--theme-color)">(+${diff.toFixed(2)}%)</span>`;
+            else diffStr = `<span style="color:red">(${diff.toFixed(2)}%)</span>`;
+
+            document.getElementById('mixResult').innerHTML = 
+                `Final %: <b>${newPercent.toFixed(2)}%</b> ${diffStr}`;
         }
 
         function shareResult() {
