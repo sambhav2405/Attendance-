@@ -11,7 +11,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SKIT Academic Pro v5.1</title>
+    <title>SKIT Academic Pro v5.6 (Fixed)</title>
     <meta name="theme-color" content="#4f46e5">
 
     <link rel="icon" type="image/jpeg" href="unnamed.jpg">
@@ -380,7 +380,7 @@
 <body>
 
     <div class="glass-card" id="mainContainer">
-        <h1>Academic Pro <span style="font-size:0.5em; vertical-align:super;">v5.5</span></h1>
+        <h1>Academic Pro <span style="font-size:0.5em; vertical-align:super;">v5.6</span></h1>
         <p class="subtitle">Attendance & CGPA Manager</p>
 
         <div id="inputSection">
@@ -607,7 +607,7 @@
 
         // On Load
         window.addEventListener('load', () => {
-            const saved = localStorage.getItem('skit_data_v4_2');
+            const saved = localStorage.getItem('skit_data_v5_6');
             if(saved) {
                 document.getElementById('inputData').value = saved;
             }
@@ -638,7 +638,7 @@
             document.getElementById('dashboard').style.display = 'none';
             document.getElementById('inputSection').style.display = 'block';
             document.getElementById('inputData').value = "";
-            localStorage.removeItem('skit_data_v4_2');
+            localStorage.removeItem('skit_data_v5_6');
             
             // Clear inputs
             ['futureInput', 'bunkInput', 'targetInput', 'odInput', 'mixAttend', 'mixBunk'].forEach(id => {
@@ -673,9 +673,18 @@
                     found = true;
                     // Extract data
                     const rawName = match[1].replace(/^\d+\s+/, '').trim(); // Remove leading numbers
-                    const attended = parseInt(match[2]) + parseInt(match[3]) + parseInt(match[4]);
+                    
+                    const present = parseInt(match[2]);
+                    const od = parseInt(match[3]);
+                    const makeup = parseInt(match[4]);
                     const absent = parseInt(match[5]);
-                    const total = attended + absent;
+
+                    // FIX: ERP Calculation Logic
+                    // Attended = Present + OD + Makeup
+                    const attended = present + od + makeup;
+                    
+                    // Total Held = Present + OD + Absent (Makeup is NOT included in total held)
+                    const total = present + od + absent;
                     
                     if(total > 0) {
                         g_present += attended;
@@ -696,7 +705,7 @@
                 return;
             }
 
-            localStorage.setItem('skit_data_v4_2', text);
+            localStorage.setItem('skit_data_v5_6', text);
             g_percent = ((g_present / g_total) * 100).toFixed(2);
 
             updateDashboard();
@@ -997,7 +1006,7 @@
                     clearInterval(interval);
                 }
                 text.innerText = current.toFixed(2) + "%";
-                circle.style.background = `conic-gradient(var(--theme-color) ${current * 3.6}deg, #e5e7eb ${current * 3.6}deg)`;
+                circle.style.background = `conic-gradient(var(--theme-color) ${current * 3.6}deg, #e5e7eb 0deg)`;
             }, 16); 
         }
        
