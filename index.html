@@ -11,7 +11,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SKIT Academic Pro v5.6 (Fixed)</title>
+    <title>Academic Pro v6</title>
     <meta name="theme-color" content="#4f46e5">
 
     <link rel="icon" type="image/jpeg" href="unnamed.jpg">
@@ -21,20 +21,20 @@
     <style>
         :root {
             --theme-color: #4f46e5; 
-            --glass-bg: rgba(255, 255, 255, 0.95);
-            --glass-border: rgba(255, 255, 255, 0.6);
+            --glass-bg: rgba(255, 255, 255, 0.92);
+            --glass-border: rgba(255, 255, 255, 0.4);
             --text-main: #1f2937;
             --text-light: #6b7280;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
+        /* --- ANIMATED BACKGROUND --- */
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #000428;
-            background-image: linear-gradient(135deg, #000428 0%, #004e92 50%, #6a11cb 100%);
-            background-attachment: fixed;
-            background-size: cover;
+            background: linear-gradient(-45deg, #000428, #004e92, #6a11cb, #2b0854);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
             color: var(--text-main);
             min-height: 100vh;
             margin: 0;
@@ -44,27 +44,57 @@
             align-items: center;
         }
 
-        /* --- Glassmorphism Card --- */
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- Glassmorphism Card (Enhanced) --- */
         .glass-card {
             background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            border-radius: 24px;
+            box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.4);
             width: 100%;
             max-width: 600px;
             padding: 25px;
             margin-bottom: 20px;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-card:hover {
+            box-shadow: 0 15px 50px 0 rgba(0, 0, 0, 0.5);
         }
 
         h1 {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             text-align: center;
             margin: 0 0 5px 0;
-            color: var(--theme-color);
-            font-weight: 700;
+            background: linear-gradient(135deg, #4f46e5, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        /* Version Badge Fixed */
+        .version-badge {
+            font-size: 0.5em;
+            color: #ffffff;
+            background: #ec4899;
+            padding: 4px 10px;
+            border-radius: 12px;
+            display: inline-block;
+            -webkit-text-fill-color: #ffffff; /* Override gradient text clip */
+            box-shadow: 0 2px 6px rgba(236, 72, 153, 0.3);
+            transform: translateY(-2px);
         }
         
         .subtitle {
@@ -72,97 +102,139 @@
             font-size: 0.85rem;
             color: var(--text-light);
             margin-bottom: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         textarea {
             width: 100%;
-            height: 100px;
+            height: 110px;
             padding: 15px;
             border-radius: 15px;
             border: 2px solid #e5e7eb;
             font-family: monospace;
             font-size: 0.9rem;
             resize: none;
-            transition: border 0.2s;
+            transition: all 0.3s ease;
             outline: none;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
         }
         
-        textarea:focus { border-color: var(--theme-color); }
-
-        .btn-main {
-            width: 100%;
-            padding: 14px;
-            background: var(--theme-color);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            transition: transform 0.2s, background 0.2s;
-            margin-top: 10px;
+        textarea:focus { 
+            border-color: var(--theme-color); 
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+            background: #fff;
         }
 
+        /* --- BUTTONS --- */
+        .btn-main {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--theme-color), #3b82f6);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+            transition: all 0.3s ease;
+            margin-top: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-main::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
+            transform: skewX(-20deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            20% { left: 200%; }
+            100% { left: 200%; }
+        }
+
+        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79, 70, 229, 0.6); }
         .btn-main:active { transform: scale(0.98); }
 
         /* --- Dashboard --- */
-        #dashboard { display: none; animation: slideUp 0.5s ease; }
+        #dashboard { display: none; animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         /* --- Score Circle --- */
         .score-circle {
             position: relative;
-            width: 150px;
-            height: 150px;
-            margin: 0 auto 20px auto;
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 25px auto;
             border-radius: 50%;
             background: conic-gradient(var(--theme-color) 0deg, #e5e7eb 0deg);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
         }
+
+        .score-circle:hover { transform: scale(1.05); }
 
         .score-circle::before {
             content: "";
             position: absolute;
-            width: 120px;
-            height: 120px;
-            background: white;
+            width: 130px;
+            height: 130px;
+            background: var(--glass-bg);
             border-radius: 50%;
+            box-shadow: inset 0 4px 10px rgba(0,0,0,0.05);
         }
 
         .score-val {
             position: relative;
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             font-weight: 800;
             color: var(--theme-color);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .status-badge {
             text-align: center;
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 5px;
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: 8px;
             color: var(--theme-color);
             text-transform: uppercase;
             letter-spacing: 1px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
 
         .funny-msg {
             text-align: center;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             font-style: italic;
-            color: #555;
-            margin-bottom: 20px;
-            background: rgba(255,255,255,0.5);
-            padding: 10px;
-            border-radius: 8px;
+            color: #4b5563;
+            margin-bottom: 25px;
+            background: rgba(255,255,255,0.7);
+            padding: 12px;
+            border-radius: 12px;
+            border-left: 4px solid var(--theme-color);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
         }
 
         /* --- Stats Grid --- */
@@ -170,189 +242,231 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .stat-item {
-            background: #f9fafb;
-            padding: 10px;
-            border-radius: 12px;
+            background: linear-gradient(135deg, #ffffff, #f9fafb);
+            padding: 15px;
+            border-radius: 16px;
             text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+            border: 1px solid #f3f4f6;
+            transition: transform 0.2s;
         }
-        .stat-val { font-weight: 700; font-size: 1.1rem; color: #333; }
-        .stat-label { font-size: 0.8rem; color: #777; }
+        .stat-item:hover { transform: translateY(-3px); }
+        .stat-val { font-weight: 800; font-size: 1.4rem; color: #1f2937; }
+        .stat-label { font-size: 0.85rem; color: #6b7280; font-weight: 600; text-transform: uppercase; margin-top: 4px; }
 
         /* --- Collapsible Buttons --- */
         .toggle-btn {
             width: 100%;
-            background: linear-gradient(to right, #f3f4f6, #fff);
+            background: linear-gradient(to right, #ffffff, #f8fafc);
             border: 1px solid #e5e7eb;
-            padding: 14px;
-            border-radius: 12px;
-            font-weight: 600;
-            color: #333;
+            padding: 16px;
+            border-radius: 14px;
+            font-weight: 700;
+            color: #374151;
             text-align: left;
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
-            margin-bottom: 12px;
-            transition: all 0.2s;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
         }
-        .toggle-btn:hover { transform: translateY(-2px); }
-        .toggle-btn.active { border-left: 4px solid var(--theme-color); background: #f8fafc; }
-        .toggle-btn i.fa-chevron-down { transition: transform 0.3s; }
-        .toggle-btn.active i.fa-chevron-down { transform: rotate(180deg); }
+        .toggle-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.05); border-color: #cbd5e1; }
+        .toggle-btn.active { border-left: 5px solid var(--theme-color); background: #f0fdf4; }
+        .toggle-btn i.fa-chevron-down { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .toggle-btn.active i.fa-chevron-down { transform: rotate(180deg); color: var(--theme-color); }
 
         .collapsible-content {
             display: none;
-            padding: 5px 0;
-            animation: slideDown 0.3s ease forwards;
+            padding: 5px 0 15px 0;
+            animation: slideDown 0.4s ease forwards;
         }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
 
         /* --- Time Travel Grid --- */
         .schedule-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr); 
-            gap: 10px;
+            gap: 12px;
             margin-bottom: 15px;
-            width: 100%;
         }
         .day-input { text-align: center; }
         .day-input label { 
             display: block; 
-            font-size: 0.7rem; 
-            color: #666; 
-            margin-bottom: 4px; 
+            font-size: 0.75rem; 
+            color: #6b7280; 
+            margin-bottom: 6px; 
             text-transform: uppercase;
-            font-weight: 600;
+            font-weight: 700;
         }
         .day-input input {
             width: 100%; 
-            padding: 10px 0; 
-            border: 1px solid #ddd; 
-            border-radius: 10px;
+            padding: 12px 0; 
+            border: 2px solid #e5e7eb; 
+            border-radius: 12px;
             text-align: center; 
-            font-weight: bold; 
-            font-size: 1rem;
+            font-weight: 800; 
+            font-size: 1.1rem;
             background: #fff;
-            color: #333;
-            transition: border-color 0.2s;
+            color: #1f2937;
+            transition: all 0.3s;
         }
-        .day-input input:focus { border-color: var(--theme-color); outline: none; background: #f0f9ff; }
+        .day-input input:focus { border-color: var(--theme-color); outline: none; background: #e0e7ff; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
 
         /* --- Subject Cards --- */
         .sub-card {
             background: white;
-            padding: 15px;
-            border-radius: 14px;
-            margin-bottom: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.04);
-            border: 1px solid #f0f0f0;
-            border-left: 5px solid #ccc;
+            padding: 18px;
+            border-radius: 16px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border: 1px solid #f3f4f6;
+            border-left: 6px solid #ccc;
+            transition: all 0.3s ease;
+            opacity: 0; /* for animation */
         }
+        .sub-card:hover { transform: translateX(5px); box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
         
         .sub-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
         
         .sub-name { 
-            font-weight: 700; font-size: 0.9rem; color: #333; 
-            flex: 1; padding-right: 10px; word-wrap: break-word; 
+            font-weight: 700; font-size: 0.95rem; color: #1f2937; 
+            flex: 1; padding-right: 15px; word-wrap: break-word; line-height: 1.3;
         }
         
-        .sub-percent { font-weight: 800; font-size: 1rem; white-space: nowrap; }
+        .sub-percent { font-weight: 800; font-size: 1.1rem; white-space: nowrap; }
         
         .progress-track {
-            width: 100%; height: 8px; background: #e5e7eb; border-radius: 10px; overflow: hidden; margin-bottom: 8px;
+            width: 100%; height: 10px; background: #f3f4f6; border-radius: 10px; overflow: hidden; margin-bottom: 10px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
         }
-        .progress-fill { height: 100%; border-radius: 10px; transition: width 1s ease-in-out; }
+        .progress-fill { height: 100%; border-radius: 10px; transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1); }
         
-        .sub-msg { font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 4px; display: inline-block; }
-        .msg-danger { background: #fee2e2; color: #dc2626; }
-        .msg-safe { background: #dcfce7; color: #166534; }
-
+        .sub-msg { font-size: 0.75rem; font-weight: 700; padding: 6px 10px; border-radius: 6px; display: inline-block; }
+        .msg-danger { background: #fef2f2; color: #ef4444; border: 1px solid #fee2e2; }
+        .msg-safe { background: #f0fdf4; color: #16a34a; border: 1px solid #dcfce7; }
 
         /* --- Tools Section --- */
         .tool-header {
-            font-size: 0.95rem; font-weight: 600; margin: 15px 0 10px 0;
+            font-size: 1rem; font-weight: 700; margin: 20px 0 10px 0;
             display: flex; align-items: center; gap: 8px;
         }
-        .tool-row { display: flex; gap: 10px; margin-bottom: 5px; }
+        .tool-row { display: flex; gap: 12px; margin-bottom: 8px; }
 
         input[type="number"] {
-            width: 70px; padding: 10px; border: 1px solid #ddd;
-            border-radius: 8px; text-align: center; font-weight: bold;
+            width: 80px; padding: 12px; border: 2px solid #e5e7eb;
+            border-radius: 12px; text-align: center; font-weight: 800;
+            transition: all 0.3s ease; font-size: 1rem;
         }
+        input[type="number"]:focus { border-color: var(--theme-color); outline: none; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
 
         .btn-action {
-            flex: 1; padding: 10px; border: none; border-radius: 8px;
-            background: #eef2ff; color: var(--theme-color); font-weight: 600;
-            font-size: 0.9rem; cursor: pointer;
+            flex: 1; padding: 12px; border: none; border-radius: 12px;
+            background: #eef2ff; color: var(--theme-color); font-weight: 700;
+            font-size: 0.95rem; cursor: pointer; transition: all 0.2s ease;
         }
+        .btn-action:hover { filter: brightness(0.95); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .btn-action:active { transform: scale(0.98); }
         
-        .result-text { font-size: 0.85rem; color: #666; margin-bottom: 15px; margin-left: 2px; }
+        .result-text { font-size: 0.9rem; color: #4b5563; margin-bottom: 15px; margin-left: 2px; font-weight: 600; }
 
-        /* --- INFO BUTTON STYLES (NEW) --- */
+        /* --- INFO BUTTON STYLES --- */
         .info-btn {
             background: none; border: none; color: #9ca3af;
-            cursor: pointer; margin-left: auto; font-size: 1rem;
-            padding: 5px;
+            cursor: pointer; margin-left: auto; font-size: 1.1rem;
+            padding: 5px; transition: color 0.3s;
         }
         .info-btn:hover { color: var(--theme-color); }
         
         .info-text {
-            display: none; font-size: 0.8rem; color: #4b5563;
-            background: #f3f4f6; padding: 10px; border-radius: 8px;
-            margin-bottom: 10px; border-left: 3px solid var(--theme-color);
-            line-height: 1.4;
+            display: none; font-size: 0.85rem; color: #4b5563;
+            background: #f8fafc; padding: 12px; border-radius: 10px;
+            margin-bottom: 15px; border-left: 4px solid var(--theme-color);
+            line-height: 1.5; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            animation: slideDown 0.3s ease;
         }
 
         .btn-share {
-            background: #25D366; color: white; width: 100%; margin-top: 20px;
-            padding: 12px; border-radius: 50px; display: flex;
+            background: linear-gradient(135deg, #25D366, #128C7E); color: white; width: 100%; margin-top: 25px;
+            padding: 15px; border-radius: 50px; display: flex;
             align-items: center; justify-content: center; gap: 10px;
-            font-weight: 600; border: none; cursor: pointer;
-            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+            font-weight: 700; border: none; cursor: pointer; font-size: 1.05rem;
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4); transition: all 0.3s ease;
         }
+        .btn-share:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(37, 211, 102, 0.5); }
 
         .qr-container {
-            margin-top: 15px; background: white; padding: 10px;
-            border-radius: 10px; display: inline-block;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            margin-top: 15px; background: white; padding: 15px;
+            border-radius: 16px; display: inline-block;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
         }
+        .qr-container:hover { transform: scale(1.05); }
+
+        /* --- NOTES BANNER --- */
+        .notes-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, #1e3a8a 0%, #4338ca 100%);
+            color: white;
+            padding: 18px 20px;
+            border-radius: 16px;
+            text-decoration: none;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 25px rgba(67, 56, 202, 0.4);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .notes-banner::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            animation: spinBg 10s linear infinite;
+        }
+        @keyframes spinBg { 100% { transform: rotate(360deg); } }
+        .notes-banner:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 12px 30px rgba(67, 56, 202, 0.5); }
+        .notes-banner .notes-text { flex: 1; margin-left: 18px; display: flex; flex-direction: column; z-index: 1; }
+        .notes-banner .notes-text strong { font-size: 1.15rem; font-weight: 800; margin-bottom: 4px; letter-spacing: 0.5px; }
+        .notes-banner .notes-text span { font-size: 0.8rem; opacity: 0.9; font-weight: 300; }
+        .notes-icon { font-size: 2.2rem; z-index: 1; text-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .notes-banner .fa-arrow-right { z-index: 1; background: rgba(255,255,255,0.2); padding: 10px; border-radius: 50%; backdrop-filter: blur(5px); }
 
         /* --- CGPA CALCULATOR STYLES --- */
         .divider {
             display: flex; align-items: center; text-align: center;
-            margin: 25px 0 15px 0; color: #aaa; font-size: 0.8rem;
-            font-weight: 600; letter-spacing: 1px;
+            margin: 25px 0 20px 0; color: #9ca3af; font-size: 0.8rem;
+            font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
         }
-        .divider::before, .divider::after {
-            content: ''; flex: 1; border-bottom: 1px solid #e5e7eb;
-        }
-        .divider span { padding: 0 10px; }
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 2px solid #e5e7eb; }
+        .divider span { padding: 0 15px; }
 
-        .cgpa-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .cgpa-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .cgpa-card {
-            background: white; border: 2px solid transparent; padding: 15px 10px;
-            border-radius: 12px; text-align: center; text-decoration: none;
+            background: white; border: 2px solid transparent; padding: 18px 12px;
+            border-radius: 16px; text-align: center; text-decoration: none;
             color: var(--text-main); transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex;
-            flex-direction: column; align-items: center; gap: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04); display: flex;
+            flex-direction: column; align-items: center; gap: 10px;
         }
         .cgpa-card:hover {
-            transform: translateY(-3px); border-color: var(--theme-color);
-            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.15);
+            transform: translateY(-4px); border-color: var(--theme-color);
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.15);
         }
-        .cgpa-icon { font-size: 1.5rem; color: var(--theme-color); }
-        .cgpa-label { font-size: 0.85rem; font-weight: 700; }
-        .cgpa-sub { font-size: 0.7rem; color: #888; }
+        .cgpa-icon { font-size: 1.8rem; color: var(--theme-color); transition: transform 0.3s; }
+        .cgpa-card:hover .cgpa-icon { transform: scale(1.1) rotate(5deg); }
+        .cgpa-label { font-size: 0.95rem; font-weight: 800; }
+        .cgpa-sub { font-size: 0.75rem; color: #6b7280; font-weight: 600; }
 
         /* --- Helper Classes --- */
         .color-elite { --theme-color: #059669; }
@@ -363,16 +477,10 @@
 
         /* --- AD CONTAINER --- */
         .ad-container {
-            margin-top: 20px;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100px;
-            padding-bottom: 10px;
-            background: rgba(255, 255, 255, 0.2); /* Subtle glass bg */
-            border-radius: 12px;
-            overflow: hidden;
+            margin-top: 20px; width: 100%; display: flex; justify-content: center;
+            align-items: center; min-height: 100px; padding-bottom: 10px;
+            background: rgba(255, 255, 255, 0.1); border-radius: 16px; overflow: hidden;
+            backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);
         }
 
     </style>
@@ -380,28 +488,40 @@
 <body>
 
     <div class="glass-card" id="mainContainer">
-        <h1>Academic Pro <span style="font-size:0.5em; vertical-align:super;">v5.6</span></h1>
-        <p class="subtitle">Attendance & CGPA Manager</p>
+        <h1>Academic Pro <span class="version-badge">v6</span></h1>
+        <p class="subtitle">Attendance & Target Manager</p>
 
         <div id="inputSection">
-            <p style="font-size: 0.9rem; color: #555; margin-bottom: 8px; display:flex; align-items:center; justify-content:space-between;">
-                <span><i class="fas fa-clipboard"></i> Paste Full Attendance Report:</span>
+            <p style="font-size: 0.95rem; color: #4b5563; font-weight: 600; margin-bottom: 12px; display:flex; align-items:center; justify-content:space-between;">
+                <span><i class="fas fa-clipboard" style="color:var(--theme-color);"></i> Paste Attendance Report:</span>
                 <button class="info-btn" onclick="toggleInfo('infoPaste')"><i class="fas fa-info-circle"></i></button>
             </p>
             <div id="infoPaste" class="info-text">
-                <b>हिंदी:</b> ERP Login करें > Reports > Student Aggregate Attendance पर जाएं। पूरी टेबल (Subject से % तक) कॉपी करें और यहाँ पेस्ट करें।
+                <b>Guide:</b> ERP Login करें > Reports > Student Aggregate Attendance पर जाएं। पूरी टेबल (Subject से % तक) कॉपी करें और यहाँ पेस्ट करें।
             </div>
 
-            <textarea id="inputData" placeholder="Copy table from ERP and paste here..."></textarea>
+            <textarea id="inputData" placeholder="Copy full table from your ERP and paste here..."></textarea>
             <button class="btn-main" onclick="processReport()">Calculate Attendance 🚀</button>
-            <div style="text-align:center; margin-top:10px;">
+            
+            <div style="text-align:center; margin-top:15px;">
                  <a href="https://erp.skit.ac.in/reports/student_aggregate" 
-                   style="display: inline-block; background-color: #EEF2FF; color: #4F46E5; font-weight: 600; font-size: 0.85rem; text-decoration: none; padding: 8px 16px; border-radius: 50px; box-shadow: 0 2px 4px rgba(79, 70, 229, 0.1); border: 1px solid #E0E7FF; margin-top: 12px; font-family: sans-serif;">
-                   Where do I copy from? 🤔
+                   style="display: inline-block; background-color: #EEF2FF; color: #4F46E5; font-weight: 700; font-size: 0.85rem; text-decoration: none; padding: 10px 20px; border-radius: 50px; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.15); border: 1px solid #c7d2fe; transition: all 0.3s;">
+                   <i class="fas fa-external-link-alt"></i> Go to ERP Portal
                 </a>
             </div>
 
-            <div class="divider"><span>OR CALCULATE CGPA</span></div>
+            <div class="divider"><span>📚 STUDY & EXAMS</span></div>
+            
+            <a href="https://notes-clg.netlify.app/" target="_blank" class="notes-banner">
+                <div class="notes-icon"><i class="fas fa-book-reader"></i></div>
+                <div class="notes-text">
+                    <strong>College Notes</strong>
+                    <span>Get free premium notes & ace your exams!</span>
+                </div>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+
+            <div class="divider"><span>📊 CGPA CALCULATORS</span></div>
             <div class="cgpa-grid">
                 <a href="https://cgpa-1sem.netlify.app/" target="_blank" class="cgpa-card">
                     <i class="fas fa-baby cgpa-icon"></i>
@@ -436,11 +556,11 @@
                 </div>
             </div>
 
-            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+            <hr style="border: 0; border-top: 2px dashed #e5e7eb; margin: 25px 0;">
 
             <button class="toggle-btn" onclick="toggleSection('timeTravel', this)">
                 <div style="display:flex; align-items:center;">
-                    <i class="fas fa-calendar-alt" style="margin-right:8px; color:#6a11cb;"></i> 
+                    <i class="fas fa-calendar-alt" style="margin-right:12px; color:#6a11cb; font-size:1.2rem;"></i> 
                     <b>75% Prediction Date</b>
                 </div>
                 <div style="display:flex; align-items:center; gap:10px;">
@@ -455,7 +575,7 @@
             </div>
 
             <div id="timeTravel" class="collapsible-content">
-                <p style="font-size:0.75rem; color:#555; margin-bottom:10px;">Edit daily classes (Sun & Holidays are off):</p>
+                <p style="font-size:0.8rem; color:#6b7280; font-weight:600; margin-bottom:12px; text-align:center;">Edit daily classes (Sun & Holidays are off):</p>
                 <div class="schedule-grid">
                     <div class="day-input"><label>Mon</label><input type="number" id="sch_mon" value="5" oninput="liveUpdateDate()"></div>
                     <div class="day-input"><label>Tue</label><input type="number" id="sch_tue" value="5" oninput="liveUpdateDate()"></div>
@@ -464,15 +584,15 @@
                     <div class="day-input"><label>Fri</label><input type="number" id="sch_fri" value="5" oninput="liveUpdateDate()"></div>
                     <div class="day-input"><label>Sat</label><input type="number" id="sch_sat" value="5" oninput="liveUpdateDate()"></div>
                 </div>
-                <button class="btn-action" style="width:100%; background: #6a11cb; color:white; margin-bottom:10px;" onclick="calculateDate()">
+                <button class="btn-action" style="width:100%; background: linear-gradient(135deg, #6a11cb, #2575fc); color:white; margin-bottom:10px; padding:15px; font-size:1.05rem;" onclick="calculateDate()">
                     📅 When will I reach 75%?
                 </button>
-                <div id="dateResult" class="result-text" style="background:#f3f4f6; padding:10px; border-radius:8px; display:none; border-left: 4px solid #6a11cb;"></div>
+                <div id="dateResult" class="result-text" style="background:#f8fafc; padding:15px; border-radius:12px; display:none; border-left: 5px solid #6a11cb; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align:center;"></div>
             </div>
 
             <button class="toggle-btn" onclick="toggleSection('subjectList', this)">
                 <div style="display:flex; align-items:center;">
-                    <i class="fas fa-list-ul" style="margin-right:8px;"></i> 
+                    <i class="fas fa-list-ul" style="margin-right:12px; font-size:1.2rem; color:#4f46e5;"></i> 
                     <b>Subject Breakdown</b>
                 </div>
                 <div style="display:flex; align-items:center; gap:10px;">
@@ -489,8 +609,10 @@
             <div id="subjectList" class="collapsible-content">
             </div>
 
+            <div class="divider"><span>⚙️ PREDICTION TOOLS</span></div>
+
             <div class="tool-header" style="color: #2563EB;">
-                <i class="fas fa-plus-circle"></i> Attend Future Classes
+                <i class="fas fa-plus-circle fa-bounce" style="animation-duration: 3s;"></i> Attend Future Classes
                 <button class="info-btn" onclick="toggleInfo('infoFuture')"><i class="fas fa-info-circle"></i></button>
             </div>
             <div id="infoFuture" class="info-text">
@@ -498,12 +620,12 @@
             </div>
             <div class="tool-row">
                 <input type="number" id="futureInput" placeholder="classes">
-                <button class="btn-action" style="background:#eff6ff; color:#2563EB;" onclick="checkFuture()">Check Boost 🚀</button>
+                <button class="btn-action" style="background:#eff6ff; color:#2563EB; border: 1px solid #bfdbfe;" onclick="checkFuture()">Check Boost 🚀</button>
             </div>
             <div id="futureResult" class="result-text"></div>
 
             <div class="tool-header" style="color: #f59e0b;">
-                <i class="fas fa-bed"></i> Can I Bunk?
+                <i class="fas fa-bed fa-shake" style="animation-duration: 3s;"></i> Can I Bunk?
                 <button class="info-btn" onclick="toggleInfo('infoBunk')"><i class="fas fa-info-circle"></i></button>
             </div>
             <div id="infoBunk" class="info-text">
@@ -511,12 +633,12 @@
             </div>
             <div class="tool-row">
                 <input type="number" id="bunkInput" placeholder="classes">
-                <button class="btn-action" style="background:#fffbeb; color:#f59e0b;" onclick="checkBunk()">Check Drop 📉</button>
+                <button class="btn-action" style="background:#fffbeb; color:#d97706; border: 1px solid #fde68a;" onclick="checkBunk()">Check Drop 📉</button>
             </div>
             <div id="bunkResult" class="result-text"></div>
 
             <div class="tool-header" style="color: #059669;">
-                <i class="fas fa-bullseye"></i> Reach Target
+                <i class="fas fa-bullseye fa-beat" style="animation-duration: 3s;"></i> Reach Target
                 <button class="info-btn" onclick="toggleInfo('infoTarget')"><i class="fas fa-info-circle"></i></button>
             </div>
             <div id="infoTarget" class="info-text">
@@ -524,12 +646,12 @@
             </div>
             <div class="tool-row">
                 <input type="number" id="targetInput" placeholder="%">
-                <button class="btn-action" style="background:#ecfdf5; color:#059669;" onclick="calcTarget()">Classes Needed 📈</button>
+                <button class="btn-action" style="background:#ecfdf5; color:#059669; border: 1px solid #a7f3d0;" onclick="calcTarget()">Classes Needed 📈</button>
             </div>
             <div id="targetResult" class="result-text"></div>
 
             <div class="tool-header" style="color: #db2777;">
-                <i class="fas fa-file-signature"></i> Add OD(On Duty)
+                <i class="fas fa-file-signature fa-flip" style="animation-duration: 4s;"></i> Add OD (On Duty)
                 <button class="info-btn" onclick="toggleInfo('infoOD')"><i class="fas fa-info-circle"></i></button>
             </div>
             <div id="infoOD" class="info-text">
@@ -537,7 +659,7 @@
             </div>
             <div class="tool-row">
                 <input type="number" id="odInput" placeholder="classes">
-                <button class="btn-action" style="background:#fce7f3; color:#db2777;" onclick="checkOD()">Check Impact 🏥</button>
+                <button class="btn-action" style="background:#fdf2f8; color:#db2777; border: 1px solid #fbcfe8;" onclick="checkOD()">Check Impact 🏥</button>
             </div>
             <div id="odResult" class="result-text"></div>
 
@@ -551,46 +673,37 @@
             <div class="tool-row">
                 <input type="number" id="mixAttend" placeholder="Attend" style="width: 35%;">
                 <input type="number" id="mixBunk" placeholder="Bunk" style="width: 35%;">
-                <button class="btn-action" style="background:#f3e8ff; color:#7c3aed;" onclick="calcMix()">Calc 🧮</button>
+                <button class="btn-action" style="background:#f5f3ff; color:#7c3aed; border: 1px solid #ddd6fe;" onclick="calcMix()">Calc 🧮</button>
             </div>
             <div id="mixResult" class="result-text"></div>
 
-
-            <div class="tool-header" style="color: #6a11cb; margin-top: 25px;">
-                <i class="fas fa-calculator"></i> Check Your Grades
-            </div>
-            <div class="cgpa-grid" style="margin-bottom: 20px;">
-                <a href="https://cgpa-1sem.netlify.app/" target="_blank" class="cgpa-card" style="padding: 10px; flex-direction: row; justify-content: center;">
-                    <i class="fas fa-baby"></i> 1st Sem
-                </a>
-                <a href="https://bestcgpa.netlify.app/" target="_blank" class="cgpa-card" style="padding: 10px; flex-direction: row; justify-content: center;">
-                    <i class="fas fa-user-graduate"></i> 3rd Sem
-                </a>
-            </div>
+            <a href="https://notes-clg.netlify.app/" target="_blank" style="display:flex; justify-content:center; align-items:center; gap:10px; margin-top: 30px; background:linear-gradient(90deg, #312e81, #4338ca); color:white; padding:15px; border-radius:12px; text-decoration:none; font-weight:700; box-shadow:0 4px 15px rgba(67, 56, 202, 0.4);">
+                <i class="fas fa-book-open"></i> Read College Notes
+            </a>
 
             <button class="btn-share" onclick="shareResult()">
-                <i class="fab fa-whatsapp"></i> Share Status
+                <i class="fab fa-whatsapp" style="font-size: 1.3rem;"></i> Share Status on WhatsApp
             </button>
             
-            <button style="background:transparent; border:none; color:#666; width:100%; margin-top:15px; font-size:0.8rem; text-decoration:underline;" onclick="resetApp()">
-                Check Another
+            <button style="background:transparent; border:none; color:#6b7280; width:100%; margin-top:20px; font-size:0.9rem; font-weight:600; text-decoration:underline; cursor:pointer;" onclick="resetApp()">
+                Check Another Report
             </button>
         </div>
     </div>
 
-    <div class="glass-card" style="text-align: center; padding: 20px;">
-        <p style="margin: 0; font-weight: 600; font-size: 0.9rem;">Enjoying the Safe Bunks?</p>
-        <p style="font-size: 0.8rem; color: #666; margin-bottom: 15px;">Support the Developer ☕</p>
+    <div class="glass-card" style="text-align: center; padding: 25px;">
+        <p style="margin: 0; font-weight: 800; font-size: 1.1rem; color:#1f2937;">Enjoying the Safe Bunks?</p>
+        <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 20px; font-weight:600;">Support the Developer ☕</p>
         
         <div class="qr-container">
             <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=jainsambhav877@oksbi&pn=Sambhav&cu=INR" 
-                 alt="Scan to Pay" width="150" height="150">
+                 alt="Scan to Pay" width="150" height="150" style="border-radius: 8px;">
         </div>
         
         <br><br>
         <a href="upi://pay?pa=jainsambhav877@oksbi&pn=Sambhav&cu=INR" 
-           style="background:#2563EB; color:white; padding:10px 24px; border-radius:30px; text-decoration:none; font-size:0.9rem; font-weight:600; display:inline-block; box-shadow: 0 4px 10px rgba(37,99,235,0.3);">
-           Pay via UPI App
+           style="background:linear-gradient(135deg, #2563EB, #1d4ed8); color:white; padding:12px 30px; border-radius:50px; text-decoration:none; font-size:1rem; font-weight:700; display:inline-block; box-shadow: 0 6px 15px rgba(37,99,235,0.4); transition: transform 0.3s;">
+           Pay via UPI App <i class="fas fa-arrow-right" style="margin-left:5px; font-size:0.8rem;"></i>
         </a>
     </div>
 
@@ -598,6 +711,7 @@
         <script async="async" data-cfasync="false" src="https://pl28592186.effectivegatecpm.com/87307e4ec90977b7ebc2bd28dde49abe/invoke.js"></script>
         <div id="container-87307e4ec90977b7ebc2bd28dde49abe"></div>
     </div>
+
     <script>
         // Global Variables
         let g_present = 0;
@@ -607,7 +721,7 @@
 
         // On Load
         window.addEventListener('load', () => {
-            const saved = localStorage.getItem('skit_data_v5_6');
+            const saved = localStorage.getItem('academic_data_v6');
             if(saved) {
                 document.getElementById('inputData').value = saved;
             }
@@ -624,7 +738,6 @@
             }
         }
 
-        // --- NEW FUNCTION: TOGGLE INFO ---
         function toggleInfo(id) {
             const el = document.getElementById(id);
             if (el.style.display === "block") {
@@ -638,7 +751,7 @@
             document.getElementById('dashboard').style.display = 'none';
             document.getElementById('inputSection').style.display = 'block';
             document.getElementById('inputData').value = "";
-            localStorage.removeItem('skit_data_v5_6');
+            localStorage.removeItem('academic_data_v6');
             
             // Clear inputs
             ['futureInput', 'bunkInput', 'targetInput', 'odInput', 'mixAttend', 'mixBunk'].forEach(id => {
@@ -664,26 +777,20 @@
             g_subjects = [];
             let found = false;
             
-            // Regex to capture Subject Name + Numbers
             const regex = /^(.*?)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+([0-9.]+)$/;
 
             lines.forEach(line => {
                 const match = line.trim().match(regex);
                 if (match) {
                     found = true;
-                    // Extract data
-                    const rawName = match[1].replace(/^\d+\s+/, '').trim(); // Remove leading numbers
+                    const rawName = match[1].replace(/^\d+\s+/, '').trim(); 
                     
                     const present = parseInt(match[2]);
                     const od = parseInt(match[3]);
                     const makeup = parseInt(match[4]);
                     const absent = parseInt(match[5]);
 
-                    // FIX: ERP Calculation Logic
-                    // Attended = Present + OD + Makeup
                     const attended = present + od + makeup;
-                    
-                    // Total Held = Present + OD + Absent (Makeup is NOT included in total held)
                     const total = present + od + absent;
                     
                     if(total > 0) {
@@ -701,11 +808,11 @@
             });
 
             if (!found) {
-                alert("❌ Data not found! Please copy the full table from SKIT ERP.");
+                alert("❌ Data not found! Please copy the full table from ERP.");
                 return;
             }
 
-            localStorage.setItem('skit_data_v5_6', text);
+            localStorage.setItem('academic_data_v6', text);
             g_percent = ((g_present / g_total) * 100).toFixed(2);
 
             updateDashboard();
@@ -753,7 +860,6 @@
             statusBadge.innerText = badgeText;
             funnyMsg.innerText = `"${msg}"`;
 
-            // Render Subjects
             renderSubjects();
 
             document.getElementById('inputSection').style.display = 'none';
@@ -764,28 +870,25 @@
             const list = document.getElementById('subjectList');
             list.innerHTML = "";
             
-            g_subjects.forEach(sub => {
+            g_subjects.forEach((sub, index) => {
                 let color = "#4f46e5"; 
                 let msgHtml = "";
                 let p = parseFloat(sub.percent);
                 let reqClasses = 0;
 
-                // LOGIC: Calculate classes needed for 75%
                 if(p < 75) {
-                    color = "#dc2626"; // Red
-                    // Formula: (Present + x) / (Total + x) = 0.75
+                    color = "#ef4444"; 
                     reqClasses = Math.ceil((0.75 * sub.total - sub.attended) / 0.25);
-                    msgHtml = `<div class="sub-msg msg-danger">⚠️ Attend <b>${reqClasses}</b> more classes for 75%</div>`;
+                    msgHtml = `<div class="sub-msg msg-danger"><i class="fas fa-exclamation-triangle"></i> Attend <b>${reqClasses}</b> more</div>`;
                 } else {
-                    color = "#059669"; // Green
-                    // Formula for Safe Bunks: (Present) / (Total + x) = 0.75
+                    color = "#10b981"; 
                     let bunks = Math.floor((sub.attended / 0.75) - sub.total);
-                    if (bunks > 0) msgHtml = `<div class="sub-msg msg-safe">✅ Safe to bunk <b>${bunks}</b> classes</div>`;
-                    else msgHtml = `<div class="sub-msg" style="background:#f3f4f6; color:#555">Exact 75% or near. Don't bunk!</div>`;
+                    if (bunks > 0) msgHtml = `<div class="sub-msg msg-safe"><i class="fas fa-check-circle"></i> Safe to bunk <b>${bunks}</b></div>`;
+                    else msgHtml = `<div class="sub-msg" style="background:#f1f5f9; color:#64748b; border:1px solid #e2e8f0;">Near 75%. Don't bunk!</div>`;
                 }
 
                 list.innerHTML += `
-                    <div class="sub-card" style="border-left-color:${color}">
+                    <div class="sub-card" style="border-left-color:${color}; animation: slideUpFade 0.5s ease forwards; animation-delay: ${index * 0.1}s;">
                         <div class="sub-header">
                             <span class="sub-name">${sub.name}</span>
                             <span class="sub-percent" style="color:${color}">${sub.percent}%</span>
@@ -794,7 +897,7 @@
                             <div class="progress-fill" style="width:${sub.percent}%; background:${color};"></div>
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span style="font-size:0.75rem; color:#666;">${sub.attended}/${sub.total}</span>
+                            <span style="font-size:0.8rem; font-weight:700; color:#64748b;">${sub.attended}/${sub.total} classes</span>
                             ${msgHtml}
                         </div>
                     </div>
@@ -802,11 +905,8 @@
             });
         }
 
-        // --- NEW TIME TRAVEL LOGIC (SIMPLE SUNDAY SKIP) ---
-        // Helper to update date on typing without clicking button
         function liveUpdateDate() {
             const resultBox = document.getElementById('dateResult');
-            // Only update if the user has already revealed the date section
             if(resultBox.style.display === 'block') {
                 calculateDate();
             }
@@ -815,35 +915,25 @@
         function calculateDate() {
             if(parseFloat(g_percent) >= 75) {
                 document.getElementById('dateResult').style.display = 'block';
-                document.getElementById('dateResult').innerHTML = "<b>Relax!</b> You are already above 75%. <br>Enjoy your life! 😎";
+                document.getElementById('dateResult').innerHTML = "<b style='font-size:1.1rem;'>Relax!</b><br>You are already above 75%. <br>Enjoy your life! 😎";
                 return;
             }
 
-            // Holidays for 2026
             const holidays = [
-                "2026-02-15", // Mahashivratri
-                "2026-03-02", "2026-03-03", // Holi
-                "2026-03-26", // Ram Navmi
-                "2026-08-15", // Independence Day
-                "2026-08-28", // Raksha Bandhan
-                "2026-09-04", // Janmashtami
-                "2026-10-20"  // Dussehra
+                "2026-02-15", "2026-03-02", "2026-03-03", "2026-03-26",
+                "2026-08-15", "2026-08-28", "2026-09-04", "2026-10-20"
             ];
             
-            // Function to check if a date is a holiday or Sunday
             function isHolidayOrSunday(date) {
-                if (date.getDay() === 0) return true; // Sunday
+                if (date.getDay() === 0) return true; 
 
-                // Check Specific Holidays
                 const dStr = date.toISOString().split('T')[0];
                 if (holidays.includes(dStr)) return true;
 
-                // Autumn Break: 6 to 15 Nov
                 const autumnStart = new Date("2026-11-06");
                 const autumnEnd = new Date("2026-11-15");
                 if (date >= autumnStart && date <= autumnEnd) return true;
 
-                // Winter Break: 25 to 31 Dec
                 const winterStart = new Date("2026-12-25");
                 const winterEnd = new Date("2026-12-31");
                 if (date >= winterStart && date <= winterEnd) return true;
@@ -851,9 +941,8 @@
                 return false;
             }
 
-            // 1. Get Weekly Schedule from Inputs
             const schedule = [
-                0, // Sunday
+                0, 
                 parseInt(document.getElementById('sch_mon').value) || 0,
                 parseInt(document.getElementById('sch_tue').value) || 0,
                 parseInt(document.getElementById('sch_wed').value) || 0,
@@ -862,17 +951,15 @@
                 parseInt(document.getElementById('sch_sat').value) || 0
             ];
 
-            // 2. Calculate Total Classes Needed
             let needed = Math.ceil((0.75 * g_total - g_present) / 0.25);
             let daysPassed = 0;
             let currentDate = new Date(); 
 
-            // 3. Loop days
             while (needed > 0) {
                 currentDate.setDate(currentDate.getDate() + 1);
                 daysPassed++;
                 
-                if (isHolidayOrSunday(currentDate)) continue; // Skip holidays
+                if (isHolidayOrSunday(currentDate)) continue; 
 
                 let dayIndex = currentDate.getDay(); 
                 let classesToday = schedule[dayIndex];
@@ -885,13 +972,12 @@
                 }
             }
 
-            // 4. Show Result
             const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
             const dateString = currentDate.toLocaleDateString('en-IN', options);
 
             document.getElementById('dateResult').style.display = 'block';
             document.getElementById('dateResult').innerHTML = 
-                `If you attend daily (excluding holidays):<br><b style="font-size:1.1rem; color:#6a11cb;">${dateString}</b><br><span style="font-size:0.8rem">(${daysPassed} days from now)</span>`;
+                `If you attend daily (excluding holidays):<br><b style="font-size:1.2rem; color:#6a11cb; display:inline-block; margin-top:8px;">${dateString}</b><br><span style="font-size:0.85rem; color:#64748b; font-weight:600;">(${daysPassed} days from now)</span>`;
         }
 
         function checkFuture() {
@@ -904,7 +990,7 @@
             const boost = newPercent - parseFloat(g_percent);
             
             document.getElementById('futureResult').innerHTML = 
-                `New %: <b>${newPercent.toFixed(2)}%</b> <span style="color:var(--theme-color)">(+${boost.toFixed(2)}%)</span>`;
+                `New %: <b>${newPercent.toFixed(2)}%</b> <span style="color:var(--theme-color); font-weight:800;">(+${boost.toFixed(2)}%)</span>`;
         }
 
         function checkBunk() {
@@ -916,7 +1002,7 @@
             const drop = parseFloat(g_percent) - newPercent;
             
             document.getElementById('bunkResult').innerHTML = 
-                `New %: <b>${newPercent.toFixed(2)}%</b> <span style="color:red">(-${drop.toFixed(2)}%)</span>`;
+                `New %: <b>${newPercent.toFixed(2)}%</b> <span style="color:#dc2626; font-weight:800;">(-${drop.toFixed(2)}%)</span>`;
         }
 
         function calcTarget() {
@@ -947,10 +1033,9 @@
             const boost = newPercent - parseFloat(g_percent);
             
             document.getElementById('odResult').innerHTML = 
-                `New %: <b>${newPercent.toFixed(2)}%</b> <span style="color:#db2777">(+${boost.toFixed(2)}%)</span>`;
+                `New %: <b>${newPercent.toFixed(2)}%</b> <span style="color:#db2777; font-weight:800;">(+${boost.toFixed(2)}%)</span>`;
         }
 
-        // --- NEW FEATURE: MIX CALCULATOR LOGIC ---
         function calcMix() {
             const att = parseInt(document.getElementById('mixAttend').value) || 0;
             const bnk = parseInt(document.getElementById('mixBunk').value) || 0;
@@ -963,8 +1048,8 @@
             
             const diff = newPercent - parseFloat(g_percent);
             let diffStr = "";
-            if(diff >= 0) diffStr = `<span style="color:var(--theme-color)">(+${diff.toFixed(2)}%)</span>`;
-            else diffStr = `<span style="color:red">(${diff.toFixed(2)}%)</span>`;
+            if(diff >= 0) diffStr = `<span style="color:var(--theme-color); font-weight:800;">(+${diff.toFixed(2)}%)</span>`;
+            else diffStr = `<span style="color:#dc2626; font-weight:800;">(${diff.toFixed(2)}%)</span>`;
 
             document.getElementById('mixResult').innerHTML = 
                 `Final %: <b>${newPercent.toFixed(2)}%</b> ${diffStr}`;
@@ -974,17 +1059,17 @@
             const p = parseFloat(g_percent);
             let shareText = "";
 
-            if (p >= 85) shareText = `🤓 My Attendance is ${p}%. I attend classes so you don't have to. #SKITTopper`;
-            else if (p >= 75) shareText = `😎 My Attendance is ${p}%. Chill vibes only. Safe Zone. #SKITManager`;
-            else if (p >= 65) shareText = `💀 My Attendance is ${p}%. Risk hai toh Ishq hai. #LivingOnEdge`;
-            else if (p >= 45) shareText = `🆘 My Attendance is ${p}%. Send prayers, HOD is watching. #DangerZone`;
-            else shareText = `🗿 My Attendance is ${p}%. Legend status achieved. #BacklogWarrior`;
+            if (p >= 85) shareText = `🤓 My Attendance is ${p}%. I attend classes so you don't have to.`;
+            else if (p >= 75) shareText = `😎 My Attendance is ${p}%. Chill vibes only. Safe Zone.`;
+            else if (p >= 65) shareText = `💀 My Attendance is ${p}%. Risk hai toh Ishq hai.`;
+            else if (p >= 45) shareText = `🆘 My Attendance is ${p}%. Send prayers, HOD is watching.`;
+            else shareText = `🗿 My Attendance is ${p}%. Legend status achieved.`;
 
-            shareText += `\n\nCheck yours here:https://magical-tanuki-6349b2.netlify.app/`;
+            shareText += `\n\nCheck yours, Find Safe Bunks & Download College Notes here: https://magical-tanuki-6349b2.netlify.app/`;
 
             if (navigator.share) {
                 navigator.share({
-                    title: 'SKIT Academic Status',
+                    title: 'Academic Status',
                     text: shareText
                 }).catch(console.error);
             } else {
