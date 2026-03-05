@@ -1,778 +1,1100 @@
 <!DOCTYPE html>
-<html lang="en" class="light">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notes Hub</title>
-    <meta name="theme-color" content="#7e22ce">
-    <link rel="apple-touch-icon" href="logo.png">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4XQ0JK7ELF"></script>
     <script>
-        tailwind.config = { darkMode: 'class' }
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-4XQ0JK7ELF');
     </script>
-    <link rel="manifest" href="manifest.json">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Academic Pro v6</title>
+    <meta name="theme-color" content="#4f46e5">
+
+    <link rel="icon" type="image/jpeg" href="unnamed.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-        body { 
-            font-family: 'Poppins', sans-serif; 
-            transition: background-color 0.3s, color 0.3s;
-            -webkit-user-select: none; 
-            -ms-user-select: none; 
-            user-select: none; 
-            overscroll-behavior-y: contain; 
-            cursor: default; 
-        } 
-        input, select, textarea {
-            -webkit-user-select: text;
-            -ms-user-select: text;
-            user-select: text;
-            cursor: text;
+        :root {
+            --theme-color: #4f46e5; 
+            --glass-bg: rgba(255, 255, 255, 0.92);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --text-main: #1f2937;
+            --text-light: #6b7280;
         }
 
-        .card-shadow { box-shadow: 0 4px 6px -1px rgba(107, 33, 168, 0.1), 0 2px 4px -1px rgba(107, 33, 168, 0.06); }
-        .card-hover:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(107, 33, 168, 0.15); }
-        .progress-animate { transition: width 0.4s ease; }
-        
-        ::-webkit-scrollbar { display: none; }
-        * { -ms-overflow-style: none; scrollbar-width: none; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        .dark body { background-color: #0f172a; color: #f8fafc; } 
-        .dark nav { background-color: #0f172a !important; border-bottom-color: #1e293b !important; }
-        .dark .bg-white { background-color: #1e293b !important; border-color: #334155 !important; } 
-        .dark .text-purple-800 { color: #f8fafc !important; } 
-        .dark h1.text-purple-700 { color: #a855f7 !important; } 
-        .dark .text-purple-700 { color: #c4b5fd !important; } 
-        .dark .text-purple-600 { color: #a78bfa !important; }
-        .dark .text-slate-800 { color: #f8fafc !important; }
-        .dark .text-gray-500, .dark .text-gray-600, .dark .text-gray-400 { color: #94a3b8 !important; } 
-        .dark .bg-purple-50 { background-color: #334155 !important; color: #f8fafc !important; }
-        .dark input, .dark select, .dark textarea { background-color: #0f172a !important; border-color: #334155 !important; color: #f8fafc !important; }
-        .dark .border-purple-200, .dark .border-purple-50, .dark .border-purple-100 { border-color: #334155 !important; }
-        .dark .border-purple-300 { border-color: #475569 !important; }
-        .dark .hover\:border-purple-500:hover { border-color: #a855f7 !important; }
-        .dark .bg-purple-100 { background-color: #334155 !important; color: #c4b5fd !important; } 
-        .dark .hover\:bg-purple-200:hover { background-color: #475569 !important; }
-        .dark .bg-gray-100 { background-color: #334155 !important; color: #f8fafc !important; } 
-        .dark .hover\:bg-gray-200:hover { background-color: #475569 !important; }
-        .dark .bg-green-100 { background-color: rgba(16, 185, 129, 0.15) !important; color: #34d399 !important; border: 1px solid rgba(16,185,129,0.3); } 
-        .dark .text-green-700 { color: #34d399 !important; }
-        .dark .bg-yellow-50 { background-color: rgba(234, 179, 8, 0.1) !important; border-color: #ca8a04 !important; } 
-        .dark .text-yellow-800 { color: #fde047 !important; }
-        .dark .card-shadow { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4) !important; }
-        .dark .card-hover:hover { box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6) !important; border-color: #475569 !important; }
-        .dark #uploadModal > div, .dark #requestModal > div { background-color: #1e293b !important; border: 1px solid #334155; }
+        /* --- ANIMATED BACKGROUND --- */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(-45deg, #000428, #004e92, #6a11cb, #2b0854);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--text-main);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- Glassmorphism Card (Enhanced) --- */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.4);
+            width: 100%;
+            max-width: 600px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-card:hover {
+            box-shadow: 0 15px 50px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            text-align: center;
+            margin: 0 0 5px 0;
+            background: linear-gradient(135deg, #4f46e5, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        /* Version Badge Fixed */
+        .version-badge {
+            font-size: 0.5em;
+            color: #ffffff;
+            background: #ec4899;
+            padding: 4px 10px;
+            border-radius: 12px;
+            display: inline-block;
+            -webkit-text-fill-color: #ffffff; /* Override gradient text clip */
+            box-shadow: 0 2px 6px rgba(236, 72, 153, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 110px;
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px solid #e5e7eb;
+            font-family: monospace;
+            font-size: 0.9rem;
+            resize: none;
+            transition: all 0.3s ease;
+            outline: none;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+        
+        textarea:focus { 
+            border-color: var(--theme-color); 
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+            background: #fff;
+        }
+
+        /* --- BUTTONS --- */
+        .btn-main {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--theme-color), #3b82f6);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+            transition: all 0.3s ease;
+            margin-top: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-main::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
+            transform: skewX(-20deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            20% { left: 200%; }
+            100% { left: 200%; }
+        }
+
+        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79, 70, 229, 0.6); }
+        .btn-main:active { transform: scale(0.98); }
+
+        /* --- Dashboard --- */
+        #dashboard { display: none; animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Score Circle --- */
+        .score-circle {
+            position: relative;
+            width: 160px;
+            height: 160px;
+            margin: 0 auto 25px auto;
+            border-radius: 50%;
+            background: conic-gradient(var(--theme-color) 0deg, #e5e7eb 0deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+        }
+
+        .score-circle:hover { transform: scale(1.05); }
+
+        .score-circle::before {
+            content: "";
+            position: absolute;
+            width: 130px;
+            height: 130px;
+            background: var(--glass-bg);
+            border-radius: 50%;
+            box-shadow: inset 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .score-val {
+            position: relative;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--theme-color);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .status-badge {
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: var(--theme-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .funny-msg {
+            text-align: center;
+            font-size: 0.95rem;
+            font-style: italic;
+            color: #4b5563;
+            margin-bottom: 25px;
+            background: rgba(255,255,255,0.7);
+            padding: 12px;
+            border-radius: 12px;
+            border-left: 4px solid var(--theme-color);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+
+        /* --- Stats Grid --- */
+        .stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, #ffffff, #f9fafb);
+            padding: 15px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+            border: 1px solid #f3f4f6;
+            transition: transform 0.2s;
+        }
+        .stat-item:hover { transform: translateY(-3px); }
+        .stat-val { font-weight: 800; font-size: 1.4rem; color: #1f2937; }
+        .stat-label { font-size: 0.85rem; color: #6b7280; font-weight: 600; text-transform: uppercase; margin-top: 4px; }
+
+        /* --- Collapsible Buttons --- */
+        .toggle-btn {
+            width: 100%;
+            background: linear-gradient(to right, #ffffff, #f8fafc);
+            border: 1px solid #e5e7eb;
+            padding: 16px;
+            border-radius: 14px;
+            font-weight: 700;
+            color: #374151;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+        .toggle-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.05); border-color: #cbd5e1; }
+        .toggle-btn.active { border-left: 5px solid var(--theme-color); background: #f0fdf4; }
+        .toggle-btn i.fa-chevron-down { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .toggle-btn.active i.fa-chevron-down { transform: rotate(180deg); color: var(--theme-color); }
+
+        .collapsible-content {
+            display: none;
+            padding: 5px 0 15px 0;
+            animation: slideDown 0.4s ease forwards;
+        }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- Time Travel Grid --- */
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        .day-input { text-align: center; }
+        .day-input label { 
+            display: block; 
+            font-size: 0.75rem; 
+            color: #6b7280; 
+            margin-bottom: 6px; 
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+        .day-input input {
+            width: 100%; 
+            padding: 12px 0; 
+            border: 2px solid #e5e7eb; 
+            border-radius: 12px;
+            text-align: center; 
+            font-weight: 800; 
+            font-size: 1.1rem;
+            background: #fff;
+            color: #1f2937;
+            transition: all 0.3s;
+        }
+        .day-input input:focus { border-color: var(--theme-color); outline: none; background: #e0e7ff; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+
+        /* --- Subject Cards --- */
+        .sub-card {
+            background: white;
+            padding: 18px;
+            border-radius: 16px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border: 1px solid #f3f4f6;
+            border-left: 6px solid #ccc;
+            transition: all 0.3s ease;
+            opacity: 0; /* for animation */
+        }
+        .sub-card:hover { transform: translateX(5px); box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
+        
+        .sub-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        
+        .sub-name { 
+            font-weight: 700; font-size: 0.95rem; color: #1f2937; 
+            flex: 1; padding-right: 15px; word-wrap: break-word; line-height: 1.3;
+        }
+        
+        .sub-percent { font-weight: 800; font-size: 1.1rem; white-space: nowrap; }
+        
+        .progress-track {
+            width: 100%; height: 10px; background: #f3f4f6; border-radius: 10px; overflow: hidden; margin-bottom: 10px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .progress-fill { height: 100%; border-radius: 10px; transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        .sub-msg { font-size: 0.75rem; font-weight: 700; padding: 6px 10px; border-radius: 6px; display: inline-block; }
+        .msg-danger { background: #fef2f2; color: #ef4444; border: 1px solid #fee2e2; }
+        .msg-safe { background: #f0fdf4; color: #16a34a; border: 1px solid #dcfce7; }
+
+        /* --- Tools Section --- */
+        .tool-header {
+            font-size: 1rem; font-weight: 700; margin: 20px 0 10px 0;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .tool-row { display: flex; gap: 12px; margin-bottom: 8px; }
+
+        input[type="number"] {
+            width: 80px; padding: 12px; border: 2px solid #e5e7eb;
+            border-radius: 12px; text-align: center; font-weight: 800;
+            transition: all 0.3s ease; font-size: 1rem;
+        }
+        input[type="number"]:focus { border-color: var(--theme-color); outline: none; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+
+        .btn-action {
+            flex: 1; padding: 12px; border: none; border-radius: 12px;
+            background: #eef2ff; color: var(--theme-color); font-weight: 700;
+            font-size: 0.95rem; cursor: pointer; transition: all 0.2s ease;
+        }
+        .btn-action:hover { filter: brightness(0.95); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .btn-action:active { transform: scale(0.98); }
+        
+        .result-text { font-size: 0.9rem; color: #4b5563; margin-bottom: 15px; margin-left: 2px; font-weight: 600; }
+
+        /* --- INFO BUTTON STYLES --- */
+        .info-btn {
+            background: none; border: none; color: #9ca3af;
+            cursor: pointer; margin-left: auto; font-size: 1.1rem;
+            padding: 5px; transition: color 0.3s;
+        }
+        .info-btn:hover { color: var(--theme-color); }
+        
+        .info-text {
+            display: none; font-size: 0.85rem; color: #4b5563;
+            background: #f8fafc; padding: 12px; border-radius: 10px;
+            margin-bottom: 15px; border-left: 4px solid var(--theme-color);
+            line-height: 1.5; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            animation: slideDown 0.3s ease;
+        }
+
+        .btn-share {
+            background: linear-gradient(135deg, #25D366, #128C7E); color: white; width: 100%; margin-top: 25px;
+            padding: 15px; border-radius: 50px; display: flex;
+            align-items: center; justify-content: center; gap: 10px;
+            font-weight: 700; border: none; cursor: pointer; font-size: 1.05rem;
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4); transition: all 0.3s ease;
+        }
+        .btn-share:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(37, 211, 102, 0.5); }
+
+        .qr-container {
+            margin-top: 15px; background: white; padding: 15px;
+            border-radius: 16px; display: inline-block;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .qr-container:hover { transform: scale(1.05); }
+
+        /* --- NOTES BANNER --- */
+        .notes-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, #1e3a8a 0%, #4338ca 100%);
+            color: white;
+            padding: 18px 20px;
+            border-radius: 16px;
+            text-decoration: none;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 25px rgba(67, 56, 202, 0.4);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .notes-banner::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+            animation: spinBg 10s linear infinite;
+        }
+        @keyframes spinBg { 100% { transform: rotate(360deg); } }
+        .notes-banner:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 12px 30px rgba(67, 56, 202, 0.5); }
+        .notes-banner .notes-text { flex: 1; margin-left: 18px; display: flex; flex-direction: column; z-index: 1; }
+        .notes-banner .notes-text strong { font-size: 1.15rem; font-weight: 800; margin-bottom: 4px; letter-spacing: 0.5px; }
+        .notes-banner .notes-text span { font-size: 0.8rem; opacity: 0.9; font-weight: 300; }
+        .notes-icon { font-size: 2.2rem; z-index: 1; text-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .notes-banner .fa-arrow-right { z-index: 1; background: rgba(255,255,255,0.2); padding: 10px; border-radius: 50%; backdrop-filter: blur(5px); }
+
+        /* --- CGPA CALCULATOR STYLES --- */
+        .divider {
+            display: flex; align-items: center; text-align: center;
+            margin: 25px 0 20px 0; color: #9ca3af; font-size: 0.8rem;
+            font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+        }
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 2px solid #e5e7eb; }
+        .divider span { padding: 0 15px; }
+
+        .cgpa-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .cgpa-card {
+            background: white; border: 2px solid transparent; padding: 18px 12px;
+            border-radius: 16px; text-align: center; text-decoration: none;
+            color: var(--text-main); transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.04); display: flex;
+            flex-direction: column; align-items: center; gap: 10px;
+        }
+        .cgpa-card:hover {
+            transform: translateY(-4px); border-color: var(--theme-color);
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.15);
+        }
+        .cgpa-icon { font-size: 1.8rem; color: var(--theme-color); transition: transform 0.3s; }
+        .cgpa-card:hover .cgpa-icon { transform: scale(1.1) rotate(5deg); }
+        .cgpa-label { font-size: 0.95rem; font-weight: 800; }
+        .cgpa-sub { font-size: 0.75rem; color: #6b7280; font-weight: 600; }
+
+        /* --- Helper Classes --- */
+        .color-elite { --theme-color: #059669; }
+        .color-safe { --theme-color: #0ea5e9; }
+        .color-risky { --theme-color: #f59e0b; }
+        .color-danger { --theme-color: #ea580c; }
+        .color-critical { --theme-color: #dc2626; }
+
+        /* --- AD CONTAINER --- */
+        .ad-container {
+            margin-top: 20px; width: 100%; display: flex; justify-content: center;
+            align-items: center; min-height: 100px; padding-bottom: 10px;
+            background: rgba(255, 255, 255, 0.1); border-radius: 16px; overflow: hidden;
+            backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);
+        }
+
     </style>
 </head>
-<body class="min-h-screen flex flex-col bg-[#f8f5ff] text-slate-800">
+<body>
 
-    <nav class="bg-[#f8f5ff] dark:bg-[#111827] border-b border-purple-200 dark:border-gray-700 px-4 sm:px-6 py-4 flex justify-between items-center sticky top-0 z-50 transition-colors">
-        <h1 class="text-xl sm:text-2xl font-bold text-purple-700 cursor-pointer" onclick="navigateTo('years')">Notes</h1>
-       <div class="flex gap-2 sm:gap-4 font-medium items-center">
-    
-    <button onclick="toggleDarkMode()" class="text-xl p-2 rounded-full hover:bg-purple-100 dark:hover:bg-gray-700 transition cursor-pointer" id="themeToggle">🌙</button>
+    <div class="glass-card" id="mainContainer">
+        <h1>Academic Pro <span class="version-badge">v6</span></h1>
+        <p class="subtitle">Attendance & Target Manager</p>
 
-    <button onclick="shareApp()" class="hover:bg-blue-100 dark:hover:bg-blue-900 transition flex items-center gap-1 bg-blue-50 dark:bg-gray-700 text-blue-600 dark:text-blue-400 px-3 py-1.5 rounded-full border border-blue-200 dark:border-gray-600 cursor-pointer font-bold shadow-sm">
-        <span class="hidden sm:block">Share</span>
-        <span>🔗</span>
-    </button>
-
-    <button onclick="navigateTo('library')" class="hover:bg-yellow-100 dark:hover:bg-yellow-900 transition flex items-center gap-1 bg-yellow-50 dark:bg-gray-700 text-yellow-600 dark:text-yellow-400 px-3 py-1.5 rounded-full border border-yellow-200 dark:border-gray-600 cursor-pointer font-bold shadow-sm">
-        <span class="hidden sm:block">Library</span>
-        <span>⭐</span>
-    </button>
- <button onclick="navigateTo('bounty')" class="hover:bg-orange-100 dark:hover:bg-orange-900 transition flex items-center gap-1 bg-orange-50 dark:bg-gray-700 text-orange-600 dark:text-orange-400 px-3 py-1.5 rounded-full border border-orange-200 dark:border-gray-600 cursor-pointer font-bold shadow-sm">
-                <span class="hidden sm:block">Requests</span>
-                <span>🎯</span>
-            </button>
-    <button onclick="toggleUpload()" class="hover:bg-purple-200 transition bg-purple-100 dark:bg-purple-900 dark:text-white text-purple-800 px-4 py-1.5 rounded-full cursor-pointer font-bold">Upload</button>
-</div>
-    </nav>
-
-    <div class="container mx-auto px-4 mt-8 max-w-2xl hidden" id="searchContainer">
-        <div class="relative">
-            <input type="text" id="searchInput" onkeyup="handleSearch()" placeholder="Search subjects instantly (e.g. DBMS, Physics)..." class="w-full bg-white dark:bg-gray-800 border-2 border-purple-200 dark:border-gray-600 text-lg rounded-2xl py-4 px-6 pl-12 shadow-sm focus:outline-none focus:border-purple-500 dark:focus:border-purple-400 dark:text-white transition-colors cursor-text">
-            <span class="absolute left-4 top-4 text-2xl">🔍</span>
-        </div>
-        <div id="searchResults" class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
-    </div>
-
-    <main class="flex-grow container mx-auto px-4 py-6 max-w-5xl" id="app">
-        <div class="text-center py-20"><p class="text-xl animate-pulse">Loading amazing notes... 🚀</p></div>
-    </main>
-
-    <div id="requestModal" class="fixed inset-0 bg-black/70 z-50 hidden flex justify-center items-center backdrop-blur-sm">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-md w-full shadow-2xl mx-4">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-orange-600 dark:text-orange-400">Ask for Notes 🙋‍♂️</h2>
-                <button onclick="document.getElementById('requestModal').classList.add('hidden')" class="text-slate-400 hover:text-red-500 text-3xl font-bold cursor-pointer">&times;</button>
+        <div id="inputSection">
+            <p style="font-size: 0.95rem; color: #4b5563; font-weight: 600; margin-bottom: 12px; display:flex; align-items:center; justify-content:space-between;">
+                <span><i class="fas fa-clipboard" style="color:var(--theme-color);"></i> Paste Attendance Report:</span>
+                <button class="info-btn" onclick="toggleInfo('infoPaste')"><i class="fas fa-info-circle"></i></button>
+            </p>
+            <div id="infoPaste" class="info-text">
+                <b>Guide:</b> ERP Login करें > Reports > Student Aggregate Attendance पर जाएं। पूरी टेबल (Subject से % तक) कॉपी करें और यहाँ पेस्ट करें।
             </div>
-            <div class="space-y-4">
-                <input type="text" id="reqName" placeholder="Your Name" class="w-full border border-orange-200 p-3 rounded-xl outline-none bg-orange-50 dark:bg-gray-700 dark:text-white cursor-text text-sm dark:border-gray-600">
-                <div class="grid grid-cols-2 gap-4">
-                    <select id="reqSem" onchange="updateReqSubjects()" class="w-full border border-orange-200 p-3 rounded-xl outline-none bg-orange-50 dark:bg-gray-700 dark:text-white cursor-pointer text-sm dark:border-gray-600">
-                        <option value="1">1st Sem</option>
-                        <option value="2">2nd Sem</option>
-                        <option value="3">3rd Sem</option>
-                        <option value="4" selected>4th Sem</option>
-                        <option value="5">5th Sem</option>
-                        <option value="6">6th Sem</option>
-                        <option value="7">7th Sem</option>
-                        <option value="8">8th Sem</option>
-                    </select>
-                    <select id="reqSub" class="w-full border border-orange-200 p-3 rounded-xl outline-none bg-orange-50 dark:bg-gray-700 dark:text-white cursor-pointer text-sm dark:border-gray-600"></select>
+
+            <textarea id="inputData" placeholder="Copy full table from your ERP and paste here..."></textarea>
+            <button class="btn-main" onclick="processReport()">Calculate Attendance 🚀</button>
+            
+            <div style="text-align:center; margin-top:15px;">
+                 <a href="https://erp.skit.ac.in/reports/student_aggregate" 
+                   style="display: inline-block; background-color: #EEF2FF; color: #4F46E5; font-weight: 700; font-size: 0.85rem; text-decoration: none; padding: 10px 20px; border-radius: 50px; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.15); border: 1px solid #c7d2fe; transition: all 0.3s;">
+                   <i class="fas fa-external-link-alt"></i> Go to ERP Portal
+                </a>
+            </div>
+
+            <div class="divider"><span>📚 STUDY & EXAMS</span></div>
+            
+            <a href="https://notes-clg.netlify.app/" target="_blank" class="notes-banner">
+                <div class="notes-icon"><i class="fas fa-book-reader"></i></div>
+                <div class="notes-text">
+                    <strong>College Notes</strong>
+                    <span>Get free premium notes & ace your exams!</span>
                 </div>
-                <textarea id="reqMsg" rows="3" placeholder="What exactly do you need? (e.g., Unit 4 handwritten notes for Mid-terms)" class="w-full border border-orange-200 p-3 rounded-xl outline-none bg-orange-50 dark:bg-gray-700 dark:text-white cursor-text text-sm dark:border-gray-600"></textarea>
-                <button onclick="submitRequestForm()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl shadow-lg transition cursor-pointer">Post Request 🚀</button>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+
+            <div class="divider"><span>📊 CGPA CALCULATORS</span></div>
+            <div class="cgpa-grid">
+                <a href="https://cgpa-1sem.netlify.app/" target="_blank" class="cgpa-card">
+                    <i class="fas fa-baby cgpa-icon"></i>
+                    <span class="cgpa-label">1st Sem</span>
+                    <span class="cgpa-sub">Fresher Calculator</span>
+                </a>
+                <a href="https://bestcgpa.netlify.app/" target="_blank" class="cgpa-card">
+                    <i class="fas fa-user-graduate cgpa-icon"></i>
+                    <span class="cgpa-label">3rd Sem</span>
+                    <span class="cgpa-sub">Senior Calculator</span>
+                </a>
             </div>
         </div>
-    </div>
 
-    <div id="uploadModal" class="fixed inset-0 bg-black/70 z-50 hidden flex justify-center items-center backdrop-blur-sm">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-lg w-full shadow-2xl mx-4 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-purple-700 dark:text-purple-300">Upload Center</h2>
-                <button onclick="toggleUpload()" class="text-slate-400 hover:text-red-500 text-3xl font-bold cursor-pointer">&times;</button>
+        <div id="dashboard">
+            <div class="status-badge" id="statusBadge">Checking...</div>
+            
+            <div class="score-circle">
+                <span class="score-val" id="percentDisplay">0%</span>
+            </div>
+
+            <div class="funny-msg" id="funnyMsg">"Calculating..."</div>
+
+            <div class="stats-row">
+                <div class="stat-item">
+                    <div class="stat-val" id="attendedVal">0</div>
+                    <div class="stat-label">Attended</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-val" id="totalVal">0</div>
+                    <div class="stat-label">Total Held</div>
+                </div>
+            </div>
+
+            <hr style="border: 0; border-top: 2px dashed #e5e7eb; margin: 25px 0;">
+
+            <button class="toggle-btn" onclick="toggleSection('timeTravel', this)">
+                <div style="display:flex; align-items:center;">
+                    <i class="fas fa-calendar-alt" style="margin-right:12px; color:#6a11cb; font-size:1.2rem;"></i> 
+                    <b>75% Prediction Date</b>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span class="info-btn" onclick="event.stopPropagation(); toggleInfo('infoDate')" style="margin:0;">
+                        <i class="fas fa-info-circle"></i>
+                    </span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </button>
+            <div id="infoDate" class="info-text">
+                <b>हिंदी:</b> यह कैलकुलेट करता है कि अगर आप आज से रोज़ (छुट्टियों को छोड़कर) कॉलेज जाएं, तो आपकी 75% अटेंडेंस किस तारीख को पूरी होगी।
+            </div>
+
+            <div id="timeTravel" class="collapsible-content">
+                <p style="font-size:0.8rem; color:#6b7280; font-weight:600; margin-bottom:12px; text-align:center;">Edit daily classes (Sun & Holidays are off):</p>
+                <div class="schedule-grid">
+                    <div class="day-input"><label>Mon</label><input type="number" id="sch_mon" value="5" oninput="liveUpdateDate()"></div>
+                    <div class="day-input"><label>Tue</label><input type="number" id="sch_tue" value="5" oninput="liveUpdateDate()"></div>
+                    <div class="day-input"><label>Wed</label><input type="number" id="sch_wed" value="5" oninput="liveUpdateDate()"></div>
+                    <div class="day-input"><label>Thu</label><input type="number" id="sch_thu" value="6" oninput="liveUpdateDate()"></div>
+                    <div class="day-input"><label>Fri</label><input type="number" id="sch_fri" value="5" oninput="liveUpdateDate()"></div>
+                    <div class="day-input"><label>Sat</label><input type="number" id="sch_sat" value="5" oninput="liveUpdateDate()"></div>
+                </div>
+                <button class="btn-action" style="width:100%; background: linear-gradient(135deg, #6a11cb, #2575fc); color:white; margin-bottom:10px; padding:15px; font-size:1.05rem;" onclick="calculateDate()">
+                    📅 When will I reach 75%?
+                </button>
+                <div id="dateResult" class="result-text" style="background:#f8fafc; padding:15px; border-radius:12px; display:none; border-left: 5px solid #6a11cb; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align:center;"></div>
+            </div>
+
+            <button class="toggle-btn" onclick="toggleSection('subjectList', this)">
+                <div style="display:flex; align-items:center;">
+                    <i class="fas fa-list-ul" style="margin-right:12px; font-size:1.2rem; color:#4f46e5;"></i> 
+                    <b>Subject Breakdown</b>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span class="info-btn" onclick="event.stopPropagation(); toggleInfo('infoSub')" style="margin:0;">
+                        <i class="fas fa-info-circle"></i>
+                    </span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </button>
+            <div id="infoSub" class="info-text">
+                <b>हिंदी:</b> हर सब्जेक्ट की अलग-अलग अटेंडेंस देखें। जानें कि किसमें बंक मार सकते हैं (हरा) और किसमें क्लास लेनी पड़ेगी (लाल)।
             </div>
             
-            <div class="space-y-4 mb-4">
-                <div>
-                    <label class="text-sm font-semibold text-purple-700 dark:text-purple-300">Your Name (Credit keliye)</label>
-                    <input type="text" id="upName" placeholder="e.g. Sambhav Jain (IT)" class="w-full border border-purple-200 p-3 rounded-xl mt-1 outline-none bg-purple-50 dark:bg-gray-700 dark:text-white cursor-text">
-                    <p class="text-xs text-purple-500 mt-1 italic">Add your surname or branch to avoid mixing points with others!</p>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="col-span-2">
-                        <label class="text-sm font-semibold text-purple-700 dark:text-purple-300">Material Type</label>
-                        <select id="upType" class="w-full border border-purple-200 p-3 rounded-xl mt-1 outline-none bg-purple-50 dark:bg-gray-700 dark:text-white cursor-pointer">
-                            <option value="Notes">Study Notes</option>
-                            <option value="Question Paper">Question Paper</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-sm font-semibold text-purple-700 dark:text-purple-300">Semester</label>
-                        <select id="upSem" onchange="updateUploadSubjects()" class="w-full border border-purple-200 p-3 rounded-xl mt-1 outline-none bg-purple-50 dark:bg-gray-700 dark:text-white cursor-pointer">
-                            <option value="1">1st Sem</option>
-                            <option value="2">2nd Sem</option>
-                            <option value="3">3rd Sem</option>
-                            <option value="4" selected>4th Sem</option>
-                            <option value="5">5th Sem</option>
-                            <option value="6">6th Sem</option>
-                            <option value="7">7th Sem</option>
-                            <option value="8">8th Sem</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-sm font-semibold text-purple-700 dark:text-purple-300">Subject</label>
-                        <select id="upSub" class="w-full border border-purple-200 p-3 rounded-xl mt-1 outline-none bg-purple-50 dark:bg-gray-700 dark:text-white cursor-pointer"></select>
-                    </div>
-                </div>
+            <div id="subjectList" class="collapsible-content">
             </div>
 
-            <div class="relative border-2 border-dashed border-purple-300 rounded-2xl p-8 text-center hover:border-purple-500 transition-colors bg-purple-50/50 mt-4 cursor-pointer">
-                <input type="file" id="fileInput" multiple accept=".pdf" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
-                <div class="text-purple-500 text-4xl mb-2">📁</div>
-                <p class="font-bold text-purple-800 dark:text-purple-200">Select PDF Files</p>
-                <p class="text-xs text-purple-600 mt-1">Earn credits by uploading!</p>
+            <div class="divider"><span>⚙️ PREDICTION TOOLS</span></div>
+
+            <div class="tool-header" style="color: #2563EB;">
+                <i class="fas fa-plus-circle fa-bounce" style="animation-duration: 3s;"></i> Attend Future Classes
+                <button class="info-btn" onclick="toggleInfo('infoFuture')"><i class="fas fa-info-circle"></i></button>
             </div>
-            <div id="uploadQueue" class="mt-6 space-y-3"></div>
+            <div id="infoFuture" class="info-text">
+                <b>हिंदी:</b> चेक करें कि अगर आप आने वाली क्लासेस अटेंड करते हैं तो आपकी % कितनी बढ़ेगी।
+            </div>
+            <div class="tool-row">
+                <input type="number" id="futureInput" placeholder="classes">
+                <button class="btn-action" style="background:#eff6ff; color:#2563EB; border: 1px solid #bfdbfe;" onclick="checkFuture()">Check Boost 🚀</button>
+            </div>
+            <div id="futureResult" class="result-text"></div>
+
+            <div class="tool-header" style="color: #f59e0b;">
+                <i class="fas fa-bed fa-shake" style="animation-duration: 3s;"></i> Can I Bunk?
+                <button class="info-btn" onclick="toggleInfo('infoBunk')"><i class="fas fa-info-circle"></i></button>
+            </div>
+            <div id="infoBunk" class="info-text">
+                <b>हिंदी:</b> चेक करें कि अगर आप क्लासेस छोड़ते (Bunk) हैं तो आपकी % कितनी गिरेगी।
+            </div>
+            <div class="tool-row">
+                <input type="number" id="bunkInput" placeholder="classes">
+                <button class="btn-action" style="background:#fffbeb; color:#d97706; border: 1px solid #fde68a;" onclick="checkBunk()">Check Drop 📉</button>
+            </div>
+            <div id="bunkResult" class="result-text"></div>
+
+            <div class="tool-header" style="color: #059669;">
+                <i class="fas fa-bullseye fa-beat" style="animation-duration: 3s;"></i> Reach Target
+                <button class="info-btn" onclick="toggleInfo('infoTarget')"><i class="fas fa-info-circle"></i></button>
+            </div>
+            <div id="infoTarget" class="info-text">
+                <b>हिंदी:</b> पता करें कि अपनी मनचाही % (जैसे 75%) तक पहुँचने के लिए आपको लगातार कितनी क्लासेस लेनी होंगी।
+            </div>
+            <div class="tool-row">
+                <input type="number" id="targetInput" placeholder="%">
+                <button class="btn-action" style="background:#ecfdf5; color:#059669; border: 1px solid #a7f3d0;" onclick="calcTarget()">Classes Needed 📈</button>
+            </div>
+            <div id="targetResult" class="result-text"></div>
+
+            <div class="tool-header" style="color: #db2777;">
+                <i class="fas fa-file-signature fa-flip" style="animation-duration: 4s;"></i> Add OD (On Duty)
+                <button class="info-btn" onclick="toggleInfo('infoOD')"><i class="fas fa-info-circle"></i></button>
+            </div>
+            <div id="infoOD" class="info-text">
+                <b>हिंदी:</b> अगर आपको कॉलेज से OD (On Duty) मिली है, तो उसे यहाँ जोड़कर अपनी बढ़ी हुई % देखें।
+            </div>
+            <div class="tool-row">
+                <input type="number" id="odInput" placeholder="classes">
+                <button class="btn-action" style="background:#fdf2f8; color:#db2777; border: 1px solid #fbcfe8;" onclick="checkOD()">Check Impact 🏥</button>
+            </div>
+            <div id="odResult" class="result-text"></div>
+
+            <div class="tool-header" style="color: #7c3aed;">
+                <i class="fas fa-balance-scale"></i> Mix Mode (Attend + Bunk)
+                <button class="info-btn" onclick="toggleInfo('infoMix')"><i class="fas fa-info-circle"></i></button>
+            </div>
+            <div id="infoMix" class="info-text">
+                <b>हिंदी:</b> एक साथ देखें: अगर आप कुछ क्लास अटेंड करें और उसके बाद कुछ बंक करें, तो फाइनल % क्या होगी।
+            </div>
+            <div class="tool-row">
+                <input type="number" id="mixAttend" placeholder="Attend" style="width: 35%;">
+                <input type="number" id="mixBunk" placeholder="Bunk" style="width: 35%;">
+                <button class="btn-action" style="background:#f5f3ff; color:#7c3aed; border: 1px solid #ddd6fe;" onclick="calcMix()">Calc 🧮</button>
+            </div>
+            <div id="mixResult" class="result-text"></div>
+
+            <a href="https://notes-clg.netlify.app/" target="_blank" style="display:flex; justify-content:center; align-items:center; gap:10px; margin-top: 30px; background:linear-gradient(90deg, #312e81, #4338ca); color:white; padding:15px; border-radius:12px; text-decoration:none; font-weight:700; box-shadow:0 4px 15px rgba(67, 56, 202, 0.4);">
+                <i class="fas fa-book-open"></i> Read College Notes
+            </a>
+
+            <button class="btn-share" onclick="shareResult()">
+                <i class="fab fa-whatsapp" style="font-size: 1.3rem;"></i> Share Status on WhatsApp
+            </button>
+            
+            <button style="background:transparent; border:none; color:#6b7280; width:100%; margin-top:20px; font-size:0.9rem; font-weight:600; text-decoration:underline; cursor:pointer;" onclick="resetApp()">
+                Check Another Report
+            </button>
         </div>
     </div>
 
-    <div id="pdfModal" class="fixed inset-0 bg-black/95 z-[100] hidden flex-col backdrop-blur-sm">
-        <div class="p-4 flex justify-between items-center text-white">
-            <h3 class="font-bold text-lg ml-4 text-purple-300">Document Viewer</h3>
-            <button onclick="closePDF()" class="bg-red-500 hover:bg-red-600 px-6 py-2 rounded-full font-bold shadow-lg transition cursor-pointer">Close ✕</button>
+    <div class="glass-card" style="text-align: center; padding: 25px;">
+        <p style="margin: 0; font-weight: 800; font-size: 1.1rem; color:#1f2937;">Enjoying the Safe Bunks?</p>
+        <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 20px; font-weight:600;">Support the Developer ☕</p>
+        
+        <div class="qr-container">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=jainsambhav877@oksbi&pn=Sambhav&cu=INR" 
+                 alt="Scan to Pay" width="150" height="150" style="border-radius: 8px;">
         </div>
-        <div class="flex-grow p-4 pt-0 w-full h-full">
-            <iframe id="pdfFrame" src="" class="w-full h-full rounded-2xl bg-white shadow-2xl"></iframe>
-        </div>
+        
+        <br><br>
+        <a href="upi://pay?pa=jainsambhav877@oksbi&pn=Sambhav&cu=INR" 
+           style="background:linear-gradient(135deg, #2563EB, #1d4ed8); color:white; padding:12px 30px; border-radius:50px; text-decoration:none; font-size:1rem; font-weight:700; display:inline-block; box-shadow: 0 6px 15px rgba(37,99,235,0.4); transition: transform 0.3s;">
+           Pay via UPI App <i class="fas fa-arrow-right" style="margin-left:5px; font-size:0.8rem;"></i>
+        </a>
+    </div>
+
+    <div class="ad-container">
+        <script async="async" data-cfasync="false" src="https://pl28592186.effectivegatecpm.com/87307e4ec90977b7ebc2bd28dde49abe/invoke.js"></script>
+        <div id="container-87307e4ec90977b7ebc2bd28dde49abe"></div>
     </div>
 
     <script>
-        // --- ⚙️ CONFIGURATION ---
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw4Bk6I_G9a5-4AtooVhTmzCrCKHqrjIgjcVCULg2Zz_qgRzpWHvK54fVID6siNZhrs/exec'; 
-        
-        let GLOBAL_NOTES_DB = []; 
-        let GLOBAL_REQUESTS = []; 
-        let uploadControllers = {}; // ✨ For Cancelling Uploads
-        let isDarkMode = localStorage.getItem('theme') === 'dark';
+        // Global Variables
+        let g_present = 0;
+        let g_total = 0;
+        let g_percent = 0;
+        let g_subjects = [];
 
-        const dataTree = {
-            "First Year": {
-                "Semester 1": ["Engineering Mathematics- I", "Engineering Physics", "Computational thinking and Programming", "Communication Skills", "Basic Electrical and Electronics Engineering", "Engineering Physics Lab", "C Programing Lab", "Manufacturing Practice Workshop", "Computer Aided Engineering Graphics"],
-                "Semester 2": ["Engineering Mathematics - II", "Engineering Chemistry", "Problem Solving using Object Oriented Paradigm", "Universal Human Values", "Basic Civil Engineering", "Basic Mechanical Engineering", "Engineering Chemistry Lab", "Object Oriented Programming Lab", "Basic Electrical & Electronics Engineering Lab", "Computer Aided Machine Drawing"]
-            },
-            "Second Year": {
-                "Semester 3": ["Managerial Economics", "Technical Communication", "Stats & Prob", "DSA", "Operating System", "Software Engineering", "Digital Electronics"],
-                "Semester 4": ["MEFA", "Discrete Maths", "DBMS", "Theory of Computation", "Computer Networks", "Artificial Intelligence", "Computer Architecture"]
-            },
-            "Third Year": { 
-                "Semester 5": ["Information Theory & Coding", "Compiler Design", "Operating System", "Computer Graphics & Multimedia", "Analysis of Algorithms", "Machine Learning"], 
-                "Semester 6": ["Digital Image Processing", "Natural Language Processing", "Information Security System", "Artificial Neural Networks", "Cloud Computing", "Distributed System"] 
-            },
-            "Fourth Year": { 
-                "Semester 7": ["Deep Learning", "Internet of Things", "Big Data Analytics", "Cyber Security"], 
-                "Semester 8": ["Project", "Seminar"] 
+        // On Load
+        window.addEventListener('load', () => {
+            const saved = localStorage.getItem('academic_data_v6');
+            if(saved) {
+                document.getElementById('inputData').value = saved;
             }
-        };
-
-        const appDiv = document.getElementById('app');
-        const searchContainer = document.getElementById('searchContainer');
-
-        async function init() {
-            applyTheme();
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL);
-                const fullData = await response.json();
-                
-                if (Array.isArray(fullData)) {
-                    GLOBAL_NOTES_DB = fullData; 
-                } else {
-                    GLOBAL_NOTES_DB = fullData.notes || [];
-                    GLOBAL_REQUESTS = fullData.requests || [];
-                }
-            } catch (e) { console.error("Database fetch failed", e); }
-            navigateTo('years');
-        }
-
-        function applyTheme() {
-            if (isDarkMode) { document.documentElement.classList.add('dark'); document.getElementById('themeToggle').innerText = '☀️'; } 
-            else { document.documentElement.classList.remove('dark'); document.getElementById('themeToggle').innerText = '🌙'; }
-        }
-        function toggleDarkMode() { isDarkMode = !isDarkMode; localStorage.setItem('theme', isDarkMode ? 'dark' : 'light'); applyTheme(); }
-        
-        function shareSite() {
-            if (navigator.share) navigator.share({ title: 'Notes Hub', text: '📚 Exams ki tension khatam! Yahan saare Notes aur Previous Year Papers available hain. Check it out: ', url: window.location.origin });
-            else { navigator.clipboard.writeText(window.location.origin); alert("✅ Message & Link Copied!"); }
-        }
-
-        function handleSearch() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const resultsDiv = document.getElementById('searchResults');
-            if (query.length < 2) { resultsDiv.innerHTML = ''; return; }
-            let results = [];
-            for (let year in dataTree) {
-                for (let sem in dataTree[year]) {
-                    dataTree[year][sem].forEach(sub => {
-                        if (sub.toLowerCase().includes(query)) {
-                            const semNumber = sem.replace('Semester ', '');
-                            results.push({ year, semNumber, sub });
-                        }
-                    });
-                }
-            }
-            resultsDiv.innerHTML = results.slice(0, 6).map(r => `<div onclick="navigateTo('materialTypes', {year: '${r.year}', semNumber: '${r.semNumber}', subject: '${r.sub}'})" class="bg-white dark:bg-gray-800 p-4 rounded-xl cursor-pointer shadow-sm border border-purple-100 dark:border-gray-600 hover:border-purple-400 transition"><h4 class="font-bold text-purple-700 dark:text-purple-300 truncate" title="${r.sub}">${r.sub}</h4><p class="text-xs text-gray-500 dark:text-gray-400">Semester ${r.semNumber}</p></div>`).join('');
-        }
-
-        async function upvote(id, btnElement) {
-            if(localStorage.getItem('upvoted_' + id)) { alert("You have already upvoted this! 💖"); return; }
-            const countSpan = btnElement.querySelector('.count');
-            countSpan.innerText = parseInt(countSpan.innerText) + 1;
-            btnElement.classList.replace('bg-purple-100', 'bg-green-100');
-            localStorage.setItem('upvoted_' + id, 'true');
-            fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'upvote', id: id }) });
-        }
-
-        // ✨ NEW: BEAUTIFUL SVG STAR BOOKMARK LOGIC ✨
-        function toggleBookmark(id, btnElement) {
-            let saved = JSON.parse(localStorage.getItem('my_library') || '[]');
-            const idStr = id.toString();
-            
-            if (saved.includes(idStr)) {
-                // Remove from library
-                saved = saved.filter(nId => nId !== idStr);
-                btnElement.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7 text-gray-300 dark:text-gray-600 hover:text-yellow-400 transition-colors"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" /></svg>`;
-                
-                // Hide instantly if on library page
-                if (window.history.state && window.history.state.view === 'library') {
-                    btnElement.closest('.card-wrapper').style.display = 'none';
-                }
-            } else {
-                // Add to library
-                saved.push(idStr);
-                btnElement.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-yellow-400 drop-shadow-md hover:scale-110 transition-transform"><path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clip-rule="evenodd" /></svg>`;
-            }
-            localStorage.setItem('my_library', JSON.stringify(saved));
-        }
-
-        function getBookmarkHTML(id) {
-            let saved = JSON.parse(localStorage.getItem('my_library') || '[]');
-            const isSaved = saved.includes(id.toString());
-            
-            const iconHTML = isSaved 
-                ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7 text-yellow-400 drop-shadow-md hover:scale-110 transition-transform"><path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clip-rule="evenodd" /></svg>` 
-                : `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7 text-gray-300 dark:text-gray-600 hover:text-yellow-400 transition-colors"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" /></svg>`;
-            
-            return `<button onclick="toggleBookmark('${id}', this)" class="absolute top-4 right-4 z-20 cursor-pointer" title="Save to Library">${iconHTML}</button>`;
-        }
-
-        function navigateTo(view, params = {}) { window.history.pushState({ view, params }, ""); renderView(view, params); }
-        window.onpopstate = function(event) { if (event.state) renderView(event.state.view, event.state.params); else renderView('years'); };
-
-        function renderView(view, params) {
-            searchContainer.classList.add('hidden'); 
-            if (view === 'years') renderYears();
-            if (view === 'semesters') renderSemesters(params.year);
-            if (view === 'subjects') renderSubjects(params.year, params.sem);
-            if (view === 'materialTypes') renderMaterialTypes(params.year, params.semNumber, params.subject);
-            if (view === 'notes') renderNotes(params.semNumber, params.subject, params.type);
-            if (view === 'bounty') renderBountyBoard(); 
-            if (view === 'library') renderLibrary(); 
-        }
-
-        function renderLibrary() {
-            searchContainer.classList.add('hidden');
-            let savedIds = JSON.parse(localStorage.getItem('my_library') || '[]');
-            let savedNotes = GLOBAL_NOTES_DB.filter(note => savedIds.includes(note.id.toString()));
-
-            let html = `
-                <div class="mb-6 flex justify-between items-center">
-                    <div>
-                        <button onclick="window.history.back()" class="text-purple-600 dark:text-purple-400 hover:underline mb-2 cursor-pointer block">← Back</button>
-                        <h2 class="text-3xl font-bold text-yellow-600 dark:text-yellow-400">My Library ⭐</h2>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Your personal collection for quick revision!</p>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            `;
-
-            if (savedNotes.length === 0) {
-                html += `<div class="col-span-full text-center py-16 bg-white dark:bg-gray-800 rounded-2xl card-shadow border-2 border-dashed border-yellow-200 dark:border-gray-700"><p class="text-yellow-600 dark:text-yellow-400 font-bold text-lg mb-2">Your library is empty! 📭</p><p class="text-sm text-gray-500 dark:text-gray-400">Click the ⭐ icon on any note to save it here.</p></div>`;
-            } else {
-                savedNotes.forEach(item => {
-                    const downloadUrl = item.file_url.replace('export=view', 'export=download');
-                    const isUpvoted = localStorage.getItem('upvoted_' + item.id);
-                    
-                    html += `
-                        <div class="card-wrapper relative bg-white dark:bg-gray-800 p-5 rounded-2xl card-shadow flex flex-col justify-between border border-purple-50 dark:border-gray-700 card-hover h-full group transition-all duration-300 select-none">
-                            
-                            ${getBookmarkHTML(item.id)}
-
-                            <div class="flex justify-between items-start mb-3 gap-3 pr-10">
-                                <div class="flex-1 min-w-0">
-                                    <span class="text-[10px] font-bold bg-purple-100 text-purple-700 px-2 py-1 rounded dark:bg-purple-900/30 dark:text-purple-300 mb-2 inline-block">${item.subject}</span>
-                                    <h3 class="font-bold text-purple-800 dark:text-purple-300 text-lg leading-tight line-clamp-2 break-all group-hover:line-clamp-none transition-all duration-300 cursor-default" title="${item.title}">${item.title}</h3>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2 break-all group-hover:line-clamp-none transition-all duration-300 cursor-default" title="Uploaded by: ${item.uploader}">Uploaded by: <b>${item.uploader}</b> • ${item.file_size || 'PDF'}</p>
-                                </div>
-                                <button onclick="upvote('${item.id}', this)" class="${isUpvoted ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'} shrink-0 px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1 transition z-10 relative cursor-pointer">
-                                    👍 <span class="count">${item.upvotes}</span>
-                                </button>
-                            </div>
-                            <div class="flex gap-2 w-full mt-auto pt-2">
-                                <button onclick="openPDF('${item.file_url}')" class="flex-1 bg-purple-600 text-white py-2 rounded-lg font-semibold hover:bg-purple-700 transition shadow-md text-sm cursor-pointer">👀 Read</button>
-                                <a href="${downloadUrl}" target="_blank" class="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-white py-2 rounded-lg font-semibold hover:bg-gray-200 dark:hover:bg-gray-600 transition shadow-md text-sm text-center cursor-pointer">⬇️ Save</a>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-            appDiv.innerHTML = html + `</div>`;
-        }
-
-        function renderBountyBoard() {
-            searchContainer.classList.add('hidden');
-            let myReqs = JSON.parse(localStorage.getItem('my_requests') || '[]');
-
-            let html = `
-                <div class="mb-6 flex justify-between items-center">
-                    <div>
-                        <button onclick="window.history.back()" class="text-purple-600 dark:text-purple-400 hover:underline mb-2 cursor-pointer block">← Back</button>
-                        <h2 class="text-3xl font-bold text-orange-600 dark:text-orange-400">Bounty Board 🎯</h2>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Help your friends by uploading what they need!</p>
-                    </div>
-                    <button onclick="openRequestModal()" class="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg transition transform hover:-translate-y-1 cursor-pointer">+ Ask Note</button>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            `;
-
-            if (GLOBAL_REQUESTS.length === 0) {
-                html += `<div class="col-span-full text-center py-16 bg-white dark:bg-gray-800 rounded-2xl card-shadow border-2 border-dashed border-orange-200 dark:border-gray-700"><p class="text-orange-500 dark:text-orange-400 font-bold text-lg">No requests yet! Everyone is fully prepared 😂</p></div>`;
-            } else {
-                GLOBAL_REQUESTS.forEach(req => {
-                    // ✨ Delete logic check ✨
-                    const deleteBtn = myReqs.includes(req.id.toString()) 
-                        ? `<button onclick="deleteRequest('${req.id}')" class="text-red-500 hover:text-red-700 text-xs font-bold border border-red-200 bg-red-50 px-2 py-0.5 rounded cursor-pointer z-10 transition">🗑️ Delete</button>` 
-                        : ``;
-
-                    html += `
-                        <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl card-shadow border-l-4 border-orange-400 flex flex-col justify-between hover:shadow-lg transition cursor-default">
-                            <div>
-                                <div class="flex justify-between items-start mb-2">
-                                    <span class="text-[10px] font-bold bg-orange-100 text-orange-700 px-2 py-1 rounded dark:bg-orange-900/30 dark:text-orange-300">Sem ${req.semester}</span>
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-[10px] text-gray-400">${req.date}</span>
-                                        ${deleteBtn}
-                                    </div>
-                                </div>
-                                <h3 class="font-bold text-slate-800 dark:text-gray-100 text-lg leading-tight mb-2 pr-2">${req.subject}</h3>
-                                <p class="text-sm text-gray-600 dark:text-gray-300 bg-orange-50 dark:bg-gray-700/50 p-3 rounded-lg border border-orange-100 dark:border-gray-600 italic mb-4">"${req.message}"</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400 mb-4 flex items-center gap-1">👤 Requested by: <b>${req.name}</b></p>
-                            </div>
-                            <button onclick="fulfillRequest('${req.semester}', '${req.subject}')" class="w-full bg-purple-600 text-white py-2.5 rounded-lg font-bold hover:bg-purple-700 shadow-md text-sm transition cursor-pointer">⬆️ I have this! Upload Now</button>
-                        </div>
-                    `;
-                });
-            }
-            appDiv.innerHTML = html + `</div>`;
-        }
-
-        // ✨ NEW: DELETE REQUEST FUNCTION ✨
-        function deleteRequest(id) {
-            if(confirm("Are you sure you want to delete this request?")) {
-                // Update Local Array
-                GLOBAL_REQUESTS = GLOBAL_REQUESTS.filter(r => r.id.toString() !== id.toString());
-                
-                // Update LocalStorage
-                let myReqs = JSON.parse(localStorage.getItem('my_requests') || '[]');
-                myReqs = myReqs.filter(rid => rid !== id.toString());
-                localStorage.setItem('my_requests', JSON.stringify(myReqs));
-                
-                // Render UI instantly
-                renderBountyBoard(); 
-                
-                // Call backend to delete
-                fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'delete_request', id: id }) });
-            }
-        }
-
-        function openRequestModal() {
-            document.getElementById('requestModal').classList.remove('hidden');
-            document.getElementById('requestModal').classList.add('flex');
-            updateReqSubjects();
-        }
-
-        function updateReqSubjects() {
-            const sem = document.getElementById('reqSem').value;
-            const yearMapping = { "1": "First Year", "2": "First Year", "3": "Second Year", "4": "Second Year", "5": "Third Year", "6": "Third Year", "7": "Fourth Year", "8": "Fourth Year" };
-            const year = yearMapping[sem];
-            document.getElementById('reqSub').innerHTML = dataTree[year]["Semester " + sem].map(s => `<option value="${s}">${s}</option>`).join('');
-        }
-
-        async function submitRequestForm() {
-            const name = document.getElementById('reqName').value.trim() || 'Anonymous';
-            const sem = document.getElementById('reqSem').value;
-            const sub = document.getElementById('reqSub').value;
-            const msg = document.getElementById('reqMsg').value.trim();
-
-            if(!msg) { alert("Bhai message toh likh de kya chahiye!"); return; }
-
-            const reqId = Date.now().toString();
-            const payload = { action: 'request', id: reqId, name: name, semester: sem, subject: sub, message: msg };
-            
-            // ✨ Save ID locally so user can delete later
-            let myReqs = JSON.parse(localStorage.getItem('my_requests') || '[]');
-            myReqs.push(reqId);
-            localStorage.setItem('my_requests', JSON.stringify(myReqs));
-
-            // Instant UI Update
-            GLOBAL_REQUESTS.unshift({ id: reqId, name: name, semester: sem, subject: sub, message: msg, date: "Just Now", status: "Open" });
-            document.getElementById('requestModal').classList.add('hidden');
-            document.getElementById('reqMsg').value = '';
-            renderBountyBoard(); 
-
-            fetch(GOOGLE_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
-        }
-
-        function fulfillRequest(sem, subject) {
-            document.getElementById('upSem').value = sem;
-            updateUploadSubjects();
-            document.getElementById('upSub').value = subject;
-            toggleUpload(); 
-        }
-
-        function getLeaderboardHTML() {
-            if (GLOBAL_NOTES_DB.length === 0) return '';
-            let contributors = {};
-            GLOBAL_NOTES_DB.forEach(note => {
-                let name = (note.uploader || "").trim();
-                if (name && name.toLowerCase() !== 'anonymous' && name.toLowerCase() !== 'admin') {
-                    if (!contributors[name]) contributors[name] = { uploads: 0, upvotes: 0 };
-                    contributors[name].uploads += 1;
-                    contributors[name].upvotes += parseInt(note.upvotes) || 0;
-                }
-            });
-            let sortedLeaders = Object.keys(contributors).map(name => {
-                return { name: name, ...contributors[name] };
-            }).sort((a, b) => b.uploads - a.uploads); 
-            let top3 = sortedLeaders.slice(0, 3);
-            if (top3.length === 0) return ''; 
-            let html = `<div class="mb-12"><h2 class="text-xl font-bold text-purple-800 dark:text-purple-300 mb-4 flex items-center gap-2"><span>🏆</span> Wall of Fame</h2><div class="grid grid-cols-1 md:grid-cols-3 gap-4">`;
-            const medals = ['🥇', '🥈', '🥉'];
-            const styles = [
-                'bg-gradient-to-r from-yellow-50 to-yellow-100 border border-yellow-300 dark:from-yellow-900/30 dark:to-yellow-700/20 dark:border-yellow-700/50', 
-                'bg-gradient-to-r from-slate-50 to-slate-200 border border-slate-300 dark:from-slate-800 dark:to-gray-700 dark:border-gray-600', 
-                'bg-gradient-to-r from-orange-100 to-orange-300 border border-orange-400 dark:from-orange-950/40 dark:to-orange-900/40 dark:border-orange-800/50' 
-            ];
-            top3.forEach((leader, i) => {
-                html += `
-                    <div class="p-4 rounded-2xl flex items-center gap-4 card-shadow ${styles[i]}">
-                        <div class="text-4xl drop-shadow-md">${medals[i]}</div>
-                        <div>
-                            <h3 class="font-bold text-purple-900 dark:text-purple-100">${leader.name}</h3>
-                            <p class="text-xs font-semibold text-purple-700 dark:text-purple-300 mt-0.5">📚 ${leader.uploads} Uploads &nbsp;👍 ${leader.upvotes} Likes</p>
-                        </div>
-                    </div>`;
-            });
-            html += `</div></div>`;
-            return html;
-        }
-
-        function renderYears() {
-            searchContainer.classList.remove('hidden'); 
-            document.getElementById('searchInput').value = '';
-            document.getElementById('searchResults').innerHTML = '';
-
-            let html = `
-                <div class="text-center mb-10 mt-4 cursor-default">
-                    <h1 class="text-5xl font-bold text-purple-700 dark:text-purple-400 mb-2">Notes Hub</h1>
-                    <p class="text-lg text-purple-500 dark:text-gray-400">Read & Share Engineering Resources</p>
-                </div>
-                
-                ${getLeaderboardHTML()} 
-
-                <div class="mb-12">
-                    <h2 class="text-xl font-bold text-purple-800 dark:text-purple-300 mb-4 flex items-center gap-2"><span>🔥</span> Recently Added</h2>
-                    <div class="flex overflow-x-auto gap-4 pb-4 snap-x hide-scroll">
-                        ${getTrendingHTML()}
-                    </div>
-                </div>
-
-                <h2 class="text-xl font-bold text-purple-800 dark:text-purple-300 mb-6 pl-2 border-l-4 border-purple-500">Browse by Year</h2>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-            `;
-            Object.keys(dataTree).forEach(year => {
-                html += `<div onclick="navigateTo('semesters', {year: '${year}'})" class="bg-white dark:bg-gray-800 rounded-2xl p-8 text-center cursor-pointer card-shadow card-hover transition-all border border-purple-50 dark:border-gray-700"><h3 class="font-semibold text-lg text-purple-800 dark:text-purple-300">${year}</h3></div>`;
-            });
-            html += `</div>`;
-            appDiv.innerHTML = html;
-        }
-
-        function getTrendingHTML() {
-            if (GLOBAL_NOTES_DB.length === 0) return `<p class="text-gray-500 italic ml-2">No new notes recently...</p>`;
-            const recent = GLOBAL_NOTES_DB.slice(0, 4);
-            return recent.map(item => `
-                <div class="card-wrapper relative bg-white dark:bg-gray-800 min-w-[280px] p-5 rounded-2xl card-shadow border border-purple-50 dark:border-gray-700 snap-center shrink-0 flex flex-col justify-between group transition-all duration-300 select-none">
-                    
-                    ${getBookmarkHTML(item.id)}
-
-                    <div>
-                        <div class="flex justify-between items-start mb-2 pr-10">
-                            <span class="text-xs font-bold bg-green-100 text-green-700 px-2 py-1 rounded">New</span>
-                            <span class="text-xs text-gray-500 dark:text-gray-400">Sem ${item.semester}</span>
-                        </div>
-                        <h3 class="font-bold text-purple-800 dark:text-purple-300 line-clamp-2 break-all group-hover:line-clamp-none transition-all duration-300 cursor-default pr-10" title="${item.subject}">${item.subject}</h3>
-                        <p class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 break-all mb-3 group-hover:line-clamp-none transition-all duration-300 cursor-default pr-10" title="${item.title}">${item.title}</p>
-                    </div>
-                    <button onclick="openPDF('${item.file_url}')" class="w-full bg-purple-600 text-white py-2 rounded-lg text-sm font-semibold hover:bg-purple-700 transition mt-auto cursor-pointer">👀 View Fast</button>
-                </div>
-            `).join('');
-        }
-
-        function renderSemesters(year) {
-            let html = `<div class="mb-8"><button onclick="window.history.back()" class="text-purple-600 dark:text-purple-400 hover:underline mb-4 cursor-pointer">← Back</button><h2 class="text-2xl font-bold text-purple-800 dark:text-purple-300">${year} Semesters</h2></div><div class="grid grid-cols-2 md:grid-cols-4 gap-6">`;
-            Object.keys(dataTree[year]).forEach(sem => {
-                html += `<div onclick="navigateTo('subjects', {year: '${year}', sem: '${sem}'})" class="bg-purple-100/50 dark:bg-gray-800 rounded-2xl p-8 text-center cursor-pointer card-shadow card-hover border border-purple-100 dark:border-gray-700"><h3 class="font-semibold text-lg text-purple-800 dark:text-purple-300">${sem}</h3></div>`;
-            });
-            appDiv.innerHTML = html + `</div>`;
-        }
-
-        function renderSubjects(year, sem) {
-            let html = `<div class="mb-8"><button onclick="window.history.back()" class="text-purple-600 dark:text-purple-400 hover:underline mb-4 cursor-pointer">← Back</button><h2 class="text-2xl font-bold text-purple-800 dark:text-purple-300">${sem} Subjects</h2></div><div class="grid grid-cols-1 md:grid-cols-3 gap-6">`;
-            dataTree[year][sem].forEach(sub => {
-                const semNumber = sem.replace('Semester ', '');
-                html += `<div onclick="navigateTo('materialTypes', {year: '${year}', semNumber: '${semNumber}', subject: '${sub}'})" class="bg-white dark:bg-gray-800 rounded-2xl p-6 text-center cursor-pointer card-shadow card-hover border border-purple-50 dark:border-gray-700 flex flex-col justify-center items-center h-32"><h3 class="font-bold text-purple-700 dark:text-purple-300 line-clamp-2 w-full px-2" title="${sub}">${sub}</h3></div>`;
-            });
-            appDiv.innerHTML = html + `</div>`;
-        }
-
-        function renderMaterialTypes(year, semNumber, subject) {
-            appDiv.innerHTML = `
-                <div class="mb-8"><button onclick="window.history.back()" class="text-purple-600 dark:text-purple-400 hover:underline mb-4 cursor-pointer">← Back to Subjects</button><h2 class="text-2xl font-bold text-purple-800 dark:text-purple-300">${subject}</h2></div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div onclick="navigateTo('notes', {semNumber: '${semNumber}', subject: '${subject}', type: 'Notes'})" class="bg-white dark:bg-gray-800 rounded-2xl p-10 text-center cursor-pointer card-shadow card-hover border-2 border-emerald-50 dark:border-gray-600">
-                        <span class="text-5xl mb-4 block">📚</span><h3 class="font-bold text-xl text-emerald-700 dark:text-emerald-400">Study Notes</h3>
-                    </div>
-                    <div onclick="navigateTo('notes', {semNumber: '${semNumber}', subject: '${subject}', type: 'Question Paper'})" class="bg-white dark:bg-gray-800 rounded-2xl p-10 text-center cursor-pointer card-shadow card-hover border-2 border-blue-50 dark:border-gray-600">
-                        <span class="text-5xl mb-4 block">📝</span><h3 class="font-bold text-xl text-blue-700 dark:text-blue-400">Question Papers</h3>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderNotes(semNumber, subject, type) {
-            const data = GLOBAL_NOTES_DB.filter(note => note.semester == semNumber && note.subject === subject && note.material_type === type);
-            
-            let html = `
-                <div class="mb-6"><button onclick="window.history.back()" class="text-purple-600 dark:text-purple-400 hover:underline mb-4 cursor-pointer">← Back</button><h2 class="text-2xl font-bold text-purple-800 dark:text-purple-300 border-b border-purple-200 dark:border-gray-600 pb-2">${subject} ${type}s</h2></div>
-                
-                <div class="bg-yellow-50 dark:bg-yellow-900/30 border-l-4 border-yellow-400 p-4 rounded-r-lg mb-8 cursor-default">
-                    <p class="text-sm text-yellow-800 dark:text-yellow-200 font-medium">💡 Aapka ek vote kisi ki back aane se bacha sakta hai! Jo notes best lagein unhe <b>Upvote (👍)</b> zaroor karein taaki sabka fayda ho!</p>
-                </div>
-                
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            `;
-
-            if (data.length === 0) {
-                html += `<div class="col-span-full text-center py-12 bg-white dark:bg-gray-800 rounded-2xl card-shadow border-2 border-dashed border-purple-100 dark:border-gray-700"><p class="text-purple-400 dark:text-purple-300">No ${type}s found yet. Be the first to upload!</p></div>`;
-            } else {
-                data.sort((a, b) => b.upvotes - a.upvotes).forEach(item => {
-                    const downloadUrl = item.file_url.replace('export=view', 'export=download');
-                    const isUpvoted = localStorage.getItem('upvoted_' + item.id);
-                    
-                    html += `
-                        <div class="card-wrapper relative bg-white dark:bg-gray-800 p-5 rounded-2xl card-shadow flex flex-col justify-between border border-purple-50 dark:border-gray-700 card-hover h-full group transition-all duration-300 select-none">
-                            
-                            ${getBookmarkHTML(item.id)}
-
-                            <div class="flex justify-between items-start mb-3 gap-3 pr-10">
-                                <div class="flex-1 min-w-0">
-                                    <h3 class="font-bold text-purple-800 dark:text-purple-300 text-lg leading-tight line-clamp-2 break-all group-hover:line-clamp-none transition-all duration-300 cursor-default" title="${item.title}">${item.title}</h3>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2 break-all group-hover:line-clamp-none transition-all duration-300 cursor-default" title="Uploaded by: ${item.uploader}">Uploaded by: <b>${item.uploader}</b> • ${item.file_size || 'PDF'}</p>
-                                </div>
-                                <button onclick="upvote('${item.id}', this)" class="${isUpvoted ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'} shrink-0 px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1 transition z-10 relative cursor-pointer">
-                                    👍 <span class="count">${item.upvotes}</span>
-                                </button>
-                            </div>
-                            <div class="flex gap-2 w-full mt-auto pt-2">
-                                <button onclick="openPDF('${item.file_url}')" class="flex-1 bg-purple-600 text-white py-2 rounded-lg font-semibold hover:bg-purple-700 transition shadow-md text-sm cursor-pointer">👀 Read</button>
-                                <a href="${downloadUrl}" target="_blank" class="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-white py-2 rounded-lg font-semibold hover:bg-gray-200 dark:hover:bg-gray-600 transition shadow-md text-sm text-center cursor-pointer">⬇️ Save</a>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-            appDiv.innerHTML = html + `</div>`;
-        }
-
-        function openPDF(url) {
-            let embedUrl = url;
-            if (url.includes('uc?export=view&id=')) {
-                embedUrl = `https://drive.google.com/file/d/${url.split('id=')[1]}/preview`;
-            }
-            document.getElementById('pdfFrame').src = embedUrl;
-            document.getElementById('pdfModal').classList.remove('hidden');
-            document.getElementById('pdfModal').classList.add('flex');
-            window.history.pushState({ view: 'pdf_open' }, "");
-        }
-        function closePDF() {
-            document.getElementById('pdfModal').classList.add('hidden');
-            document.getElementById('pdfModal').classList.remove('flex');
-            document.getElementById('pdfFrame').src = '';
-        }
-        window.addEventListener('popstate', function(event) {
-            if (document.getElementById('pdfModal').style.display !== 'none') closePDF();
         });
 
-        function toggleUpload() { document.getElementById('uploadModal').classList.toggle('hidden'); updateUploadSubjects(); }
-        function updateUploadSubjects() {
-            const sem = document.getElementById('upSem').value;
-            const yearMapping = { "1": "First Year", "2": "First Year", "3": "Second Year", "4": "Second Year", "5": "Third Year", "6": "Third Year", "7": "Fourth Year", "8": "Fourth Year" };
-            const year = yearMapping[sem];
-            document.getElementById('upSub').innerHTML = dataTree[year]["Semester " + sem].map(s => `<option value="${s}">${s}</option>`).join('');
-        }
-        
-        document.getElementById('fileInput').addEventListener('change', (e) => {
-            Array.from(e.target.files).forEach(file => {
-                processUpload(file);
-            });
-        });
-
-        // ✨ NEW: ABORT CONTROLLER TO CANCEL UPLOADS ✨
-        function cancelUpload(id) {
-            if(uploadControllers[id]) {
-                uploadControllers[id].abort();
-                delete uploadControllers[id];
+        function toggleSection(id, btn) {
+            const el = document.getElementById(id);
+            if (el.style.display === "block") {
+                el.style.display = "none";
+                btn.classList.remove("active");
+            } else {
+                el.style.display = "block";
+                btn.classList.add("active");
             }
-            const el = document.getElementById(`queue-item-${id}`);
-            if(el) el.remove();
         }
 
-        async function processUpload(file) {
-            const id = new Date().getTime().toString() + Math.floor(Math.random() * 100);
-            const sem = document.getElementById('upSem').value;
-            const sub = document.getElementById('upSub').value;
-            const type = document.getElementById('upType').value;
-            const uploader = document.getElementById('upName').value.trim() || 'Anonymous';
+        function toggleInfo(id) {
+            const el = document.getElementById(id);
+            if (el.style.display === "block") {
+                el.style.display = "none";
+            } else {
+                el.style.display = "block";
+            }
+        }
 
-            // Initialize abort controller
-            uploadControllers[id] = new AbortController();
+        function resetApp() {
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('inputSection').style.display = 'block';
+            document.getElementById('inputData').value = "";
+            localStorage.removeItem('academic_data_v6');
+            
+            // Clear inputs
+            ['futureInput', 'bunkInput', 'targetInput', 'odInput', 'mixAttend', 'mixBunk'].forEach(id => {
+                document.getElementById(id).value = "";
+            });
+            ['futureResult', 'bunkResult', 'targetResult', 'odResult', 'mixResult'].forEach(id => {
+                document.getElementById(id).innerText = "";
+            });
+            
+            // Hide all infos
+            const infos = document.querySelectorAll('.info-text');
+            infos.forEach(i => i.style.display = 'none');
 
-            const queue = document.getElementById('uploadQueue');
-            const item = document.createElement('div');
-            item.id = `queue-item-${id}`;
-            item.className = 'bg-purple-50 dark:bg-gray-700 p-3 rounded-xl border border-purple-200 dark:border-gray-600';
-            // Added ❌ Cancel Button
-            item.innerHTML = `<div class="flex justify-between mb-1"><span class="font-semibold text-sm truncate w-32 text-purple-800 dark:text-white" title="${file.name}">${file.name}</span><div class="flex items-center gap-2"><span id="status-${id}" class="text-xs text-purple-600 font-bold">Uploading...</span><button onclick="cancelUpload('${id}')" class="text-red-500 hover:text-red-700 text-xs font-bold cursor-pointer" title="Cancel">❌</button></div></div><div class="w-full bg-purple-200 h-1.5 rounded-full overflow-hidden"><div id="bar-${id}" class="bg-purple-600 h-full w-0 progress-animate"></div></div>`;
-            queue.appendChild(item);
+            g_subjects = [];
+        }
 
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = async () => {
-                try {
-                    updateBar(id, 40);
-                    const payload = { 
-                        base64: reader.result.split(',')[1], filename: file.name, mimetype: file.type, 
-                        title: file.name.replace('.pdf', ''), semester: sem, subject: sub, type: type, 
-                        size: (file.size / (1024*1024)).toFixed(2) + ' MB',
-                        uploader: uploader, id: id, action: 'upload'
-                    };
+        function processReport() {
+            const text = document.getElementById('inputData').value;
+            const lines = text.split('\n');
+            
+            g_present = 0;
+            g_total = 0;
+            g_subjects = [];
+            let found = false;
+            
+            const regex = /^(.*?)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+([0-9.]+)$/;
+
+            lines.forEach(line => {
+                const match = line.trim().match(regex);
+                if (match) {
+                    found = true;
+                    const rawName = match[1].replace(/^\d+\s+/, '').trim(); 
                     
-                    // Pass the abort signal
-                    const response = await fetch(GOOGLE_SCRIPT_URL, { 
-                        method: 'POST', 
-                        body: JSON.stringify(payload),
-                        signal: uploadControllers[id].signal 
-                    });
+                    const present = parseInt(match[2]);
+                    const od = parseInt(match[3]);
+                    const makeup = parseInt(match[4]);
+                    const absent = parseInt(match[5]);
+
+                    const attended = present + od + makeup;
+                    const total = present + od + absent;
                     
-                    const driveData = await response.json();
-                    if (driveData.error) throw new Error(driveData.error);
-                    
-                    updateBar(id, 100);
-                    document.getElementById(`status-${id}`).innerText = "✅ Done";
-                    
-                    GLOBAL_NOTES_DB.unshift({ ...payload, created_at: new Date().toLocaleDateString(), file_url: driveData.url, upvotes: 0 });
-                    setTimeout(() => item.remove(), 4000);
-                } catch (err) {
-                    if (err.name === 'AbortError') {
-                        console.log("Upload manually cancelled.");
-                    } else {
-                        document.getElementById(`status-${id}`).innerText = "❌ Failed";
-                        document.getElementById(`bar-${id}`).classList.replace('bg-purple-600', 'bg-red-500');
+                    if(total > 0) {
+                        g_present += attended;
+                        g_total += total;
+                        
+                        g_subjects.push({
+                            name: rawName,
+                            attended: attended,
+                            total: total,
+                            percent: ((attended / total) * 100).toFixed(2)
+                        });
                     }
                 }
-            };
-        }
-        function updateBar(id, val) { 
-            const bar = document.getElementById(`bar-${id}`);
-            if(bar) bar.style.width = val + '%'; 
+            });
+
+            if (!found) {
+                alert("❌ Data not found! Please copy the full table from ERP.");
+                return;
+            }
+
+            localStorage.setItem('academic_data_v6', text);
+            g_percent = ((g_present / g_total) * 100).toFixed(2);
+
+            updateDashboard();
         }
 
-        init();
+        function updateDashboard() {
+            const mainCard = document.getElementById('mainContainer');
+            const statusBadge = document.getElementById('statusBadge');
+            const funnyMsg = document.getElementById('funnyMsg');
+            
+            document.getElementById('attendedVal').innerText = g_present;
+            document.getElementById('totalVal').innerText = g_total;
+            animateCircle(parseFloat(g_percent));
 
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').then(reg => {
-                    console.log('PWA Service Worker registered!', reg);
-                }).catch(err => console.log('Service Worker registration failed', err));
+            let msg = "";
+            let themeClass = "";
+            let badgeText = "";
+            const p = parseFloat(g_percent);
+
+            mainCard.classList.remove('color-elite', 'color-safe', 'color-risky', 'color-danger', 'color-critical');
+
+            if (p >= 85) {
+                themeClass = "color-elite";
+                badgeText = "👑 ELITE STUDENT";
+                msg = "Attendance itni high ki HOD bhi autograph maange. Nerd Alert! 🤓";
+            } else if (p >= 75) {
+                themeClass = "color-safe";
+                badgeText = "😎 SAFE ZONE";
+                msg = "Perfect balance. Life set hai, bas maintain rakhna bhai. ✨";
+            } else if (p >= 65) {
+                themeClass = "color-risky";
+                badgeText = "⚠️ WARNING ZONE";
+                msg = "Living on the edge? Ek-do bunk aur game over. Sambhal ja! 🛑";
+            } else if (p >= 45) {
+                themeClass = "color-danger";
+                badgeText = "🔥 DANGER ZONE";
+                msg = "HOD Room loading... Mummy ko call aane wala hai. Prayers sent. 🙏";
+            } else {
+                themeClass = "color-critical";
+                badgeText = "💀 LEGENDARY";
+                msg = "College is temporary, Backlogs are permanent. Next sem phodenge! 🗿";
+            }
+
+            mainCard.classList.add(themeClass);
+            statusBadge.innerText = badgeText;
+            funnyMsg.innerText = `"${msg}"`;
+
+            renderSubjects();
+
+            document.getElementById('inputSection').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+        }
+
+        function renderSubjects() {
+            const list = document.getElementById('subjectList');
+            list.innerHTML = "";
+            
+            g_subjects.forEach((sub, index) => {
+                let color = "#4f46e5"; 
+                let msgHtml = "";
+                let p = parseFloat(sub.percent);
+                let reqClasses = 0;
+
+                if(p < 75) {
+                    color = "#ef4444"; 
+                    reqClasses = Math.ceil((0.75 * sub.total - sub.attended) / 0.25);
+                    msgHtml = `<div class="sub-msg msg-danger"><i class="fas fa-exclamation-triangle"></i> Attend <b>${reqClasses}</b> more</div>`;
+                } else {
+                    color = "#10b981"; 
+                    let bunks = Math.floor((sub.attended / 0.75) - sub.total);
+                    if (bunks > 0) msgHtml = `<div class="sub-msg msg-safe"><i class="fas fa-check-circle"></i> Safe to bunk <b>${bunks}</b></div>`;
+                    else msgHtml = `<div class="sub-msg" style="background:#f1f5f9; color:#64748b; border:1px solid #e2e8f0;">Near 75%. Don't bunk!</div>`;
+                }
+
+                list.innerHTML += `
+                    <div class="sub-card" style="border-left-color:${color}; animation: slideUpFade 0.5s ease forwards; animation-delay: ${index * 0.1}s;">
+                        <div class="sub-header">
+                            <span class="sub-name">${sub.name}</span>
+                            <span class="sub-percent" style="color:${color}">${sub.percent}%</span>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill" style="width:${sub.percent}%; background:${color};"></div>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:0.8rem; font-weight:700; color:#64748b;">${sub.attended}/${sub.total} classes</span>
+                            ${msgHtml}
+                        </div>
+                    </div>
+                `;
             });
         }
-       function shareApp() {
-    const shareData = {
-        title: 'Notes Hub - Collaborative Learning 📚',
-        text: `*Notes Hub: बेहतर पढ़ाई, अब सबके साथ!* 🚀\n\nनमस्ते! मैंने *Notes Hub* पर अपनी पढ़ाई के लिए बेहतरीन नोट्स देखे हैं। यहाँ आप न केवल नोट्स पढ़ सकते हैं, बल्कि अपने नोट्स भी अपलोड करके दूसरों की मदद कर सकते हैं।\n\nआइए, मिलकर अपनी पढ़ाई को और भी आसान और व्यवस्थित बनाते हैं! यहाँ देखें: 👇`,
-        url: window.location.origin 
-    };
 
-    if (navigator.share) {
-        navigator.share(shareData)
-            .catch((error) => console.log('Error sharing', error));
-    } else {
-        const dummyText = `${shareData.text}\n${shareData.url}`;
-        navigator.clipboard.writeText(dummyText);
-        alert("✅ प्रोफेशनल मैसेज और लिंक कॉपी हो गया है!");
-    }
-}
+        function liveUpdateDate() {
+            const resultBox = document.getElementById('dateResult');
+            if(resultBox.style.display === 'block') {
+                calculateDate();
+            }
+        }
+
+        function calculateDate() {
+            if(parseFloat(g_percent) >= 75) {
+                document.getElementById('dateResult').style.display = 'block';
+                document.getElementById('dateResult').innerHTML = "<b style='font-size:1.1rem;'>Relax!</b><br>You are already above 75%. <br>Enjoy your life! 😎";
+                return;
+            }
+
+            const holidays = [
+                "2026-02-15", "2026-03-02", "2026-03-03", "2026-03-26",
+                "2026-08-15", "2026-08-28", "2026-09-04", "2026-10-20"
+            ];
+            
+            function isHolidayOrSunday(date) {
+                if (date.getDay() === 0) return true; 
+
+                const dStr = date.toISOString().split('T')[0];
+                if (holidays.includes(dStr)) return true;
+
+                const autumnStart = new Date("2026-11-06");
+                const autumnEnd = new Date("2026-11-15");
+                if (date >= autumnStart && date <= autumnEnd) return true;
+
+                const winterStart = new Date("2026-12-25");
+                const winterEnd = new Date("2026-12-31");
+                if (date >= winterStart && date <= winterEnd) return true;
+
+                return false;
+            }
+
+            const schedule = [
+                0, 
+                parseInt(document.getElementById('sch_mon').value) || 0,
+                parseInt(document.getElementById('sch_tue').value) || 0,
+                parseInt(document.getElementById('sch_wed').value) || 0,
+                parseInt(document.getElementById('sch_thu').value) || 0,
+                parseInt(document.getElementById('sch_fri').value) || 0,
+                parseInt(document.getElementById('sch_sat').value) || 0
+            ];
+
+            let needed = Math.ceil((0.75 * g_total - g_present) / 0.25);
+            let daysPassed = 0;
+            let currentDate = new Date(); 
+
+            while (needed > 0) {
+                currentDate.setDate(currentDate.getDate() + 1);
+                daysPassed++;
+                
+                if (isHolidayOrSunday(currentDate)) continue; 
+
+                let dayIndex = currentDate.getDay(); 
+                let classesToday = schedule[dayIndex];
+                needed -= classesToday;
+
+                if(daysPassed > 365) {
+                    document.getElementById('dateResult').style.display = 'block';
+                    document.getElementById('dateResult').innerHTML = "⚠️ Schedule is empty or target too far.";
+                    return;
+                }
+            }
+
+            const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
+            const dateString = currentDate.toLocaleDateString('en-IN', options);
+
+            document.getElementById('dateResult').style.display = 'block';
+            document.getElementById('dateResult').innerHTML = 
+                `If you attend daily (excluding holidays):<br><b style="font-size:1.2rem; color:#6a11cb; display:inline-block; margin-top:8px;">${dateString}</b><br><span style="font-size:0.85rem; color:#64748b; font-weight:600;">(${daysPassed} days from now)</span>`;
+        }
+
+        function checkFuture() {
+            const extra = parseInt(document.getElementById('futureInput').value);
+            if(!extra) return;
+            
+            const newTotal = g_total + extra;
+            const newPresent = g_present + extra;
+            const newPercent = (newPresent / newTotal) * 100;
+            const boost = newPercent - parseFloat(g_percent);
+            
+            document.getElementById('futureResult').innerHTML = 
+                `New %: <b>${newPercent.toFixed(2)}%</b> <span style="color:var(--theme-color); font-weight:800;">(+${boost.toFixed(2)}%)</span>`;
+        }
+
+        function checkBunk() {
+            const bunk = parseInt(document.getElementById('bunkInput').value);
+            if(!bunk) return;
+            
+            const newTotal = g_total + bunk;
+            const newPercent = (g_present / newTotal) * 100;
+            const drop = parseFloat(g_percent) - newPercent;
+            
+            document.getElementById('bunkResult').innerHTML = 
+                `New %: <b>${newPercent.toFixed(2)}%</b> <span style="color:#dc2626; font-weight:800;">(-${drop.toFixed(2)}%)</span>`;
+        }
+
+        function calcTarget() {
+            const target = parseFloat(document.getElementById('targetInput').value);
+            if(!target) return;
+            
+            const p = target / 100;
+            if(p >= 1 || target <= parseFloat(g_percent)) {
+                 document.getElementById('targetResult').innerText = "Target already met or invalid!";
+                 return;
+            }
+
+            let required = (p * g_total - g_present) / (1 - p);
+            required = Math.ceil(required);
+            
+            document.getElementById('targetResult').innerHTML = 
+                `You need to attend <b>${required}</b> more classes continuously.`;
+        }
+
+        function checkOD() {
+            const od = parseInt(document.getElementById('odInput').value);
+            if(!od) return;
+            
+            const newPresent = g_present + od;
+            const newTotal = g_total; 
+            
+            const newPercent = (newPresent / newTotal) * 100;
+            const boost = newPercent - parseFloat(g_percent);
+            
+            document.getElementById('odResult').innerHTML = 
+                `New %: <b>${newPercent.toFixed(2)}%</b> <span style="color:#db2777; font-weight:800;">(+${boost.toFixed(2)}%)</span>`;
+        }
+
+        function calcMix() {
+            const att = parseInt(document.getElementById('mixAttend').value) || 0;
+            const bnk = parseInt(document.getElementById('mixBunk').value) || 0;
+
+            if(att === 0 && bnk === 0) return;
+
+            const newPresent = g_present + att;
+            const newTotal = g_total + att + bnk;
+            const newPercent = (newPresent / newTotal) * 100;
+            
+            const diff = newPercent - parseFloat(g_percent);
+            let diffStr = "";
+            if(diff >= 0) diffStr = `<span style="color:var(--theme-color); font-weight:800;">(+${diff.toFixed(2)}%)</span>`;
+            else diffStr = `<span style="color:#dc2626; font-weight:800;">(${diff.toFixed(2)}%)</span>`;
+
+            document.getElementById('mixResult').innerHTML = 
+                `Final %: <b>${newPercent.toFixed(2)}%</b> ${diffStr}`;
+        }
+
+        function shareResult() {
+            const p = parseFloat(g_percent);
+            let shareText = "";
+
+            if (p >= 85) shareText = `🤓 My Attendance is ${p}%. I attend classes so you don't have to.`;
+            else if (p >= 75) shareText = `😎 My Attendance is ${p}%. Chill vibes only. Safe Zone.`;
+            else if (p >= 65) shareText = `💀 My Attendance is ${p}%. Risk hai toh Ishq hai.`;
+            else if (p >= 45) shareText = `🆘 My Attendance is ${p}%. Send prayers, HOD is watching.`;
+            else shareText = `🗿 My Attendance is ${p}%. Legend status achieved.`;
+
+            shareText += `\n\nCheck yours, Find Safe Bunks & Download College Notes here: https://magical-tanuki-6349b2.netlify.app/`;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Academic Status',
+                    text: shareText
+                }).catch(console.error);
+            } else {
+                window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
+            }
+        }
+
+        function animateCircle(target) {
+            const circle = document.querySelector('.score-circle');
+            const text = document.getElementById('percentDisplay');
+
+            let current = 0;
+            const step = target / 60; 
+
+            const interval = setInterval(() => {
+                current += step;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(interval);
+                }
+                text.innerText = current.toFixed(2) + "%";
+                circle.style.background = `conic-gradient(var(--theme-color) ${current * 3.6}deg, #e5e7eb 0deg)`;
+            }, 16); 
+        }
+       
     </script>
 </body>
 </html>
