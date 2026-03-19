@@ -17,7 +17,9 @@
     <link rel="icon" type="image/jpeg" href="unnamed.jpg">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
     <style>
@@ -41,21 +43,32 @@
             --result-bg: #f8fafc;
         }
 
+        /* ===== DARK MODE: Midnight Purple Velvet Theme ===== */
         [data-theme="dark"] {
-            --glass-bg: rgba(17, 24, 39, 0.92);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --text-main: #f3f4f6;
-            --text-light: #9ca3af;
-            --card-bg: #1f2937;
-            --card-border: #374151;
-            --input-bg: rgba(31, 41, 55, 0.9);
-            --stat-bg: linear-gradient(135deg, #1f2937, #111827);
-            --skeleton-base: #374151;
-            --skeleton-shine: #4b5563;
-            --toggle-bg: #1f2937;
-            --toggle-text: #e5e7eb;
-            --hr-color: #374151;
-            --result-bg: #111827;
+            /* Glass cards: deep indigo-midnight, NOT pure black */
+            --glass-bg: rgba(15, 12, 41, 0.88);
+            --glass-border: rgba(139, 92, 246, 0.18);
+            /* Main text: soft lavender-white */
+            --text-main: #ede9fe;
+            /* Secondary text: muted violet */
+            --text-light: #a78bfa;
+            /* Inner cards: deep purple-charcoal */
+            --card-bg: rgba(30, 20, 60, 0.75);
+            --card-border: rgba(139, 92, 246, 0.15);
+            /* Inputs: dark violet tint */
+            --input-bg: rgba(20, 14, 50, 0.8);
+            /* Stat cards: subtle purple gradient */
+            --stat-bg: linear-gradient(135deg, rgba(45, 28, 90, 0.7), rgba(25, 15, 55, 0.85));
+            /* Skeletons: violet-toned shimmer */
+            --skeleton-base: rgba(67, 40, 120, 0.5);
+            --skeleton-shine: rgba(109, 72, 190, 0.4);
+            /* Toggle background */
+            --toggle-bg: rgba(45, 28, 90, 0.7);
+            --toggle-text: #ddd6fe;
+            /* Dividers: glowing purple lines */
+            --hr-color: rgba(139, 92, 246, 0.25);
+            /* Result boxes: darker purple */
+            --result-bg: rgba(20, 14, 50, 0.9);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -77,7 +90,8 @@
         }
 
         [data-theme="dark"] body {
-            background: linear-gradient(-45deg, #000000, #0a0a1a, #1a0035, #050510);
+            /* Midnight Purple — deep violet, indigo, royal purple, not plain black */
+            background: linear-gradient(-45deg, #0a0618, #130b2e, #1b0a3d, #0e0523, #160834);
         }
 
         @keyframes gradientBG {
@@ -331,8 +345,10 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.02);
         }
         [data-theme="dark"] .funny-msg {
-            background: rgba(31,41,55,0.7);
-            color: #d1d5db;
+            background: rgba(79, 46, 140, 0.22);
+            color: #c4b5fd;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-left: 4px solid var(--theme-color);
         }
 
         .stats-row {
@@ -460,7 +476,7 @@
         .sub-name { font-weight: 700; font-size: 0.95rem; color: var(--text-main); flex: 1; padding-right: 15px; word-wrap: break-word; line-height: 1.3; }
         .sub-percent { font-weight: 800; font-size: 1.1rem; white-space: nowrap; }
         .progress-track { width: 100%; height: 10px; background: #f3f4f6; border-radius: 10px; overflow: hidden; margin-bottom: 10px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
-        [data-theme="dark"] .progress-track { background: #374151; }
+        [data-theme="dark"] .progress-track { background: rgba(79, 46, 140, 0.3); }
         .progress-fill { height: 100%; border-radius: 10px; transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1); }
         .sub-msg { font-size: 0.75rem; font-weight: 700; padding: 6px 10px; border-radius: 6px; display: inline-block; }
         .msg-danger { background: #fef2f2; color: #ef4444; border: 1px solid #fee2e2; }
@@ -697,16 +713,201 @@
             background: rgba(255, 255, 255, 0.1); border-radius: 16px; overflow: hidden;
             backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);
         }
+
+        /* ===== DARK MODE POLISH: Midnight Purple Velvet ===== */
+
+        /* Glass card: purple-tinted frosted glass with violet glow border */
+        [data-theme="dark"] .glass-card {
+            background: rgba(15, 10, 40, 0.85);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(139, 92, 246, 0.1),
+                inset 0 1px 0 rgba(167, 139, 250, 0.08);
+        }
+        [data-theme="dark"] .glass-card:hover {
+            border-color: rgba(167, 139, 250, 0.35);
+            box-shadow:
+                0 25px 70px rgba(0, 0, 0, 0.7),
+                0 0 30px rgba(139, 92, 246, 0.12),
+                inset 0 1px 0 rgba(167, 139, 250, 0.15);
+        }
+
+        /* Score circle: purple glow */
+        [data-theme="dark"] .score-circle {
+            box-shadow: 0 8px 40px rgba(139, 92, 246, 0.3), 0 2px 15px rgba(0,0,0,0.5);
+        }
+        [data-theme="dark"] .score-circle::before {
+            background: rgba(15, 10, 40, 0.9);
+        }
+
+        /* Stat cards: violet-glass */
+        [data-theme="dark"] .stat-item {
+            background: linear-gradient(135deg, rgba(55, 33, 105, 0.45), rgba(30, 18, 65, 0.6));
+            border: 1px solid rgba(139, 92, 246, 0.18);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3), inset 0 1px 0 rgba(167, 139, 250, 0.07);
+        }
+        [data-theme="dark"] .stat-val { color: #ede9fe; }
+
+        /* Toggle buttons: deep purple glass */
+        [data-theme="dark"] .toggle-btn {
+            background: rgba(35, 22, 75, 0.6);
+            border-color: rgba(139, 92, 246, 0.2);
+            color: #ddd6fe;
+        }
+        [data-theme="dark"] .toggle-btn:hover {
+            background: rgba(55, 35, 110, 0.7);
+            border-color: rgba(167, 139, 250, 0.4);
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.15);
+        }
+        [data-theme="dark"] .toggle-btn.active {
+            background: rgba(79, 46, 140, 0.35);
+            border-left: 5px solid var(--theme-color);
+        }
+
+        /* Subject cards: purple-dark glass */
+        [data-theme="dark"] .sub-card {
+            background: rgba(25, 15, 58, 0.75);
+            border: 1px solid rgba(139, 92, 246, 0.12);
+            box-shadow: 0 3px 15px rgba(0,0,0,0.35);
+        }
+        [data-theme="dark"] .sub-card:hover {
+            background: rgba(38, 24, 80, 0.8);
+            border-color: rgba(167, 139, 250, 0.25);
+            box-shadow: 0 6px 25px rgba(139, 92, 246, 0.15);
+        }
+
+        /* Chart container */
+        [data-theme="dark"] .chart-container {
+            background: rgba(20, 12, 50, 0.8);
+            border: 1px solid rgba(139, 92, 246, 0.15);
+        }
+        [data-theme="dark"] .chart-tab {
+            background: rgba(35, 22, 75, 0.6);
+            border-color: rgba(139, 92, 246, 0.2);
+            color: #c4b5fd;
+        }
+        [data-theme="dark"] .chart-tab:hover:not(.active) {
+            background: rgba(55, 35, 110, 0.5);
+        }
+
+        /* Filter buttons */
+        [data-theme="dark"] .filter-btn {
+            background: rgba(35, 22, 75, 0.6);
+            border-color: rgba(139, 92, 246, 0.2);
+            color: #c4b5fd;
+        }
+        [data-theme="dark"] .filter-btn:hover:not(.active) {
+            background: rgba(79, 46, 140, 0.35);
+            border-color: rgba(167, 139, 250, 0.4);
+        }
+
+        /* Tool buttons: translucent tinted */
+        [data-theme="dark"] .btn-tool-blue { background: rgba(37, 99, 235, 0.18); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3); }
+        [data-theme="dark"] .btn-tool-yellow { background: rgba(217, 119, 6, 0.18); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.3); }
+        [data-theme="dark"] .btn-tool-green { background: rgba(5, 150, 105, 0.18); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+        [data-theme="dark"] .btn-tool-pink { background: rgba(219, 39, 119, 0.18); color: #f9a8d4; border: 1px solid rgba(236, 72, 153, 0.3); }
+        [data-theme="dark"] .btn-tool-purple { background: rgba(124, 58, 237, 0.22); color: #c4b5fd; border: 1px solid rgba(139, 92, 246, 0.35); }
+
+        /* Status badge tags */
+        [data-theme="dark"] .msg-danger { background: rgba(239, 68, 68, 0.18); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
+        [data-theme="dark"] .msg-safe { background: rgba(16, 185, 129, 0.18); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+        [data-theme="dark"] .msg-warning { background: rgba(139, 92, 246, 0.15); color: #c4b5fd; border: 1px solid rgba(139, 92, 246, 0.25); }
+
+        /* Textarea in dark mode */
+        [data-theme="dark"] textarea {
+            background: rgba(20, 12, 50, 0.75);
+            border-color: rgba(139, 92, 246, 0.2);
+            color: #ede9fe;
+        }
+        [data-theme="dark"] textarea:focus {
+            border-color: rgba(167, 139, 250, 0.6);
+            background: rgba(28, 18, 65, 0.9);
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+        }
+        [data-theme="dark"] textarea::placeholder { color: rgba(167, 139, 250, 0.4); }
+
+        /* Number inputs */
+        [data-theme="dark"] input[type="number"] {
+            background: rgba(20, 12, 50, 0.75);
+            border-color: rgba(139, 92, 246, 0.2);
+            color: #ede9fe;
+        }
+        [data-theme="dark"] input[type="number"]:focus {
+            border-color: rgba(167, 139, 250, 0.6);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+        }
+
+        /* Day schedule inputs */
+        [data-theme="dark"] .day-input input {
+            background: rgba(20, 12, 50, 0.75);
+            border-color: rgba(139, 92, 246, 0.2);
+            color: #ede9fe;
+        }
+        [data-theme="dark"] .day-input input:focus {
+            background: rgba(79, 46, 140, 0.3);
+            border-color: rgba(167, 139, 250, 0.6);
+        }
+
+        /* CGPA cards */
+        [data-theme="dark"] .cgpa-card {
+            background: rgba(25, 15, 58, 0.75);
+            border: 2px solid transparent;
+        }
+        [data-theme="dark"] .cgpa-card:hover {
+            border-color: var(--theme-color);
+            background: rgba(55, 35, 110, 0.5);
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.25);
+        }
+
+        /* ERP button */
+        [data-theme="dark"] .erp-btn {
+            background-color: rgba(79, 46, 140, 0.3);
+            color: #c4b5fd;
+            border-color: rgba(139, 92, 246, 0.35);
+        }
+
+        /* PTR indicator */
+        [data-theme="dark"] #ptr-indicator {
+            background: rgba(20, 12, 50, 0.9);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+
+        /* Dividers: purple glow */
+        [data-theme="dark"] .divider::before,
+        [data-theme="dark"] .divider::after {
+            border-color: rgba(139, 92, 246, 0.25);
+        }
+        [data-theme="dark"] .divider { color: #a78bfa; }
+
+        /* Info text panels */
+        [data-theme="dark"] .info-text {
+            background: rgba(20, 12, 50, 0.85);
+            border-left-color: #7c3aed;
+            color: #c4b5fd;
+        }
+
+        /* Result boxes */
+        [data-theme="dark"] #dateResult {
+            background: rgba(20, 12, 50, 0.85) !important;
+            border-left-color: #7c3aed !important;
+            color: #ddd6fe;
+        }
+
+        /* QR card */
+        [data-theme="dark"] .glass-card:last-of-type p { color: #ddd6fe; }
     </style>
 </head>
 <body>
 
+    <!-- Pull to Refresh Indicator -->
     <div id="ptr-indicator">
         <i class="fas fa-arrow-down" id="ptr-arrow"></i>
         <i class="fas fa-spinner" id="ptr-spinner"></i>
         <span id="ptr-text">Pull to refresh</span>
     </div>
 
+    <!-- Toast Container -->
     <div id="toast-container"></div>
 
     <div class="glass-card" id="mainContainer">
@@ -764,6 +965,7 @@
             </div>
         </div>
 
+        <!-- Skeleton Loader -->
         <div id="skeleton-loader">
             <div style="width:160px; height:160px; border-radius:50%; background: var(--skeleton-base); margin: 0 auto 25px; animation: shimmer 1.5s infinite; background: linear-gradient(90deg, var(--skeleton-base) 25%, var(--skeleton-shine) 50%, var(--skeleton-base) 75%); background-size: 200% 100%;"></div>
             <div class="skeleton-line medium" style="margin: 0 auto 25px; height:20px; border-radius:10px;"></div>
@@ -796,6 +998,7 @@
                 </div>
             </div>
 
+            <!-- ===== CHART SECTION ===== -->
             <button class="toggle-btn" onclick="toggleSection('chartSection', this)">
                 <div style="display:flex; align-items:center;">
                     <i class="fas fa-chart-bar" style="margin-right:12px; color:#7c3aed; font-size:1.2rem;"></i>
@@ -858,6 +1061,7 @@
                 <b>हिंदी:</b> हर सब्जेक्ट की अलग-अलग अटेंडेंस देखें। जानें कि किसमें बंक मार सकते हैं (हरा) और किसमें क्लास लेनी पड़ेगी (लाल)।
             </div>
             <div id="subjectList" class="collapsible-content">
+                <!-- Filter Bar -->
                 <div class="filter-bar">
                     <button class="filter-btn active" onclick="filterSubjects('all', this)"><i class="fas fa-th"></i> All</button>
                     <button class="filter-btn" onclick="filterSubjects('danger', this)"><i class="fas fa-exclamation-triangle"></i> Danger</button>
@@ -962,7 +1166,7 @@
         <br><br>
         <a href="upi://pay?pa=jainsambhav877@oksbi&pn=Sambhav&cu=INR"
            style="background:linear-gradient(135deg, #2563EB, #1d4ed8); color:white; padding:12px 30px; border-radius:50px; text-decoration:none; font-size:1rem; font-weight:700; display:inline-block; box-shadow: 0 6px 15px rgba(37,99,235,0.4); transition: transform 0.3s;">
-            Pay via UPI App <i class="fas fa-arrow-right" style="margin-left:5px; font-size:0.8rem;"></i>
+           Pay via UPI App <i class="fas fa-arrow-right" style="margin-left:5px; font-size:0.8rem;"></i>
         </a>
     </div>
 
@@ -1090,9 +1294,7 @@ window.addEventListener('load', () => {
     }
 });
 
-// ===== UI HELPERS (MERGED FIX FOR INFINITE RECURSION) =====
-const _chartOpened = { done: false };
-
+// ===== UI HELPERS =====
 function toggleSection(id, btn) {
     const el = document.getElementById(id);
     if (el.style.display === 'block') {
@@ -1102,12 +1304,6 @@ function toggleSection(id, btn) {
         el.style.display = 'block';
         btn.classList.add('active');
         haptic(30);
-        
-        // Chart rendering logic merged safely here!
-        if (id === 'chartSection' && !_chartOpened.done) {
-            _chartOpened.done = true;
-            setTimeout(() => renderChart('bar'), 50);
-        }
     }
 }
 
@@ -1132,11 +1328,7 @@ function resetApp() {
     });
     document.querySelectorAll('.info-text').forEach(i => i.style.display = 'none');
     g_subjects = [];
-    
-    // Reset chart state so it works next time too
-    _chartOpened.done = false;
     if (g_chart) { g_chart.destroy(); g_chart = null; }
-    
     showToast('🔄 Reset! Ready for new report.', 'info');
 }
 
@@ -1511,6 +1703,17 @@ function switchChart(type, btn) {
     document.querySelectorAll('.chart-tab').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     renderChart(type);
+}
+
+// Override toggleSection to also render chart
+const _originalToggle = toggleSection;
+const _chartOpened = {};
+function toggleSection(id, btn) {
+    _originalToggle(id, btn);
+    if (id === 'chartSection' && !_chartOpened.done && document.getElementById('chartSection').style.display === 'block') {
+        _chartOpened.done = true;
+        setTimeout(() => renderChart('bar'), 50);
+    }
 }
 
 // ===== ANIMATE CIRCLE (existing, improved) =====
