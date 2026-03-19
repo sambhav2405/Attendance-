@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-4XQ0JK7ELF"></script>
     <script>
@@ -11,25 +11,55 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Academic Pro v6</title>
+    <title>Academic Pro v7</title>
     <meta name="theme-color" content="#4f46e5">
 
     <link rel="icon" type="image/jpeg" href="unnamed.jpg">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
     <style>
+        /* ===== CSS CUSTOM PROPERTIES ===== */
         :root {
-            --theme-color: #4f46e5; 
+            --theme-color: #4f46e5;
             --glass-bg: rgba(255, 255, 255, 0.92);
             --glass-border: rgba(255, 255, 255, 0.4);
             --text-main: #1f2937;
             --text-light: #6b7280;
+            --card-bg: #ffffff;
+            --card-border: #f3f4f6;
+            --input-bg: rgba(255,255,255,0.8);
+            --stat-bg: linear-gradient(135deg, #ffffff, #f9fafb);
+            --body-overlay: none;
+            --skeleton-base: #e5e7eb;
+            --skeleton-shine: #f3f4f6;
+            --toggle-bg: #f1f5f9;
+            --toggle-text: #374151;
+            --hr-color: #e5e7eb;
+            --result-bg: #f8fafc;
+        }
+
+        [data-theme="dark"] {
+            --glass-bg: rgba(17, 24, 39, 0.92);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f3f4f6;
+            --text-light: #9ca3af;
+            --card-bg: #1f2937;
+            --card-border: #374151;
+            --input-bg: rgba(31, 41, 55, 0.9);
+            --stat-bg: linear-gradient(135deg, #1f2937, #111827);
+            --skeleton-base: #374151;
+            --skeleton-shine: #4b5563;
+            --toggle-bg: #1f2937;
+            --toggle-text: #e5e7eb;
+            --hr-color: #374151;
+            --result-bg: #111827;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        /* --- ANIMATED BACKGROUND --- */
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(-45deg, #000428, #004e92, #6a11cb, #2b0854);
@@ -42,6 +72,12 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            transition: color 0.3s;
+            overscroll-behavior-y: contain;
+        }
+
+        [data-theme="dark"] body {
+            background: linear-gradient(-45deg, #000000, #0a0a1a, #1a0035, #050510);
         }
 
         @keyframes gradientBG {
@@ -50,7 +86,6 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* --- Glassmorphism Card (Enhanced) --- */
         .glass-card {
             background: var(--glass-bg);
             backdrop-filter: blur(16px);
@@ -62,17 +97,24 @@
             max-width: 600px;
             padding: 25px;
             margin-bottom: 20px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s;
         }
 
         .glass-card:hover {
             box-shadow: 0 15px 50px 0 rgba(0, 0, 0, 0.5);
         }
 
+        /* ===== HEADER ROW ===== */
+        .header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+
         h1 {
             font-size: 1.6rem;
-            text-align: center;
-            margin: 0 0 5px 0;
+            margin: 0;
             background: linear-gradient(135deg, #4f46e5, #ec4899);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -80,11 +122,9 @@
             letter-spacing: 0.5px;
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 8px;
         }
 
-        /* Version Badge Fixed */
         .version-badge {
             font-size: 0.5em;
             color: #ffffff;
@@ -92,11 +132,51 @@
             padding: 4px 10px;
             border-radius: 12px;
             display: inline-block;
-            -webkit-text-fill-color: #ffffff; /* Override gradient text clip */
+            -webkit-text-fill-color: #ffffff;
             box-shadow: 0 2px 6px rgba(236, 72, 153, 0.3);
             transform: translateY(-2px);
         }
-        
+
+        /* ===== DARK MODE TOGGLE ===== */
+        .theme-toggle {
+            background: var(--toggle-bg);
+            border: 2px solid var(--card-border);
+            border-radius: 50px;
+            width: 56px;
+            height: 30px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+        .theme-toggle::before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        [data-theme="dark"] .theme-toggle::before {
+            transform: translateX(26px);
+            background: linear-gradient(135deg, #818cf8, #c084fc);
+        }
+        .theme-toggle-icon {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.6rem;
+            transition: opacity 0.3s;
+        }
+        .theme-toggle-icon.sun { left: 6px; color: #f59e0b; }
+        .theme-toggle-icon.moon { right: 5px; color: #818cf8; }
+        [data-theme="dark"] .theme-toggle-icon.sun { opacity: 0.3; }
+        [data-theme="light"] .theme-toggle-icon.moon { opacity: 0.3; }
+
         .subtitle {
             text-align: center;
             font-size: 0.85rem;
@@ -112,23 +192,22 @@
             height: 110px;
             padding: 15px;
             border-radius: 15px;
-            border: 2px solid #e5e7eb;
+            border: 2px solid var(--card-border);
             font-family: monospace;
             font-size: 0.9rem;
             resize: none;
             transition: all 0.3s ease;
             outline: none;
-            background: rgba(255, 255, 255, 0.8);
+            background: var(--input-bg);
+            color: var(--text-main);
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
         }
-        
-        textarea:focus { 
-            border-color: var(--theme-color); 
+        textarea:focus {
+            border-color: var(--theme-color);
             box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
-            background: #fff;
+            background: var(--card-bg);
         }
 
-        /* --- BUTTONS --- */
         .btn-main {
             width: 100%;
             padding: 15px;
@@ -145,7 +224,6 @@
             position: relative;
             overflow: hidden;
         }
-
         .btn-main::after {
             content: '';
             position: absolute;
@@ -154,17 +232,42 @@
             transform: skewX(-20deg);
             animation: shine 3s infinite;
         }
-
-        @keyframes shine {
-            0% { left: -100%; }
-            20% { left: 200%; }
-            100% { left: 200%; }
-        }
-
+        @keyframes shine { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
         .btn-main:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79, 70, 229, 0.6); }
         .btn-main:active { transform: scale(0.98); }
 
-        /* --- Dashboard --- */
+        /* ===== SKELETON LOADING ===== */
+        #skeleton-loader { display: none; }
+        .skeleton-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 15px;
+            border: 1px solid var(--card-border);
+            border-left: 6px solid var(--skeleton-base);
+        }
+        .skeleton-line {
+            height: 12px;
+            border-radius: 8px;
+            background: linear-gradient(90deg, var(--skeleton-base) 25%, var(--skeleton-shine) 50%, var(--skeleton-base) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            margin-bottom: 10px;
+        }
+        .skeleton-line.short { width: 40%; }
+        .skeleton-line.medium { width: 70%; }
+        .skeleton-line.full { width: 100%; }
+        .skeleton-bar {
+            height: 10px;
+            border-radius: 10px;
+            background: linear-gradient(90deg, var(--skeleton-base) 25%, var(--skeleton-shine) 50%, var(--skeleton-base) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            margin-bottom: 8px;
+        }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        /* ===== DASHBOARD ===== */
         #dashboard { display: none; animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
         @keyframes slideUpFade {
@@ -172,7 +275,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* --- Score Circle --- */
         .score-circle {
             position: relative;
             width: 160px;
@@ -186,9 +288,7 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.15);
             transition: all 0.3s ease;
         }
-
         .score-circle:hover { transform: scale(1.05); }
-
         .score-circle::before {
             content: "";
             position: absolute;
@@ -198,7 +298,6 @@
             border-radius: 50%;
             box-shadow: inset 0 4px 10px rgba(0,0,0,0.05);
         }
-
         .score-val {
             position: relative;
             font-size: 2.5rem;
@@ -217,12 +316,7 @@
             letter-spacing: 1px;
             animation: pulse 2s infinite;
         }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
         .funny-msg {
             text-align: center;
@@ -236,37 +330,39 @@
             border-left: 4px solid var(--theme-color);
             box-shadow: 0 2px 10px rgba(0,0,0,0.02);
         }
+        [data-theme="dark"] .funny-msg {
+            background: rgba(31,41,55,0.7);
+            color: #d1d5db;
+        }
 
-        /* --- Stats Grid --- */
         .stats-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
             margin-bottom: 25px;
         }
-
         .stat-item {
-            background: linear-gradient(135deg, #ffffff, #f9fafb);
+            background: var(--stat-bg);
             padding: 15px;
             border-radius: 16px;
             text-align: center;
             box-shadow: 0 4px 15px rgba(0,0,0,0.04);
-            border: 1px solid #f3f4f6;
+            border: 1px solid var(--card-border);
             transition: transform 0.2s;
         }
         .stat-item:hover { transform: translateY(-3px); }
-        .stat-val { font-weight: 800; font-size: 1.4rem; color: #1f2937; }
-        .stat-label { font-size: 0.85rem; color: #6b7280; font-weight: 600; text-transform: uppercase; margin-top: 4px; }
+        .stat-val { font-weight: 800; font-size: 1.4rem; color: var(--text-main); }
+        .stat-label { font-size: 0.85rem; color: var(--text-light); font-weight: 600; text-transform: uppercase; margin-top: 4px; }
 
-        /* --- Collapsible Buttons --- */
+        /* ===== TOGGLE BUTTONS ===== */
         .toggle-btn {
             width: 100%;
-            background: linear-gradient(to right, #ffffff, #f8fafc);
-            border: 1px solid #e5e7eb;
+            background: var(--toggle-bg);
+            border: 1px solid var(--card-border);
             padding: 16px;
             border-radius: 14px;
             font-weight: 700;
-            color: #374151;
+            color: var(--toggle-text);
             text-align: left;
             display: flex;
             justify-content: space-between;
@@ -277,7 +373,7 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.02);
         }
         .toggle-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.05); border-color: #cbd5e1; }
-        .toggle-btn.active { border-left: 5px solid var(--theme-color); background: #f0fdf4; }
+        .toggle-btn.active { border-left: 5px solid var(--theme-color); background: rgba(79, 70, 229, 0.05); }
         .toggle-btn i.fa-chevron-down { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         .toggle-btn.active i.fa-chevron-down { transform: rotate(180deg); color: var(--theme-color); }
 
@@ -288,75 +384,122 @@
         }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- Time Travel Grid --- */
+        /* ===== SCHEDULE GRID ===== */
         .schedule-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); 
+            grid-template-columns: repeat(3, 1fr);
             gap: 12px;
             margin-bottom: 15px;
         }
         .day-input { text-align: center; }
-        .day-input label { 
-            display: block; 
-            font-size: 0.75rem; 
-            color: #6b7280; 
-            margin-bottom: 6px; 
+        .day-input label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-bottom: 6px;
             text-transform: uppercase;
             font-weight: 700;
         }
         .day-input input {
-            width: 100%; 
-            padding: 12px 0; 
-            border: 2px solid #e5e7eb; 
+            width: 100%;
+            padding: 12px 0;
+            border: 2px solid var(--card-border);
             border-radius: 12px;
-            text-align: center; 
-            font-weight: 800; 
+            text-align: center;
+            font-weight: 800;
             font-size: 1.1rem;
-            background: #fff;
-            color: #1f2937;
+            background: var(--card-bg);
+            color: var(--text-main);
             transition: all 0.3s;
         }
-        .day-input input:focus { border-color: var(--theme-color); outline: none; background: #e0e7ff; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+        .day-input input:focus { border-color: var(--theme-color); outline: none; background: rgba(79, 70, 229, 0.08); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
 
-        /* --- Subject Cards --- */
+        /* ===== SUBJECT FILTER/SORT BAR ===== */
+        .filter-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            padding: 7px 14px;
+            border-radius: 50px;
+            border: 2px solid var(--card-border);
+            background: var(--card-bg);
+            color: var(--text-light);
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .filter-btn:hover { border-color: var(--theme-color); color: var(--theme-color); }
+        .filter-btn.active {
+            background: var(--theme-color);
+            border-color: var(--theme-color);
+            color: white;
+            box-shadow: 0 3px 10px rgba(79, 70, 229, 0.3);
+        }
+
+        /* ===== SUBJECT CARDS ===== */
         .sub-card {
-            background: white;
+            background: var(--card-bg);
             padding: 18px;
             border-radius: 16px;
             margin-bottom: 15px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            border: 1px solid #f3f4f6;
+            border: 1px solid var(--card-border);
             border-left: 6px solid #ccc;
             transition: all 0.3s ease;
-            opacity: 0; /* for animation */
+            opacity: 0;
         }
         .sub-card:hover { transform: translateX(5px); box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
-        
-        .sub-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 10px;
-        }
-        
-        .sub-name { 
-            font-weight: 700; font-size: 0.95rem; color: #1f2937; 
-            flex: 1; padding-right: 15px; word-wrap: break-word; line-height: 1.3;
-        }
-        
+        .sub-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .sub-name { font-weight: 700; font-size: 0.95rem; color: var(--text-main); flex: 1; padding-right: 15px; word-wrap: break-word; line-height: 1.3; }
         .sub-percent { font-weight: 800; font-size: 1.1rem; white-space: nowrap; }
-        
-        .progress-track {
-            width: 100%; height: 10px; background: #f3f4f6; border-radius: 10px; overflow: hidden; margin-bottom: 10px;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-        }
+        .progress-track { width: 100%; height: 10px; background: #f3f4f6; border-radius: 10px; overflow: hidden; margin-bottom: 10px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
+        [data-theme="dark"] .progress-track { background: #374151; }
         .progress-fill { height: 100%; border-radius: 10px; transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1); }
-        
         .sub-msg { font-size: 0.75rem; font-weight: 700; padding: 6px 10px; border-radius: 6px; display: inline-block; }
         .msg-danger { background: #fef2f2; color: #ef4444; border: 1px solid #fee2e2; }
         .msg-safe { background: #f0fdf4; color: #16a34a; border: 1px solid #dcfce7; }
 
-        /* --- Tools Section --- */
+        /* ===== CHART ===== */
+        .chart-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        }
+        .chart-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        .chart-tab {
+            flex: 1;
+            padding: 8px;
+            border: 2px solid var(--card-border);
+            border-radius: 10px;
+            background: var(--card-bg);
+            color: var(--text-light);
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .chart-tab.active {
+            background: var(--theme-color);
+            border-color: var(--theme-color);
+            color: white;
+        }
+
+        /* ===== TOOLS SECTION ===== */
         .tool-header {
             font-size: 1rem; font-weight: 700; margin: 20px 0 10px 0;
             display: flex; align-items: center; gap: 8px;
@@ -364,9 +507,11 @@
         .tool-row { display: flex; gap: 12px; margin-bottom: 8px; }
 
         input[type="number"] {
-            width: 80px; padding: 12px; border: 2px solid #e5e7eb;
+            width: 80px; padding: 12px; border: 2px solid var(--card-border);
             border-radius: 12px; text-align: center; font-weight: 800;
             transition: all 0.3s ease; font-size: 1rem;
+            background: var(--card-bg);
+            color: var(--text-main);
         }
         input[type="number"]:focus { border-color: var(--theme-color); outline: none; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
 
@@ -377,25 +522,97 @@
         }
         .btn-action:hover { filter: brightness(0.95); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .btn-action:active { transform: scale(0.98); }
-        
-        .result-text { font-size: 0.9rem; color: #4b5563; margin-bottom: 15px; margin-left: 2px; font-weight: 600; }
 
-        /* --- INFO BUTTON STYLES --- */
+        .result-text {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 15px;
+            margin-left: 2px;
+            font-weight: 600;
+        }
+
         .info-btn {
             background: none; border: none; color: #9ca3af;
             cursor: pointer; margin-left: auto; font-size: 1.1rem;
             padding: 5px; transition: color 0.3s;
         }
         .info-btn:hover { color: var(--theme-color); }
-        
+
         .info-text {
-            display: none; font-size: 0.85rem; color: #4b5563;
-            background: #f8fafc; padding: 12px; border-radius: 10px;
+            display: none; font-size: 0.85rem; color: var(--text-light);
+            background: var(--result-bg); padding: 12px; border-radius: 10px;
             margin-bottom: 15px; border-left: 4px solid var(--theme-color);
             line-height: 1.5; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
             animation: slideDown 0.3s ease;
         }
 
+        /* ===== TOAST NOTIFICATION ===== */
+        #toast-container {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            pointer-events: none;
+        }
+        .toast {
+            background: #1f2937;
+            color: white;
+            padding: 12px 22px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: toastIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            white-space: nowrap;
+            pointer-events: auto;
+        }
+        .toast.removing {
+            animation: toastOut 0.3s ease forwards;
+        }
+        .toast-icon { font-size: 1.1rem; }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.8); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes toastOut {
+            from { opacity: 1; transform: translateY(0) scale(1); }
+            to { opacity: 0; transform: translateY(20px) scale(0.8); }
+        }
+
+        /* ===== PULL TO REFRESH ===== */
+        #ptr-indicator {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%) translateY(-60px);
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 0 0 20px 20px;
+            padding: 10px 25px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--theme-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+            transition: transform 0.2s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        #ptr-indicator.visible { transform: translateX(-50%) translateY(0); }
+        #ptr-spinner { animation: spin 1s linear infinite; display: none; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* ===== SHARE ===== */
         .btn-share {
             background: linear-gradient(135deg, #25D366, #128C7E); color: white; width: 100%; margin-top: 25px;
             padding: 15px; border-radius: 50px; display: flex;
@@ -405,15 +622,7 @@
         }
         .btn-share:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(37, 211, 102, 0.5); }
 
-        .qr-container {
-            margin-top: 15px; background: white; padding: 15px;
-            border-radius: 16px; display: inline-block;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
-        }
-        .qr-container:hover { transform: scale(1.05); }
-
-        /* --- NOTES BANNER --- */
+        /* ===== NOTES BANNER ===== */
         .notes-banner {
             display: flex;
             align-items: center;
@@ -442,18 +651,17 @@
         .notes-icon { font-size: 2.2rem; z-index: 1; text-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         .notes-banner .fa-arrow-right { z-index: 1; background: rgba(255,255,255,0.2); padding: 10px; border-radius: 50%; backdrop-filter: blur(5px); }
 
-        /* --- CGPA CALCULATOR STYLES --- */
         .divider {
             display: flex; align-items: center; text-align: center;
-            margin: 25px 0 20px 0; color: #9ca3af; font-size: 0.8rem;
+            margin: 25px 0 20px 0; color: var(--text-light); font-size: 0.8rem;
             font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
         }
-        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 2px solid #e5e7eb; }
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 2px solid var(--hr-color); }
         .divider span { padding: 0 15px; }
 
         .cgpa-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .cgpa-card {
-            background: white; border: 2px solid transparent; padding: 18px 12px;
+            background: var(--card-bg); border: 2px solid transparent; padding: 18px 12px;
             border-radius: 16px; text-align: center; text-decoration: none;
             color: var(--text-main); transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0,0,0,0.04); display: flex;
@@ -466,33 +674,53 @@
         .cgpa-icon { font-size: 1.8rem; color: var(--theme-color); transition: transform 0.3s; }
         .cgpa-card:hover .cgpa-icon { transform: scale(1.1) rotate(5deg); }
         .cgpa-label { font-size: 0.95rem; font-weight: 800; }
-        .cgpa-sub { font-size: 0.75rem; color: #6b7280; font-weight: 600; }
+        .cgpa-sub { font-size: 0.75rem; color: var(--text-light); font-weight: 600; }
 
-        /* --- Helper Classes --- */
+        /* ===== COLOR THEMES ===== */
         .color-elite { --theme-color: #059669; }
         .color-safe { --theme-color: #0ea5e9; }
         .color-risky { --theme-color: #f59e0b; }
         .color-danger { --theme-color: #ea580c; }
         .color-critical { --theme-color: #dc2626; }
 
-        /* --- AD CONTAINER --- */
+        .qr-container {
+            margin-top: 15px; background: white; padding: 15px;
+            border-radius: 16px; display: inline-block;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .qr-container:hover { transform: scale(1.05); }
+
         .ad-container {
             margin-top: 20px; width: 100%; display: flex; justify-content: center;
             align-items: center; min-height: 100px; padding-bottom: 10px;
             background: rgba(255, 255, 255, 0.1); border-radius: 16px; overflow: hidden;
             backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);
         }
-
     </style>
 </head>
 <body>
 
+    <div id="ptr-indicator">
+        <i class="fas fa-arrow-down" id="ptr-arrow"></i>
+        <i class="fas fa-spinner" id="ptr-spinner"></i>
+        <span id="ptr-text">Pull to refresh</span>
+    </div>
+
+    <div id="toast-container"></div>
+
     <div class="glass-card" id="mainContainer">
-        <h1>Academic Pro <span class="version-badge">v6</span></h1>
+        <div class="header-row">
+            <h1>Academic Pro <span class="version-badge">v7</span></h1>
+            <button class="theme-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+                <span class="theme-toggle-icon sun"><i class="fas fa-sun"></i></span>
+                <span class="theme-toggle-icon moon"><i class="fas fa-moon"></i></span>
+            </button>
+        </div>
         <p class="subtitle">Attendance & Target Manager</p>
 
         <div id="inputSection">
-            <p style="font-size: 0.95rem; color: #4b5563; font-weight: 600; margin-bottom: 12px; display:flex; align-items:center; justify-content:space-between;">
+            <p style="font-size: 0.95rem; color: var(--text-light); font-weight: 600; margin-bottom: 12px; display:flex; align-items:center; justify-content:space-between;">
                 <span><i class="fas fa-clipboard" style="color:var(--theme-color);"></i> Paste Attendance Report:</span>
                 <button class="info-btn" onclick="toggleInfo('infoPaste')"><i class="fas fa-info-circle"></i></button>
             </p>
@@ -502,16 +730,16 @@
 
             <textarea id="inputData" placeholder="Copy full table from your ERP and paste here..."></textarea>
             <button class="btn-main" onclick="processReport()">Calculate Attendance 🚀</button>
-            
+
             <div style="text-align:center; margin-top:15px;">
-                 <a href="https://erp.skit.ac.in/reports/student_aggregate" 
+                <a href="https://erp.skit.ac.in/reports/student_aggregate"
                    style="display: inline-block; background-color: #EEF2FF; color: #4F46E5; font-weight: 700; font-size: 0.85rem; text-decoration: none; padding: 10px 20px; border-radius: 50px; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.15); border: 1px solid #c7d2fe; transition: all 0.3s;">
                    <i class="fas fa-external-link-alt"></i> Go to ERP Portal
                 </a>
             </div>
 
             <div class="divider"><span>📚 STUDY & EXAMS</span></div>
-            
+
             <a href="https://notes-clg.netlify.app/" target="_blank" class="notes-banner">
                 <div class="notes-icon"><i class="fas fa-book-reader"></i></div>
                 <div class="notes-text">
@@ -536,9 +764,21 @@
             </div>
         </div>
 
+        <div id="skeleton-loader">
+            <div style="width:160px; height:160px; border-radius:50%; background: var(--skeleton-base); margin: 0 auto 25px; animation: shimmer 1.5s infinite; background: linear-gradient(90deg, var(--skeleton-base) 25%, var(--skeleton-shine) 50%, var(--skeleton-base) 75%); background-size: 200% 100%;"></div>
+            <div class="skeleton-line medium" style="margin: 0 auto 25px; height:20px; border-radius:10px;"></div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:25px;">
+                <div class="skeleton-card"><div class="skeleton-line short"></div><div class="skeleton-line full"></div></div>
+                <div class="skeleton-card"><div class="skeleton-line short"></div><div class="skeleton-line full"></div></div>
+            </div>
+            <div class="skeleton-card"><div class="skeleton-line medium"></div><div class="skeleton-bar"></div><div class="skeleton-line short"></div></div>
+            <div class="skeleton-card"><div class="skeleton-line medium"></div><div class="skeleton-bar"></div><div class="skeleton-line short"></div></div>
+            <div class="skeleton-card"><div class="skeleton-line medium"></div><div class="skeleton-bar"></div><div class="skeleton-line short"></div></div>
+        </div>
+
         <div id="dashboard">
             <div class="status-badge" id="statusBadge">Checking...</div>
-            
+
             <div class="score-circle">
                 <span class="score-val" id="percentDisplay">0%</span>
             </div>
@@ -556,26 +796,40 @@
                 </div>
             </div>
 
-            <hr style="border: 0; border-top: 2px dashed #e5e7eb; margin: 25px 0;">
+            <button class="toggle-btn" onclick="toggleSection('chartSection', this)">
+                <div style="display:flex; align-items:center;">
+                    <i class="fas fa-chart-bar" style="margin-right:12px; color:#7c3aed; font-size:1.2rem;"></i>
+                    <b>Attendance Charts</b>
+                </div>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+            <div id="chartSection" class="collapsible-content">
+                <div class="chart-container">
+                    <div class="chart-tabs">
+                        <button class="chart-tab active" onclick="switchChart('bar', this)"><i class="fas fa-chart-bar"></i> Bar Chart</button>
+                        <button class="chart-tab" onclick="switchChart('doughnut', this)"><i class="fas fa-circle-notch"></i> Donut</button>
+                    </div>
+                    <canvas id="attendanceChart" height="250"></canvas>
+                </div>
+            </div>
+
+            <hr style="border: 0; border-top: 2px dashed var(--hr-color); margin: 25px 0;">
 
             <button class="toggle-btn" onclick="toggleSection('timeTravel', this)">
                 <div style="display:flex; align-items:center;">
-                    <i class="fas fa-calendar-alt" style="margin-right:12px; color:#6a11cb; font-size:1.2rem;"></i> 
+                    <i class="fas fa-calendar-alt" style="margin-right:12px; color:#6a11cb; font-size:1.2rem;"></i>
                     <b>75% Prediction Date</b>
                 </div>
                 <div style="display:flex; align-items:center; gap:10px;">
-                    <span class="info-btn" onclick="event.stopPropagation(); toggleInfo('infoDate')" style="margin:0;">
-                        <i class="fas fa-info-circle"></i>
-                    </span>
+                    <span class="info-btn" onclick="event.stopPropagation(); toggleInfo('infoDate')" style="margin:0;"><i class="fas fa-info-circle"></i></span>
                     <i class="fas fa-chevron-down"></i>
                 </div>
             </button>
             <div id="infoDate" class="info-text">
                 <b>हिंदी:</b> यह कैलकुलेट करता है कि अगर आप आज से रोज़ (छुट्टियों को छोड़कर) कॉलेज जाएं, तो आपकी 75% अटेंडेंस किस तारीख को पूरी होगी।
             </div>
-
             <div id="timeTravel" class="collapsible-content">
-                <p style="font-size:0.8rem; color:#6b7280; font-weight:600; margin-bottom:12px; text-align:center;">Edit daily classes (Sun & Holidays are off):</p>
+                <p style="font-size:0.8rem; color:var(--text-light); font-weight:600; margin-bottom:12px; text-align:center;">Edit daily classes (Sun & Holidays are off):</p>
                 <div class="schedule-grid">
                     <div class="day-input"><label>Mon</label><input type="number" id="sch_mon" value="5" oninput="liveUpdateDate()"></div>
                     <div class="day-input"><label>Tue</label><input type="number" id="sch_tue" value="5" oninput="liveUpdateDate()"></div>
@@ -587,26 +841,31 @@
                 <button class="btn-action" style="width:100%; background: linear-gradient(135deg, #6a11cb, #2575fc); color:white; margin-bottom:10px; padding:15px; font-size:1.05rem;" onclick="calculateDate()">
                     📅 When will I reach 75%?
                 </button>
-                <div id="dateResult" class="result-text" style="background:#f8fafc; padding:15px; border-radius:12px; display:none; border-left: 5px solid #6a11cb; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align:center;"></div>
+                <div id="dateResult" class="result-text" style="background:var(--result-bg); padding:15px; border-radius:12px; display:none; border-left: 5px solid #6a11cb; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align:center;"></div>
             </div>
 
             <button class="toggle-btn" onclick="toggleSection('subjectList', this)">
                 <div style="display:flex; align-items:center;">
-                    <i class="fas fa-list-ul" style="margin-right:12px; font-size:1.2rem; color:#4f46e5;"></i> 
+                    <i class="fas fa-list-ul" style="margin-right:12px; font-size:1.2rem; color:#4f46e5;"></i>
                     <b>Subject Breakdown</b>
                 </div>
                 <div style="display:flex; align-items:center; gap:10px;">
-                    <span class="info-btn" onclick="event.stopPropagation(); toggleInfo('infoSub')" style="margin:0;">
-                        <i class="fas fa-info-circle"></i>
-                    </span>
+                    <span class="info-btn" onclick="event.stopPropagation(); toggleInfo('infoSub')" style="margin:0;"><i class="fas fa-info-circle"></i></span>
                     <i class="fas fa-chevron-down"></i>
                 </div>
             </button>
             <div id="infoSub" class="info-text">
                 <b>हिंदी:</b> हर सब्जेक्ट की अलग-अलग अटेंडेंस देखें। जानें कि किसमें बंक मार सकते हैं (हरा) और किसमें क्लास लेनी पड़ेगी (लाल)।
             </div>
-            
             <div id="subjectList" class="collapsible-content">
+                <div class="filter-bar">
+                    <button class="filter-btn active" onclick="filterSubjects('all', this)"><i class="fas fa-th"></i> All</button>
+                    <button class="filter-btn" onclick="filterSubjects('danger', this)"><i class="fas fa-exclamation-triangle"></i> Danger</button>
+                    <button class="filter-btn" onclick="filterSubjects('safe', this)"><i class="fas fa-check-circle"></i> Safe</button>
+                    <button class="filter-btn" onclick="sortSubjects('asc', this)"><i class="fas fa-sort-amount-up-alt"></i> Low→High</button>
+                    <button class="filter-btn" onclick="sortSubjects('desc', this)"><i class="fas fa-sort-amount-down"></i> High→Low</button>
+                </div>
+                <div id="subjectCards"></div>
             </div>
 
             <div class="divider"><span>⚙️ PREDICTION TOOLS</span></div>
@@ -684,26 +943,26 @@
             <button class="btn-share" onclick="shareResult()">
                 <i class="fab fa-whatsapp" style="font-size: 1.3rem;"></i> Share Status on WhatsApp
             </button>
-            
-            <button style="background:transparent; border:none; color:#6b7280; width:100%; margin-top:20px; font-size:0.9rem; font-weight:600; text-decoration:underline; cursor:pointer;" onclick="resetApp()">
+
+            <button style="background:transparent; border:none; color:var(--text-light); width:100%; margin-top:20px; font-size:0.9rem; font-weight:600; text-decoration:underline; cursor:pointer;" onclick="resetApp()">
                 Check Another Report
             </button>
         </div>
     </div>
 
     <div class="glass-card" style="text-align: center; padding: 25px;">
-        <p style="margin: 0; font-weight: 800; font-size: 1.1rem; color:#1f2937;">Enjoying the Safe Bunks?</p>
-        <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 20px; font-weight:600;">Support the Developer ☕</p>
-        
+        <p style="margin: 0; font-weight: 800; font-size: 1.1rem; color:var(--text-main);">Enjoying the Safe Bunks?</p>
+        <p style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 20px; font-weight:600;">Support the Developer ☕</p>
+
         <div class="qr-container">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=jainsambhav877@oksbi&pn=Sambhav&cu=INR" 
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=jainsambhav877@oksbi&pn=Sambhav&cu=INR"
                  alt="Scan to Pay" width="150" height="150" style="border-radius: 8px;">
         </div>
-        
+
         <br><br>
-        <a href="upi://pay?pa=jainsambhav877@oksbi&pn=Sambhav&cu=INR" 
+        <a href="upi://pay?pa=jainsambhav877@oksbi&pn=Sambhav&cu=INR"
            style="background:linear-gradient(135deg, #2563EB, #1d4ed8); color:white; padding:12px 30px; border-radius:50px; text-decoration:none; font-size:1rem; font-weight:700; display:inline-block; box-shadow: 0 6px 15px rgba(37,99,235,0.4); transition: transform 0.3s;">
-           Pay via UPI App <i class="fas fa-arrow-right" style="margin-left:5px; font-size:0.8rem;"></i>
+            Pay via UPI App <i class="fas fa-arrow-right" style="margin-left:5px; font-size:0.8rem;"></i>
         </a>
     </div>
 
@@ -712,389 +971,718 @@
         <div id="container-87307e4ec90977b7ebc2bd28dde49abe"></div>
     </div>
 
-    <script>
-        // Global Variables
-        let g_present = 0;
-        let g_total = 0;
-        let g_percent = 0;
-        let g_subjects = [];
+<script>
+// ===== GLOBAL STATE =====
+let g_present = 0;
+let g_total = 0;
+let g_percent = 0;
+let g_subjects = [];
+let g_chart = null;
+let g_currentFilter = 'all';
+let g_currentSort = null;
 
-        // On Load
-        window.addEventListener('load', () => {
-            const saved = localStorage.getItem('academic_data_v6');
-            if(saved) {
-                document.getElementById('inputData').value = saved;
+// ===== THEME MANAGEMENT =====
+(function initTheme() {
+    const saved = localStorage.getItem('theme') || 
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', saved);
+})();
+
+function toggleDarkMode() {
+    const html = document.documentElement;
+    const current = html.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    haptic(30);
+    showToast(next === 'dark' ? '🌙 Dark Mode On' : '☀️ Light Mode On', 'info');
+
+    // Update chart if exists
+    if (g_chart) {
+        setTimeout(() => renderChart(g_chart.config.type === 'bar' ? 'bar' : 'doughnut'), 100);
+    }
+}
+
+// ===== HAPTIC FEEDBACK =====
+function haptic(duration = 50) {
+    if (navigator.vibrate) {
+        navigator.vibrate(duration);
+    }
+}
+
+// ===== TOAST NOTIFICATIONS =====
+function showToast(message, type = 'success', duration = 3000) {
+    haptic(40);
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+
+    const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️', party: '🎉' };
+    const colors = {
+        success: 'linear-gradient(135deg, #059669, #10b981)',
+        error: 'linear-gradient(135deg, #dc2626, #ef4444)',
+        info: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+        warning: 'linear-gradient(135deg, #d97706, #f59e0b)',
+        party: 'linear-gradient(135deg, #ec4899, #8b5cf6)'
+    };
+
+    toast.style.background = colors[type] || colors.success;
+    toast.innerHTML = `<span class="toast-icon">${icons[type] || '✅'}</span>${message}`;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.classList.add('removing');
+        setTimeout(() => toast.remove(), 300);
+    }, duration);
+}
+
+// ===== PULL TO REFRESH =====
+(function initPTR() {
+    let startY = 0;
+    let pulling = false;
+    const indicator = document.getElementById('ptr-indicator');
+    const ptrText = document.getElementById('ptr-text');
+    const ptrArrow = document.getElementById('ptr-arrow');
+    const ptrSpinner = document.getElementById('ptr-spinner');
+
+    document.addEventListener('touchstart', (e) => {
+        if (window.scrollY === 0) {
+            startY = e.touches[0].clientY;
+            pulling = true;
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchmove', (e) => {
+        if (!pulling) return;
+        const dy = e.touches[0].clientY - startY;
+        if (dy > 30) {
+            indicator.classList.add('visible');
+            ptrText.textContent = dy > 80 ? 'Release to refresh!' : 'Pull to refresh...';
+            ptrArrow.style.transform = `rotate(${Math.min(dy * 2, 180)}deg)`;
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+        if (!pulling) return;
+        const dy = e.changedTouches[0].clientY - startY;
+        pulling = false;
+        if (dy > 80) {
+            ptrText.textContent = 'Refreshing...';
+            ptrArrow.style.display = 'none';
+            ptrSpinner.style.display = 'inline-block';
+            haptic([50, 100, 50]);
+            setTimeout(() => {
+                location.reload();
+            }, 800);
+        } else {
+            indicator.classList.remove('visible');
+            ptrArrow.style.transform = '';
+            ptrArrow.style.display = '';
+        }
+    }, { passive: true });
+})();
+
+// ===== ON LOAD =====
+window.addEventListener('load', () => {
+    const saved = localStorage.getItem('academic_data_v7');
+    if (saved) {
+        document.getElementById('inputData').value = saved;
+    }
+});
+
+// ===== UI HELPERS (MERGED FIX FOR INFINITE RECURSION) =====
+const _chartOpened = { done: false };
+
+function toggleSection(id, btn) {
+    const el = document.getElementById(id);
+    if (el.style.display === 'block') {
+        el.style.display = 'none';
+        btn.classList.remove('active');
+    } else {
+        el.style.display = 'block';
+        btn.classList.add('active');
+        haptic(30);
+        
+        // Chart rendering logic merged safely here!
+        if (id === 'chartSection' && !_chartOpened.done) {
+            _chartOpened.done = true;
+            setTimeout(() => renderChart('bar'), 50);
+        }
+    }
+}
+
+function toggleInfo(id) {
+    const el = document.getElementById(id);
+    el.style.display = (el.style.display === 'block') ? 'none' : 'block';
+}
+
+function resetApp() {
+    haptic(50);
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('skeleton-loader').style.display = 'none';
+    document.getElementById('inputSection').style.display = 'block';
+    document.getElementById('inputData').value = '';
+    localStorage.removeItem('academic_data_v7');
+
+    ['futureInput','bunkInput','targetInput','odInput','mixAttend','mixBunk'].forEach(id => {
+        document.getElementById(id).value = '';
+    });
+    ['futureResult','bunkResult','targetResult','odResult','mixResult'].forEach(id => {
+        document.getElementById(id).innerText = '';
+    });
+    document.querySelectorAll('.info-text').forEach(i => i.style.display = 'none');
+    g_subjects = [];
+    
+    // Reset chart state so it works next time too
+    _chartOpened.done = false;
+    if (g_chart) { g_chart.destroy(); g_chart = null; }
+    
+    showToast('🔄 Reset! Ready for new report.', 'info');
+}
+
+// ===== PROCESS REPORT (with Skeleton Loading) =====
+function processReport() {
+    const text = document.getElementById('inputData').value;
+    if (!text.trim()) {
+        showToast('Please paste your attendance data first!', 'error');
+        haptic([100, 50, 100]);
+        return;
+    }
+
+    haptic(60);
+    // Show skeleton
+    document.getElementById('inputSection').style.display = 'none';
+    document.getElementById('skeleton-loader').style.display = 'block';
+    document.getElementById('dashboard').style.display = 'none';
+
+    // Simulate processing delay for skeleton effect
+    setTimeout(() => {
+        const lines = text.split('\n');
+        g_present = 0; g_total = 0; g_subjects = [];
+        let found = false;
+        const regex = /^(.*?)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+([0-9.]+)$/;
+
+        lines.forEach(line => {
+            const match = line.trim().match(regex);
+            if (match) {
+                found = true;
+                const rawName = match[1].replace(/^\d+\s+/, '').trim();
+                const present = parseInt(match[2]);
+                const od = parseInt(match[3]);
+                const makeup = parseInt(match[4]);
+                const absent = parseInt(match[5]);
+                const attended = present + od + makeup;
+                const total = present + od + absent;
+
+                if (total > 0) {
+                    g_present += attended;
+                    g_total += total;
+                    g_subjects.push({ name: rawName, attended, total, percent: ((attended / total) * 100).toFixed(2) });
+                }
             }
         });
 
-        function toggleSection(id, btn) {
-            const el = document.getElementById(id);
-            if (el.style.display === "block") {
-                el.style.display = "none";
-                btn.classList.remove("active");
-            } else {
-                el.style.display = "block";
-                btn.classList.add("active");
-            }
-        }
-
-        function toggleInfo(id) {
-            const el = document.getElementById(id);
-            if (el.style.display === "block") {
-                el.style.display = "none";
-            } else {
-                el.style.display = "block";
-            }
-        }
-
-        function resetApp() {
-            document.getElementById('dashboard').style.display = 'none';
+        if (!found) {
+            document.getElementById('skeleton-loader').style.display = 'none';
             document.getElementById('inputSection').style.display = 'block';
-            document.getElementById('inputData').value = "";
-            localStorage.removeItem('academic_data_v6');
-            
-            // Clear inputs
-            ['futureInput', 'bunkInput', 'targetInput', 'odInput', 'mixAttend', 'mixBunk'].forEach(id => {
-                document.getElementById(id).value = "";
-            });
-            ['futureResult', 'bunkResult', 'targetResult', 'odResult', 'mixResult'].forEach(id => {
-                document.getElementById(id).innerText = "";
-            });
-            
-            // Hide all infos
-            const infos = document.querySelectorAll('.info-text');
-            infos.forEach(i => i.style.display = 'none');
-
-            g_subjects = [];
+            showToast('❌ Data not found! Copy full table from ERP.', 'error');
+            haptic([100, 50, 100, 50, 100]);
+            return;
         }
 
-        function processReport() {
-            const text = document.getElementById('inputData').value;
-            const lines = text.split('\n');
-            
-            g_present = 0;
-            g_total = 0;
-            g_subjects = [];
-            let found = false;
-            
-            const regex = /^(.*?)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+([0-9.]+)$/;
+        localStorage.setItem('academic_data_v7', text);
+        g_percent = ((g_present / g_total) * 100).toFixed(2);
 
-            lines.forEach(line => {
-                const match = line.trim().match(regex);
-                if (match) {
-                    found = true;
-                    const rawName = match[1].replace(/^\d+\s+/, '').trim(); 
-                    
-                    const present = parseInt(match[2]);
-                    const od = parseInt(match[3]);
-                    const makeup = parseInt(match[4]);
-                    const absent = parseInt(match[5]);
+        document.getElementById('skeleton-loader').style.display = 'none';
+        updateDashboard();
+    }, 1200); // Skeleton shows for 1.2s
+}
 
-                    const attended = present + od + makeup;
-                    const total = present + od + absent;
-                    
-                    if(total > 0) {
-                        g_present += attended;
-                        g_total += total;
-                        
-                        g_subjects.push({
-                            name: rawName,
-                            attended: attended,
-                            total: total,
-                            percent: ((attended / total) * 100).toFixed(2)
-                        });
+// ===== UPDATE DASHBOARD =====
+function updateDashboard() {
+    const mainCard = document.getElementById('mainContainer');
+    const statusBadge = document.getElementById('statusBadge');
+    const funnyMsg = document.getElementById('funnyMsg');
+    const p = parseFloat(g_percent);
+
+    mainCard.classList.remove('color-elite','color-safe','color-risky','color-danger','color-critical');
+
+    let themeClass, badgeText, msg;
+
+    if (p >= 85) {
+        themeClass = 'color-elite'; badgeText = '👑 ELITE STUDENT';
+        msg = "Attendance itni high ki HOD bhi autograph maange. Nerd Alert! 🤓";
+    } else if (p >= 75) {
+        themeClass = 'color-safe'; badgeText = '😎 SAFE ZONE';
+        msg = "Perfect balance. Life set hai, bas maintain rakhna bhai. ✨";
+    } else if (p >= 65) {
+        themeClass = 'color-risky'; badgeText = '⚠️ WARNING ZONE';
+        msg = "Living on the edge? Ek-do bunk aur game over. Sambhal ja! 🛑";
+    } else if (p >= 45) {
+        themeClass = 'color-danger'; badgeText = '🔥 DANGER ZONE';
+        msg = "HOD Room loading... Mummy ko call aane wala hai. Prayers sent. 🙏";
+    } else {
+        themeClass = 'color-critical'; badgeText = '💀 LEGENDARY';
+        msg = "College is temporary, Backlogs are permanent. Next sem phodenge! 🗿";
+    }
+
+    mainCard.classList.add(themeClass);
+    statusBadge.innerText = badgeText;
+    funnyMsg.innerText = `"${msg}"`;
+
+    // Animate stats count-up
+    animateCountUp('attendedVal', g_present);
+    animateCountUp('totalVal', g_total);
+    animateCircle(p);
+
+    renderSubjects();
+
+    document.getElementById('dashboard').style.display = 'block';
+    haptic(p >= 75 ? [50, 30, 80] : [100, 50, 100]);
+
+    // Confetti for safe zone!
+    if (p >= 75) {
+        setTimeout(() => launchConfetti(p), 800);
+        showToast(p >= 85 ? '🎉 Elite! Top of the class!' : '🎊 Safe Zone! You can bunk safely!', 'party', 4000);
+    } else {
+        showToast(`📊 Report loaded! ${g_subjects.length} subjects found.`, 'info');
+    }
+}
+
+// ===== FEATURE 1: COUNT-UP ANIMATION (requestAnimationFrame + easing) =====
+function animateCountUp(elementId, targetValue) {
+    const el = document.getElementById(elementId);
+    const startTime = performance.now();
+    const duration = 1200;
+
+    function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = easeOutCubic(progress);
+        el.innerText = Math.round(eased * targetValue);
+        if (progress < 1) requestAnimationFrame(update);
+        else el.innerText = targetValue;
+    }
+    requestAnimationFrame(update);
+}
+
+// ===== FEATURE 3: CONFETTI =====
+function launchConfetti(percent) {
+    const colors = percent >= 85
+        ? ['#059669', '#10b981', '#34d399', '#ffd700']
+        : ['#0ea5e9', '#38bdf8', '#7dd3fc', '#a78bfa'];
+
+    confetti({
+        particleCount: percent >= 85 ? 150 : 80,
+        spread: 70,
+        origin: { y: 0.3 },
+        colors,
+        disableForReducedMotion: true
+    });
+
+    if (percent >= 85) {
+        setTimeout(() => confetti({ particleCount: 80, angle: 60, spread: 55, origin: { x: 0 }, colors }), 300);
+        setTimeout(() => confetti({ particleCount: 80, angle: 120, spread: 55, origin: { x: 1 }, colors }), 500);
+    }
+}
+
+// ===== FEATURE 8: SUBJECT FILTER & SORT =====
+function filterSubjects(type, btn) {
+    haptic(30);
+    g_currentFilter = type;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderSubjectCards();
+}
+
+function sortSubjects(order, btn) {
+    haptic(30);
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    g_currentSort = order;
+    renderSubjectCards();
+}
+
+function renderSubjects() {
+    g_currentFilter = 'all';
+    g_currentSort = null;
+    renderSubjectCards();
+}
+
+function renderSubjectCards() {
+    const container = document.getElementById('subjectCards');
+    container.innerHTML = '';
+
+    let subjects = [...g_subjects];
+
+    // Filter
+    if (g_currentFilter === 'danger') subjects = subjects.filter(s => parseFloat(s.percent) < 75);
+    else if (g_currentFilter === 'safe') subjects = subjects.filter(s => parseFloat(s.percent) >= 75);
+
+    // Sort
+    if (g_currentSort === 'asc') subjects.sort((a, b) => parseFloat(a.percent) - parseFloat(b.percent));
+    else if (g_currentSort === 'desc') subjects.sort((a, b) => parseFloat(b.percent) - parseFloat(a.percent));
+
+    if (subjects.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-light); font-weight:600;">No subjects match this filter.</div>`;
+        return;
+    }
+
+    subjects.forEach((sub, index) => {
+        const p = parseFloat(sub.percent);
+        const color = p < 75 ? '#ef4444' : '#10b981';
+        let msgHtml = '';
+
+        if (p < 75) {
+            const reqClasses = Math.ceil((0.75 * sub.total - sub.attended) / 0.25);
+            msgHtml = `<div class="sub-msg msg-danger"><i class="fas fa-exclamation-triangle"></i> Attend <b>${reqClasses}</b> more</div>`;
+        } else {
+            const bunks = Math.floor((sub.attended / 0.75) - sub.total);
+            msgHtml = bunks > 0
+                ? `<div class="sub-msg msg-safe"><i class="fas fa-check-circle"></i> Safe to bunk <b>${bunks}</b></div>`
+                : `<div class="sub-msg" style="background:#f1f5f9; color:#64748b; border:1px solid #e2e8f0;">Near 75%. Don't bunk!</div>`;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'sub-card';
+        card.style.borderLeftColor = color;
+        card.style.animationDelay = `${index * 0.08}s`;
+        card.innerHTML = `
+            <div class="sub-header">
+                <span class="sub-name">${sub.name}</span>
+                <span class="sub-percent" style="color:${color}">${sub.percent}%</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" style="width:0%; background:${color};" data-target="${sub.percent}"></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.8rem; font-weight:700; color:#64748b;">${sub.attended}/${sub.total} classes</span>
+                ${msgHtml}
+            </div>
+        `;
+
+        container.appendChild(card);
+
+        // Animate in
+        requestAnimationFrame(() => {
+            card.style.animation = `slideUpFade 0.5s ease forwards`;
+            card.style.animationDelay = `${index * 0.08}s`;
+            setTimeout(() => {
+                const fill = card.querySelector('.progress-fill');
+                if (fill) fill.style.width = fill.dataset.target + '%';
+            }, index * 80 + 100);
+        });
+    });
+}
+
+// ===== FEATURE 9: CHART VISUALIZATION =====
+function renderChart(type = 'bar') {
+    if (g_chart) { g_chart.destroy(); g_chart = null; }
+
+    const canvas = document.getElementById('attendanceChart');
+    const ctx = canvas.getContext('2d');
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+    const labels = g_subjects.map(s => s.name.length > 15 ? s.name.substring(0, 15) + '…' : s.name);
+    const data = g_subjects.map(s => parseFloat(s.percent));
+    const colors = data.map(p => p >= 75 ? 'rgba(16,185,129,0.8)' : 'rgba(239,68,68,0.8)');
+    const borderColors = data.map(p => p >= 75 ? '#059669' : '#dc2626');
+
+    const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+    const textColor = isDark ? '#9ca3af' : '#6b7280';
+
+    if (type === 'bar') {
+        g_chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Attendance %',
+                    data,
+                    backgroundColor: colors,
+                    borderColor: borderColors,
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => ` ${ctx.raw}%`
+                        }
                     }
-                }
-            });
-
-            if (!found) {
-                alert("❌ Data not found! Please copy the full table from ERP.");
-                return;
-            }
-
-            localStorage.setItem('academic_data_v6', text);
-            g_percent = ((g_present / g_total) * 100).toFixed(2);
-
-            updateDashboard();
-        }
-
-        function updateDashboard() {
-            const mainCard = document.getElementById('mainContainer');
-            const statusBadge = document.getElementById('statusBadge');
-            const funnyMsg = document.getElementById('funnyMsg');
-            
-            document.getElementById('attendedVal').innerText = g_present;
-            document.getElementById('totalVal').innerText = g_total;
-            animateCircle(parseFloat(g_percent));
-
-            let msg = "";
-            let themeClass = "";
-            let badgeText = "";
-            const p = parseFloat(g_percent);
-
-            mainCard.classList.remove('color-elite', 'color-safe', 'color-risky', 'color-danger', 'color-critical');
-
-            if (p >= 85) {
-                themeClass = "color-elite";
-                badgeText = "👑 ELITE STUDENT";
-                msg = "Attendance itni high ki HOD bhi autograph maange. Nerd Alert! 🤓";
-            } else if (p >= 75) {
-                themeClass = "color-safe";
-                badgeText = "😎 SAFE ZONE";
-                msg = "Perfect balance. Life set hai, bas maintain rakhna bhai. ✨";
-            } else if (p >= 65) {
-                themeClass = "color-risky";
-                badgeText = "⚠️ WARNING ZONE";
-                msg = "Living on the edge? Ek-do bunk aur game over. Sambhal ja! 🛑";
-            } else if (p >= 45) {
-                themeClass = "color-danger";
-                badgeText = "🔥 DANGER ZONE";
-                msg = "HOD Room loading... Mummy ko call aane wala hai. Prayers sent. 🙏";
-            } else {
-                themeClass = "color-critical";
-                badgeText = "💀 LEGENDARY";
-                msg = "College is temporary, Backlogs are permanent. Next sem phodenge! 🗿";
-            }
-
-            mainCard.classList.add(themeClass);
-            statusBadge.innerText = badgeText;
-            funnyMsg.innerText = `"${msg}"`;
-
-            renderSubjects();
-
-            document.getElementById('inputSection').style.display = 'none';
-            document.getElementById('dashboard').style.display = 'block';
-        }
-
-        function renderSubjects() {
-            const list = document.getElementById('subjectList');
-            list.innerHTML = "";
-            
-            g_subjects.forEach((sub, index) => {
-                let color = "#4f46e5"; 
-                let msgHtml = "";
-                let p = parseFloat(sub.percent);
-                let reqClasses = 0;
-
-                if(p < 75) {
-                    color = "#ef4444"; 
-                    reqClasses = Math.ceil((0.75 * sub.total - sub.attended) / 0.25);
-                    msgHtml = `<div class="sub-msg msg-danger"><i class="fas fa-exclamation-triangle"></i> Attend <b>${reqClasses}</b> more</div>`;
-                } else {
-                    color = "#10b981"; 
-                    let bunks = Math.floor((sub.attended / 0.75) - sub.total);
-                    if (bunks > 0) msgHtml = `<div class="sub-msg msg-safe"><i class="fas fa-check-circle"></i> Safe to bunk <b>${bunks}</b></div>`;
-                    else msgHtml = `<div class="sub-msg" style="background:#f1f5f9; color:#64748b; border:1px solid #e2e8f0;">Near 75%. Don't bunk!</div>`;
-                }
-
-                list.innerHTML += `
-                    <div class="sub-card" style="border-left-color:${color}; animation: slideUpFade 0.5s ease forwards; animation-delay: ${index * 0.1}s;">
-                        <div class="sub-header">
-                            <span class="sub-name">${sub.name}</span>
-                            <span class="sub-percent" style="color:${color}">${sub.percent}%</span>
-                        </div>
-                        <div class="progress-track">
-                            <div class="progress-fill" style="width:${sub.percent}%; background:${color};"></div>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span style="font-size:0.8rem; font-weight:700; color:#64748b;">${sub.attended}/${sub.total} classes</span>
-                            ${msgHtml}
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function liveUpdateDate() {
-            const resultBox = document.getElementById('dateResult');
-            if(resultBox.style.display === 'block') {
-                calculateDate();
-            }
-        }
-
-        function calculateDate() {
-            if(parseFloat(g_percent) >= 75) {
-                document.getElementById('dateResult').style.display = 'block';
-                document.getElementById('dateResult').innerHTML = "<b style='font-size:1.1rem;'>Relax!</b><br>You are already above 75%. <br>Enjoy your life! 😎";
-                return;
-            }
-
-            const holidays = [
-                "2026-02-15", "2026-03-02", "2026-03-03", "2026-03-26",
-                "2026-08-15", "2026-08-28", "2026-09-04", "2026-10-20"
-            ];
-            
-            function isHolidayOrSunday(date) {
-                if (date.getDay() === 0) return true; 
-
-                const dStr = date.toISOString().split('T')[0];
-                if (holidays.includes(dStr)) return true;
-
-                const autumnStart = new Date("2026-11-06");
-                const autumnEnd = new Date("2026-11-15");
-                if (date >= autumnStart && date <= autumnEnd) return true;
-
-                const winterStart = new Date("2026-12-25");
-                const winterEnd = new Date("2026-12-31");
-                if (date >= winterStart && date <= winterEnd) return true;
-
-                return false;
-            }
-
-            const schedule = [
-                0, 
-                parseInt(document.getElementById('sch_mon').value) || 0,
-                parseInt(document.getElementById('sch_tue').value) || 0,
-                parseInt(document.getElementById('sch_wed').value) || 0,
-                parseInt(document.getElementById('sch_thu').value) || 0,
-                parseInt(document.getElementById('sch_fri').value) || 0,
-                parseInt(document.getElementById('sch_sat').value) || 0
-            ];
-
-            let needed = Math.ceil((0.75 * g_total - g_present) / 0.25);
-            let daysPassed = 0;
-            let currentDate = new Date(); 
-
-            while (needed > 0) {
-                currentDate.setDate(currentDate.getDate() + 1);
-                daysPassed++;
-                
-                if (isHolidayOrSunday(currentDate)) continue; 
-
-                let dayIndex = currentDate.getDay(); 
-                let classesToday = schedule[dayIndex];
-                needed -= classesToday;
-
-                if(daysPassed > 365) {
-                    document.getElementById('dateResult').style.display = 'block';
-                    document.getElementById('dateResult').innerHTML = "⚠️ Schedule is empty or target too far.";
-                    return;
+                },
+                scales: {
+                    y: {
+                        min: 0, max: 100,
+                        grid: { color: gridColor },
+                        ticks: { color: textColor, callback: v => v + '%' },
+                        border: { display: false }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: textColor, font: { size: 10 }, maxRotation: 40 }
+                    }
+                },
+                animation: {
+                    duration: 800,
+                    easing: 'easeOutCubic'
                 }
             }
+        });
 
-            const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
-            const dateString = currentDate.toLocaleDateString('en-IN', options);
+        // Draw 75% line annotation manually
+        const originalDraw = g_chart.draw.bind(g_chart);
+        g_chart.draw = function() {
+            originalDraw();
+            const yScale = g_chart.scales.y;
+            const xStart = g_chart.chartArea.left;
+            const xEnd = g_chart.chartArea.right;
+            const yPos = yScale.getPixelForValue(75);
+            ctx.save();
+            ctx.beginPath();
+            ctx.setLineDash([6, 4]);
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 2;
+            ctx.moveTo(xStart, yPos);
+            ctx.lineTo(xEnd, yPos);
+            ctx.stroke();
+            ctx.fillStyle = '#f59e0b';
+            ctx.font = 'bold 11px Poppins';
+            ctx.fillText('75%', xEnd - 28, yPos - 5);
+            ctx.restore();
+        };
 
+    } else {
+        // Donut chart - overall + per subject
+        g_chart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels,
+                datasets: [{
+                    data,
+                    backgroundColor: colors,
+                    borderColor: isDark ? '#1f2937' : '#ffffff',
+                    borderWidth: 3,
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '60%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: textColor,
+                            font: { size: 10 },
+                            boxWidth: 12,
+                            padding: 10,
+                            generateLabels: (chart) => {
+                                return chart.data.labels.map((label, i) => ({
+                                    text: `${label}: ${data[i]}%`,
+                                    fillStyle: colors[i],
+                                    strokeStyle: borderColors[i],
+                                    lineWidth: 2,
+                                    hidden: false,
+                                    index: i
+                                }));
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw}%` }
+                    }
+                },
+                animation: { animateRotate: true, duration: 900, easing: 'easeOutCubic' }
+            }
+        });
+    }
+}
+
+function switchChart(type, btn) {
+    haptic(30);
+    document.querySelectorAll('.chart-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderChart(type);
+}
+
+// ===== ANIMATE CIRCLE (existing, improved) =====
+function animateCircle(target) {
+    const circle = document.querySelector('.score-circle');
+    const text = document.getElementById('percentDisplay');
+    const startTime = performance.now();
+    const duration = 1200;
+
+    function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = easeOutCubic(progress);
+        const current = eased * target;
+        text.innerText = current.toFixed(2) + '%';
+        circle.style.background = `conic-gradient(var(--theme-color) ${current * 3.6}deg, ${document.documentElement.getAttribute('data-theme') === 'dark' ? '#374151' : '#e5e7eb'} 0deg)`;
+        if (progress < 1) requestAnimationFrame(update);
+        else text.innerText = target.toFixed(2) + '%';
+    }
+    requestAnimationFrame(update);
+}
+
+// ===== PREDICTION TOOLS (with haptic + toast) =====
+function checkFuture() {
+    const extra = parseInt(document.getElementById('futureInput').value);
+    if (!extra) { showToast('Enter number of classes!', 'warning'); return; }
+    haptic(40);
+    const newTotal = g_total + extra, newPresent = g_present + extra;
+    const newPercent = (newPresent / newTotal) * 100;
+    const boost = newPercent - parseFloat(g_percent);
+    document.getElementById('futureResult').innerHTML =
+        `New %: <b>${newPercent.toFixed(2)}%</b> <span style="color:var(--theme-color); font-weight:800;">(+${boost.toFixed(2)}%)</span>`;
+    showToast(`🚀 Attend ${extra} classes → ${newPercent.toFixed(1)}%`, 'success');
+}
+
+function checkBunk() {
+    const bunk = parseInt(document.getElementById('bunkInput').value);
+    if (!bunk) { showToast('Enter number of classes!', 'warning'); return; }
+    haptic(60);
+    const newTotal = g_total + bunk;
+    const newPercent = (g_present / newTotal) * 100;
+    const drop = parseFloat(g_percent) - newPercent;
+    document.getElementById('bunkResult').innerHTML =
+        `New %: <b>${newPercent.toFixed(2)}%</b> <span style="color:#dc2626; font-weight:800;">(-${drop.toFixed(2)}%)</span>`;
+    const warn = newPercent < 75 ? ' ⚠️ Below 75%!' : ' ✅ Still safe!';
+    showToast(`💤 Bunk ${bunk} → ${newPercent.toFixed(1)}%${warn}`, newPercent < 75 ? 'warning' : 'info');
+}
+
+function calcTarget() {
+    const target = parseFloat(document.getElementById('targetInput').value);
+    if (!target) { showToast('Enter target percentage!', 'warning'); return; }
+    const p = target / 100;
+    if (p >= 1 || target <= parseFloat(g_percent)) {
+        document.getElementById('targetResult').innerText = "Target already met or invalid!";
+        showToast('Target already met! 🎯', 'success');
+        return;
+    }
+    haptic(40);
+    const required = Math.ceil((p * g_total - g_present) / (1 - p));
+    document.getElementById('targetResult').innerHTML =
+        `You need to attend <b>${required}</b> more classes continuously.`;
+    showToast(`🎯 Need ${required} classes for ${target}%`, 'info');
+}
+
+function checkOD() {
+    const od = parseInt(document.getElementById('odInput').value);
+    if (!od) { showToast('Enter OD classes count!', 'warning'); return; }
+    haptic(40);
+    const newPresent = g_present + od;
+    const newPercent = (newPresent / g_total) * 100;
+    const boost = newPercent - parseFloat(g_percent);
+    document.getElementById('odResult').innerHTML =
+        `New %: <b>${newPercent.toFixed(2)}%</b> <span style="color:#db2777; font-weight:800;">(+${boost.toFixed(2)}%)</span>`;
+    showToast(`🏥 OD Applied! New: ${newPercent.toFixed(1)}%`, 'success');
+}
+
+function calcMix() {
+    const att = parseInt(document.getElementById('mixAttend').value) || 0;
+    const bnk = parseInt(document.getElementById('mixBunk').value) || 0;
+    if (att === 0 && bnk === 0) { showToast('Enter at least one value!', 'warning'); return; }
+    haptic(40);
+    const newPresent = g_present + att;
+    const newTotal = g_total + att + bnk;
+    const newPercent = (newPresent / newTotal) * 100;
+    const diff = newPercent - parseFloat(g_percent);
+    const diffStr = diff >= 0
+        ? `<span style="color:var(--theme-color); font-weight:800;">(+${diff.toFixed(2)}%)</span>`
+        : `<span style="color:#dc2626; font-weight:800;">(${diff.toFixed(2)}%)</span>`;
+    document.getElementById('mixResult').innerHTML = `Final %: <b>${newPercent.toFixed(2)}%</b> ${diffStr}`;
+    showToast(`🧮 Mix Result: ${newPercent.toFixed(1)}%`, newPercent >= 75 ? 'success' : 'warning');
+}
+
+// ===== DATE PREDICTION =====
+function liveUpdateDate() {
+    if (document.getElementById('dateResult').style.display === 'block') calculateDate();
+}
+
+function calculateDate() {
+    haptic(40);
+    if (parseFloat(g_percent) >= 75) {
+        document.getElementById('dateResult').style.display = 'block';
+        document.getElementById('dateResult').innerHTML = "<b style='font-size:1.1rem;'>Relax!</b><br>You are already above 75%. <br>Enjoy your life! 😎";
+        return;
+    }
+
+    const holidays = ["2026-02-15","2026-03-02","2026-03-03","2026-03-26","2026-08-15","2026-08-28","2026-09-04","2026-10-20"];
+
+    function isHolidayOrSunday(date) {
+        if (date.getDay() === 0) return true;
+        const dStr = date.toISOString().split('T')[0];
+        if (holidays.includes(dStr)) return true;
+        const aS = new Date("2026-11-06"), aE = new Date("2026-11-15");
+        if (date >= aS && date <= aE) return true;
+        const wS = new Date("2026-12-25"), wE = new Date("2026-12-31");
+        if (date >= wS && date <= wE) return true;
+        return false;
+    }
+
+    const schedule = [
+        0,
+        parseInt(document.getElementById('sch_mon').value) || 0,
+        parseInt(document.getElementById('sch_tue').value) || 0,
+        parseInt(document.getElementById('sch_wed').value) || 0,
+        parseInt(document.getElementById('sch_thu').value) || 0,
+        parseInt(document.getElementById('sch_fri').value) || 0,
+        parseInt(document.getElementById('sch_sat').value) || 0
+    ];
+
+    let needed = Math.ceil((0.75 * g_total - g_present) / 0.25);
+    let daysPassed = 0;
+    let currentDate = new Date();
+
+    while (needed > 0) {
+        currentDate.setDate(currentDate.getDate() + 1);
+        daysPassed++;
+        if (isHolidayOrSunday(currentDate)) continue;
+        needed -= schedule[currentDate.getDay()];
+        if (daysPassed > 365) {
             document.getElementById('dateResult').style.display = 'block';
-            document.getElementById('dateResult').innerHTML = 
-                `If you attend daily (excluding holidays):<br><b style="font-size:1.2rem; color:#6a11cb; display:inline-block; margin-top:8px;">${dateString}</b><br><span style="font-size:0.85rem; color:#64748b; font-weight:600;">(${daysPassed} days from now)</span>`;
+            document.getElementById('dateResult').innerHTML = "⚠️ Schedule is empty or target too far.";
+            return;
         }
+    }
 
-        function checkFuture() {
-            const extra = parseInt(document.getElementById('futureInput').value);
-            if(!extra) return;
-            
-            const newTotal = g_total + extra;
-            const newPresent = g_present + extra;
-            const newPercent = (newPresent / newTotal) * 100;
-            const boost = newPercent - parseFloat(g_percent);
-            
-            document.getElementById('futureResult').innerHTML = 
-                `New %: <b>${newPercent.toFixed(2)}%</b> <span style="color:var(--theme-color); font-weight:800;">(+${boost.toFixed(2)}%)</span>`;
-        }
+    const dateString = currentDate.toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+    document.getElementById('dateResult').style.display = 'block';
+    document.getElementById('dateResult').innerHTML =
+        `If you attend daily (excluding holidays):<br><b style="font-size:1.2rem; color:#6a11cb; display:inline-block; margin-top:8px;">${dateString}</b><br><span style="font-size:0.85rem; color:#64748b; font-weight:600;">(${daysPassed} days from now)</span>`;
+    showToast(`📅 Target date calculated!`, 'info');
+}
 
-        function checkBunk() {
-            const bunk = parseInt(document.getElementById('bunkInput').value);
-            if(!bunk) return;
-            
-            const newTotal = g_total + bunk;
-            const newPercent = (g_present / newTotal) * 100;
-            const drop = parseFloat(g_percent) - newPercent;
-            
-            document.getElementById('bunkResult').innerHTML = 
-                `New %: <b>${newPercent.toFixed(2)}%</b> <span style="color:#dc2626; font-weight:800;">(-${drop.toFixed(2)}%)</span>`;
-        }
+// ===== SHARE =====
+function shareResult() {
+    haptic([50, 30, 50]);
+    const p = parseFloat(g_percent);
+    let shareText = '';
+    if (p >= 85) shareText = `🤓 My Attendance is ${p}%. I attend classes so you don't have to.`;
+    else if (p >= 75) shareText = `😎 My Attendance is ${p}%. Chill vibes only. Safe Zone.`;
+    else if (p >= 65) shareText = `💀 My Attendance is ${p}%. Risk hai toh Ishq hai.`;
+    else if (p >= 45) shareText = `🆘 My Attendance is ${p}%. Send prayers, HOD is watching.`;
+    else shareText = `🗿 My Attendance is ${p}%. Legend status achieved.`;
+    shareText += `\n\nCheck yours, Find Safe Bunks & Download College Notes here: https://magical-tanuki-6349b2.netlify.app/`;
 
-        function calcTarget() {
-            const target = parseFloat(document.getElementById('targetInput').value);
-            if(!target) return;
-            
-            const p = target / 100;
-            if(p >= 1 || target <= parseFloat(g_percent)) {
-                 document.getElementById('targetResult').innerText = "Target already met or invalid!";
-                 return;
-            }
-
-            let required = (p * g_total - g_present) / (1 - p);
-            required = Math.ceil(required);
-            
-            document.getElementById('targetResult').innerHTML = 
-                `You need to attend <b>${required}</b> more classes continuously.`;
-        }
-
-        function checkOD() {
-            const od = parseInt(document.getElementById('odInput').value);
-            if(!od) return;
-            
-            const newPresent = g_present + od;
-            const newTotal = g_total; 
-            
-            const newPercent = (newPresent / newTotal) * 100;
-            const boost = newPercent - parseFloat(g_percent);
-            
-            document.getElementById('odResult').innerHTML = 
-                `New %: <b>${newPercent.toFixed(2)}%</b> <span style="color:#db2777; font-weight:800;">(+${boost.toFixed(2)}%)</span>`;
-        }
-
-        function calcMix() {
-            const att = parseInt(document.getElementById('mixAttend').value) || 0;
-            const bnk = parseInt(document.getElementById('mixBunk').value) || 0;
-
-            if(att === 0 && bnk === 0) return;
-
-            const newPresent = g_present + att;
-            const newTotal = g_total + att + bnk;
-            const newPercent = (newPresent / newTotal) * 100;
-            
-            const diff = newPercent - parseFloat(g_percent);
-            let diffStr = "";
-            if(diff >= 0) diffStr = `<span style="color:var(--theme-color); font-weight:800;">(+${diff.toFixed(2)}%)</span>`;
-            else diffStr = `<span style="color:#dc2626; font-weight:800;">(${diff.toFixed(2)}%)</span>`;
-
-            document.getElementById('mixResult').innerHTML = 
-                `Final %: <b>${newPercent.toFixed(2)}%</b> ${diffStr}`;
-        }
-
-        function shareResult() {
-            const p = parseFloat(g_percent);
-            let shareText = "";
-
-            if (p >= 85) shareText = `🤓 My Attendance is ${p}%. I attend classes so you don't have to.`;
-            else if (p >= 75) shareText = `😎 My Attendance is ${p}%. Chill vibes only. Safe Zone.`;
-            else if (p >= 65) shareText = `💀 My Attendance is ${p}%. Risk hai toh Ishq hai.`;
-            else if (p >= 45) shareText = `🆘 My Attendance is ${p}%. Send prayers, HOD is watching.`;
-            else shareText = `🗿 My Attendance is ${p}%. Legend status achieved.`;
-
-            shareText += `\n\nCheck yours, Find Safe Bunks & Download College Notes here: https://magical-tanuki-6349b2.netlify.app/`;
-
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Academic Status',
-                    text: shareText
-                }).catch(console.error);
-            } else {
-                window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
-            }
-        }
-
-        function animateCircle(target) {
-            const circle = document.querySelector('.score-circle');
-            const text = document.getElementById('percentDisplay');
-
-            let current = 0;
-            const step = target / 60; 
-
-            const interval = setInterval(() => {
-                current += step;
-                if (current >= target) {
-                    current = target;
-                    clearInterval(interval);
-                }
-                text.innerText = current.toFixed(2) + "%";
-                circle.style.background = `conic-gradient(var(--theme-color) ${current * 3.6}deg, #e5e7eb 0deg)`;
-            }, 16); 
-        }
-       
-    </script>
+    if (navigator.share) {
+        navigator.share({ title: 'Academic Status', text: shareText }).catch(console.error);
+    } else {
+        window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
+    }
+    showToast('📤 Sharing...', 'info', 2000);
+}
+</script>
 </body>
 </html>
