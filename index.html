@@ -365,6 +365,44 @@
         .qr-container { margin-top: 15px; background: white; padding: 15px; border-radius: 16px; display: inline-block; box-shadow: 0 8px 25px rgba(0,0,0,0.1); transition: transform 0.3s; }
         .qr-container:hover { transform: scale(1.05); }
         .ad-container { margin-top: 20px; width: 100%; max-width: 1100px; display: flex; justify-content: center; align-items: center; min-height: 100px; padding-bottom: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 16px; overflow: hidden; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
+
+        /* ===== CAMPUSBEE BUTTON ===== */
+        .campusbee-btn {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; margin-top: 12px; padding: 14px 20px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white; border: none; border-radius: 14px;
+            font-size: 1rem; font-weight: 800; text-decoration: none;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+            transition: all 0.3s ease; letter-spacing: 0.3px; cursor: pointer;
+            position: relative; overflow: hidden;
+        }
+        .campusbee-btn::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.25), transparent);
+            transform: skewX(-20deg); animation: shine 3s infinite;
+        }
+        .campusbee-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6); }
+
+        /* ===== CLEAR BUTTON ===== */
+        .btn-clear {
+            width: 100%; padding: 12px; margin-top: 10px;
+            background: #fff1f2; color: #dc2626;
+            border: 1.5px solid #fecaca; border-radius: 12px;
+            font-size: 0.95rem; font-weight: 700; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: all 0.2s ease;
+        }
+        .btn-clear:hover { background: #fee2e2; transform: translateY(-1px); box-shadow: 0 4px 10px rgba(220,38,38,0.15); }
+        .btn-clear:active { transform: scale(0.98); }
+        [data-theme="dark"] .btn-clear { background: rgba(220, 38, 38, 0.12); color: #fca5a5; border-color: rgba(220, 38, 38, 0.3); }
+        [data-theme="dark"] .btn-clear:hover { background: rgba(220, 38, 38, 0.22); }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            60% { left: 150%; }
+            100% { left: 150%; }
+        }
     </style>
 </head>
 <body>
@@ -400,11 +438,23 @@
             <textarea id="inputData" placeholder="Copy full table from your ERP and paste here..."></textarea>
             <button class="btn-main" onclick="processReport()">Calculate Attendance 🚀</button>
 
+            <!-- CLEAR BUTTON -->
+            <button class="btn-clear" onclick="document.getElementById('inputData').value=''; showToast('🗑️ Cleared!', 'info');">
+                <i class="fas fa-trash-alt"></i> Clear Text
+            </button>
+
             <div style="text-align:center; margin-top:15px;">
                 <a href="https://erp.skit.ac.in/reports/student_aggregate" class="erp-btn">
                    <i class="fas fa-external-link-alt"></i> Go to ERP Portal
                 </a>
             </div>
+
+            <!-- CAMPUSBEE INTERNSHIP BUTTON -->
+            <a href="https://campusbee.me" target="_blank" class="campusbee-btn">
+                <i class="fas fa-briefcase" style="font-size:1.1rem;"></i>
+                Find Internships – CampusBee.me
+                <i class="fas fa-arrow-right" style="font-size:0.85rem;"></i>
+            </a>
 
             <div class="divider"><span>📚 STUDY & EXAMS</span></div>
             <a href="https://notes-clg.netlify.app/" target="_blank" class="notes-banner">
@@ -791,7 +841,6 @@ function toggleSection(id, btn) {
         btn.classList.add('active');
         haptic(30);
         
-        // Render chart exactly when its section opens
         if (id === 'chartSection' && !_chartOpened.done) {
             _chartOpened.done = true;
             setTimeout(() => renderChart('bar'), 50);
