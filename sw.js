@@ -1,4 +1,4 @@
-const CACHE_NAME = 'skit-attendance-v3'; // Version badal diya hai force update ke liye
+const CACHE_NAME = 'skit-attendance-v8'; // Version badal diya hai force update ke liye
 const ASSETS = [
   '/',
   '/index.html',
