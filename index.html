@@ -878,13 +878,18 @@
 <script>
 // ===== LIVE VISITOR / STUDENT COUNTER =====
 // Uses a free public counter service (no signup, no server needed).
-// The counter persists globally — every unique visitor bumps it by 1, forever.
-// A sessionStorage flag stops the count from increasing if the same person refreshes repeatedly.
+// The counter persists globally — every unique DEVICE bumps it by 1, forever.
+// A localStorage flag (not sessionStorage) stops the count from increasing on
+// refresh / new tab / same-browser revisits from the same device. It will only
+// count again if the user clears site data or opens the site in a different
+// browser/incognito profile — this is an inherent limit of a frontend-only,
+// no-login/no-backend counter.
 const STATS_BASE_USERS = 1890;
 const STATS_BASE_STUDENTS = 14245;
 const STATS_RATIO = STATS_BASE_STUDENTS / STATS_BASE_USERS;
 const STATS_NAMESPACE = 'academicpro-v7-attendance-app';
 const STATS_KEY = 'total-visits';
+const STATS_DEVICE_FLAG = 'stats_counted_device_v7';
 
 function animateCounter(el, target) {
     const start = 0;
@@ -908,11 +913,14 @@ async function loadVisitorStats() {
 
     try {
         let raw;
-        if (!sessionStorage.getItem('stats_counted')) {
+        // localStorage persists across refreshes, tab closes, and new tabs on the
+        // SAME device/browser -> only the first-ever visit from this device hits
+        // (increments) the counter. Every later visit just reads the current value.
+        if (!localStorage.getItem(STATS_DEVICE_FLAG)) {
             const res = await fetch(`https://abacus.jasoncameron.dev/hit/${STATS_NAMESPACE}/${STATS_KEY}`);
             const data = await res.json();
             raw = data.value;
-            sessionStorage.setItem('stats_counted', '1');
+            localStorage.setItem(STATS_DEVICE_FLAG, '1');
         } else {
             const res = await fetch(`https://abacus.jasoncameron.dev/get/${STATS_NAMESPACE}/${STATS_KEY}`);
             const data = await res.json();
