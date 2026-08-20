@@ -202,6 +202,42 @@
         .marquee-item:hover, .marquee-item:active { background: rgba(255,255,255,0.18); }
         .marquee-sep { color: rgba(255,255,255,0.5); margin: 0 8px; font-size: 0.7rem; }
 
+        /* ===== STATS COUNTER ===== */
+        .stats-card { text-align: center; padding: 26px 20px; position: relative; overflow: hidden; }
+        .stats-card::before {
+            content: ''; position: absolute; top: -50%; right: -20%; width: 160%; height: 160%;
+            background: radial-gradient(circle at 80% 20%, rgba(79,70,229,0.10), transparent 55%);
+            pointer-events: none;
+        }
+        .stats-header { display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; }
+        .stats-badge {
+            width: 48px; height: 48px; border-radius: 14px; margin-bottom: 10px;
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3);
+        }
+        .stats-badge i { color: #fff; font-size: 1.2rem; }
+        .stats-title { margin: 0; font-weight: 800; font-size: 1.05rem; color: var(--text-main); }
+        .stats-grid { display: flex; gap: 14px; justify-content: center; }
+        .stats-box {
+            flex: 1; max-width: 160px; background: var(--input-bg); border: 2px solid var(--card-border);
+            border-radius: 16px; padding: 18px 10px; transition: transform 0.3s ease;
+        }
+        .stats-box:hover { transform: translateY(-3px); }
+        .stats-number {
+            font-size: 1.7rem; font-weight: 900; line-height: 1.1;
+            background: linear-gradient(135deg, var(--theme-color), #3b82f6);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .stats-label {
+            font-size: 0.72rem; font-weight: 700; color: var(--text-light); margin-top: 6px;
+            display: flex; align-items: center; justify-content: center; gap: 5px; text-transform: uppercase; letter-spacing: 0.3px;
+        }
+        .stats-footnote { font-size: 0.72rem; color: var(--text-light); font-weight: 600; margin-top: 16px; margin-bottom: 0; }
+        @media (max-width: 340px) {
+            .stats-number { font-size: 1.4rem; }
+        }
+
         /* ===== SUGGESTION BOX ===== */
         .suggestion-card {
             text-align: center; padding: 25px 22px; position: relative; overflow: hidden;
@@ -435,7 +471,6 @@
 
         .qr-container { margin-top: 15px; background: white; padding: 15px; border-radius: 16px; display: inline-block; box-shadow: 0 8px 25px rgba(0,0,0,0.1); transition: transform 0.3s; }
         .qr-container:hover { transform: scale(1.05); }
-        .ad-container { margin-top: 20px; width: 100%; max-width: 1100px; display: flex; justify-content: center; align-items: center; min-height: 100px; padding-bottom: 10px; background: rgba(255, 255, 255, 0.1); border-radius: 16px; overflow: hidden; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
 
         /* ===== CAMPUSBEE BUTTON ===== */
         .campusbee-btn {
@@ -822,12 +857,85 @@
         <div class="sugg-privacy"><i class="fas fa-shield-alt"></i> No email, phone, or device data is ever collected</div>
     </div>
 
-    <div class="ad-container">
-        <script async="async" data-cfasync="false" src="https://pl28592186.effectivegatecpm.com/87307e4ec90977b7ebc2bd28dde49abe/invoke.js"></script>
-        <div id="container-87307e4ec90977b7ebc2bd28dde49abe"></div>
+    <div class="glass-card stats-card" id="statsSection">
+        <div class="stats-header">
+            <div class="stats-badge"><i class="fas fa-chart-line"></i></div>
+            <p class="stats-title">Trusted by Students Nationwide</p>
+        </div>
+        <div class="stats-grid">
+            <div class="stats-box">
+                <div class="stats-number" id="statUsers">0</div>
+                <div class="stats-label"><i class="fas fa-users"></i> Total Users</div>
+            </div>
+            <div class="stats-box">
+                <div class="stats-number" id="statStudents">0</div>
+                <div class="stats-label"><i class="fas fa-graduation-cap"></i> Students Helped</div>
+            </div>
+        </div>
+        <p class="stats-footnote">Live count · grows with every new visitor ✨</p>
     </div>
 
 <script>
+// ===== LIVE VISITOR / STUDENT COUNTER =====
+// Uses a free public counter service (no signup, no server needed).
+// The counter persists globally — every unique visitor bumps it by 1, forever.
+// A sessionStorage flag stops the count from increasing if the same person refreshes repeatedly.
+const STATS_BASE_USERS = 1890;
+const STATS_BASE_STUDENTS = 14245;
+const STATS_RATIO = STATS_BASE_STUDENTS / STATS_BASE_USERS;
+const STATS_NAMESPACE = 'academicpro-v7-attendance-app';
+const STATS_KEY = 'total-visits';
+
+function animateCounter(el, target) {
+    const start = 0;
+    const duration = 1200;
+    const startTime = performance.now();
+    function tick(now) {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const val = Math.floor(start + (target - start) * eased);
+        el.textContent = val.toLocaleString('en-IN');
+        if (progress < 1) requestAnimationFrame(tick);
+        else el.textContent = target.toLocaleString('en-IN');
+    }
+    requestAnimationFrame(tick);
+}
+
+async function loadVisitorStats() {
+    const usersEl = document.getElementById('statUsers');
+    const studentsEl = document.getElementById('statStudents');
+    if (!usersEl || !studentsEl) return;
+
+    try {
+        let raw;
+        if (!sessionStorage.getItem('stats_counted')) {
+            const res = await fetch(`https://abacus.jasoncameron.dev/hit/${STATS_NAMESPACE}/${STATS_KEY}`);
+            const data = await res.json();
+            raw = data.value;
+            sessionStorage.setItem('stats_counted', '1');
+        } else {
+            const res = await fetch(`https://abacus.jasoncameron.dev/get/${STATS_NAMESPACE}/${STATS_KEY}`);
+            const data = await res.json();
+            raw = data.value;
+        }
+
+        const totalUsers = STATS_BASE_USERS + raw;
+        const totalStudents = STATS_BASE_STUDENTS + Math.round(raw * STATS_RATIO);
+
+        animateCounter(usersEl, totalUsers);
+        animateCounter(studentsEl, totalStudents);
+        localStorage.setItem('stats_cache', JSON.stringify({ u: totalUsers, s: totalStudents }));
+    } catch (err) {
+        // Offline / API down -> fall back to last known cached numbers (never shows a decrease)
+        const cached = JSON.parse(localStorage.getItem('stats_cache') || 'null');
+        const fallbackUsers = cached ? cached.u : STATS_BASE_USERS;
+        const fallbackStudents = cached ? cached.s : STATS_BASE_STUDENTS;
+        animateCounter(usersEl, fallbackUsers);
+        animateCounter(studentsEl, fallbackStudents);
+    }
+}
+document.addEventListener('DOMContentLoaded', loadVisitorStats);
+
 // ===== TOP MARQUEE SCROLL =====
 function scrollToSection(id) {
     const el = document.getElementById(id);
@@ -1575,7 +1683,7 @@ function shareResult() {
     else if (p >= 65) shareText = `💀 My Attendance is ${p}%. Risk hai toh Ishq hai.`;
     else if (p >= 45) shareText = `🆘 My Attendance is ${p}%. Send prayers, HOD is watching.`;
     else shareText = `🗿 My Attendance is ${p}%. Legend status achieved.`;
-    shareText += `\n\nCheck yours, Find Safe Bunks & Download College Notes here: https://magical-tanuki-6349b2.netlify.app/`;
+    shareText += `\n\nCheck yours, Find Safe Bunks & Download College Notes here: https://presentsir.me/`;
 
     if (navigator.share) {
         navigator.share({ title: 'Academic Status', text: shareText }).catch(console.error);
