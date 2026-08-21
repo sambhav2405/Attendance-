@@ -40,22 +40,23 @@
             --result-bg: #f8fafc;
         }
 
-        /* ===== DARK MODE: Premium Midnight Purple Velvet Theme ===== */
+        /* ===== DARK MODE: Slate & Aurora Theme (better contrast) ===== */
         [data-theme="dark"] {
-            --glass-bg: rgba(15, 12, 41, 0.88);
-            --glass-border: rgba(139, 92, 246, 0.2);
-            --text-main: #ede9fe;
-            --text-light: #a78bfa;
-            --card-bg: rgba(30, 20, 60, 0.75);
-            --card-border: rgba(139, 92, 246, 0.15);
-            --input-bg: rgba(20, 14, 50, 0.8);
-            --stat-bg: linear-gradient(135deg, rgba(45, 28, 90, 0.7), rgba(25, 15, 55, 0.85));
-            --skeleton-base: rgba(67, 40, 120, 0.5);
-            --skeleton-shine: rgba(109, 72, 190, 0.4);
-            --toggle-bg: rgba(45, 28, 90, 0.7);
-            --toggle-text: #ddd6fe;
-            --hr-color: rgba(139, 92, 246, 0.25);
-            --result-bg: rgba(20, 14, 50, 0.9);
+            --glass-bg: rgba(17, 22, 34, 0.90);
+            --glass-border: rgba(99, 179, 237, 0.18);
+            --text-main: #eef2f7;
+            --text-light: #94a3b8;
+            --card-bg: rgba(24, 30, 46, 0.82);
+            --card-border: rgba(99, 179, 237, 0.14);
+            --input-bg: rgba(14, 18, 30, 0.85);
+            --stat-bg: linear-gradient(135deg, rgba(28, 35, 54, 0.8), rgba(17, 22, 34, 0.9));
+            --skeleton-base: rgba(51, 65, 90, 0.5);
+            --skeleton-shine: rgba(80, 100, 135, 0.4);
+            --toggle-bg: rgba(28, 35, 54, 0.8);
+            --toggle-text: #cbd5e1;
+            --hr-color: rgba(99, 179, 237, 0.2);
+            --result-bg: rgba(14, 18, 30, 0.92);
+            --theme-color: #7c9eff;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -77,7 +78,7 @@
         }
 
         [data-theme="dark"] body {
-            background: linear-gradient(-45deg, #0a0618, #130b2e, #1b0a3d, #0e0523, #160834);
+            background: linear-gradient(-45deg, #0b0f1a, #131c2e, #17233a, #0d1220, #101828);
         }
 
         @keyframes gradientBG {
@@ -136,6 +137,73 @@
         }
 
         /* ===== DARK MODE TOGGLE ===== */
+        .tour-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(10, 12, 20, 0.72); z-index: 10000;
+            align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(6px);
+        }
+        .tour-overlay.open { display: flex; animation: tourFadeIn 0.35s ease; }
+        @keyframes tourFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .tour-card {
+            background: var(--card-bg); backdrop-filter: blur(24px); border: 1px solid var(--card-border);
+            border-radius: 24px; width: 100%; max-width: 360px; padding: 28px 24px 22px; text-align: center;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.4); animation: tourPop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        @keyframes tourPop { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .tour-progress { display: flex; justify-content: center; gap: 6px; margin-bottom: 20px; }
+        .tour-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--card-border); transition: all 0.3s; }
+        .tour-dot.active { width: 22px; border-radius: 5px; background: var(--theme-color); }
+        .tour-dot.done { background: var(--theme-color); opacity: 0.5; }
+        .tour-icon {
+            width: 68px; height: 68px; border-radius: 50%; margin: 0 auto 18px; display: flex; align-items: center;
+            justify-content: center; font-size: 1.7rem; color: #fff;
+            background: linear-gradient(135deg, var(--theme-color), #3b82f6); box-shadow: 0 10px 25px rgba(79,70,229,0.35);
+            transition: transform 0.3s;
+        }
+        .tour-title { font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin: 0 0 10px; }
+        .tour-text { font-size: 0.92rem; color: var(--text-light); line-height: 1.55; margin: 0 0 24px; min-height: 66px; }
+        .tour-actions { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+        .tour-skip { background: none; border: none; color: var(--text-light); font-weight: 700; font-size: 0.85rem; cursor: pointer; padding: 10px; }
+        .tour-next {
+            flex: 1; padding: 13px; border-radius: 12px; border: none; cursor: pointer; font-weight: 700; font-size: 0.9rem;
+            background: linear-gradient(135deg, var(--theme-color), #3b82f6); color: #fff; display: flex; align-items: center;
+            justify-content: center; gap: 8px; box-shadow: 0 8px 20px rgba(79,70,229,0.3);
+        }
+
+        .customize-btn {
+            width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--card-border);
+            background: var(--toggle-bg); color: var(--theme-color); font-size: 1rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: transform 0.2s;
+        }
+        .customize-btn:hover { transform: rotate(15deg) scale(1.05); }
+
+        .ts-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 9999;
+            align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px);
+        }
+        .ts-overlay.open { display: flex; }
+        .ts-modal {
+            background: var(--card-bg); backdrop-filter: blur(20px); border: 1px solid var(--card-border);
+            border-radius: 20px; width: 100%; max-width: 380px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .ts-head {
+            display: flex; align-items: center; justify-content: space-between; padding: 18px 20px;
+            font-weight: 800; font-size: 1.05rem; color: var(--text-main); border-bottom: 1px solid var(--card-border);
+        }
+        .ts-close { background: none; border: none; color: var(--text-light); font-size: 1.1rem; cursor: pointer; padding: 4px 8px; }
+        .ts-body { padding: 18px 20px; }
+        .ts-label { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; font-weight: 700; color: var(--text-light); margin: 14px 0 6px; }
+        .ts-label:first-child { margin-top: 0; }
+        .ts-hex { font-family: monospace; font-size: 0.75rem; color: var(--text-main); }
+        .ts-color-input { width: 100%; height: 42px; border-radius: 12px; border: 1px solid var(--card-border); cursor: pointer; background: none; padding: 2px; }
+        .ts-hint { font-size: 0.75rem; color: var(--text-light); margin-top: 16px; line-height: 1.4; }
+        .ts-presets { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+        .ts-preset-swatch { width: 34px; height: 34px; border-radius: 50%; cursor: pointer; border: 2px solid var(--card-border); transition: transform 0.15s; }
+        .ts-preset-swatch:hover { transform: scale(1.12); }
+        .ts-actions { display: flex; gap: 10px; padding: 16px 20px; border-top: 1px solid var(--card-border); }
+        .ts-btn { flex: 1; padding: 12px; border-radius: 12px; font-weight: 700; font-size: 0.85rem; border: none; cursor: pointer; }
+        .ts-btn-reset { background: var(--toggle-bg); color: var(--text-light); }
+        .ts-btn-save { background: linear-gradient(135deg, var(--theme-color), #3b82f6); color: #fff; }
+
         .theme-toggle {
             background: var(--toggle-bg); border: 2px solid var(--card-border); border-radius: 50px;
             width: 56px; height: 30px; cursor: pointer; position: relative; transition: all 0.3s ease; flex-shrink: 0;
@@ -267,6 +335,16 @@
         .sugg-privacy { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 14px; font-size: 0.72rem; color: var(--text-light); font-weight: 600; }
         .sugg-privacy i { color: #10b981; }
 
+        #replyStatusArea { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
+        .reply-box { border-radius: 14px; padding: 12px 14px; font-size: 0.85rem; border: 1px solid var(--card-border); background: var(--input-bg); }
+        .reply-box-head { font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+        .reply-box.pending .reply-box-head { color: #d97706; }
+        .reply-box.replied .reply-box-head { color: #059669; }
+        .reply-box-your { color: var(--text-light); font-size: 0.8rem; margin-bottom: 4px; font-style: italic; }
+        .reply-box-msg { color: var(--text-main); font-weight: 600; line-height: 1.4; }
+        [data-theme="dark"] .reply-box.pending .reply-box-head { color: #fbbf24; }
+        [data-theme="dark"] .reply-box.replied .reply-box-head { color: #34d399; }
+
         /* Stack name/branch on very narrow phones */
         @media (max-width: 360px) {
             .sugg-row { flex-direction: column; }
@@ -288,7 +366,7 @@
         .erp-btn {
             display: inline-block; background-color: #EEF2FF; color: #4F46E5; font-weight: 700; font-size: 0.85rem; text-decoration: none; padding: 10px 20px; border-radius: 50px; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.15); border: 1px solid #c7d2fe; transition: all 0.3s;
         }
-        [data-theme="dark"] .erp-btn { background-color: rgba(79, 46, 140, 0.3); color: #c4b5fd; border-color: rgba(139, 92, 246, 0.35); box-shadow: none; }
+        [data-theme="dark"] .erp-btn { background-color: rgba(60, 90, 150, 0.3); color: #a9c4ff; border-color: rgba(124, 158, 255, 0.35); box-shadow: none; }
 
         /* ===== SKELETON LOADING ===== */
         #skeleton-loader { display: none; }
@@ -307,7 +385,7 @@
             background: conic-gradient(var(--theme-color) 0deg, #e5e7eb 0deg); display: flex; align-items: center; justify-content: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.15); transition: all 0.3s ease;
         }
-        [data-theme="dark"] .score-circle { box-shadow: 0 10px 40px rgba(139, 92, 246, 0.3); }
+        [data-theme="dark"] .score-circle { box-shadow: 0 10px 40px rgba(124, 158, 255, 0.3); }
         .score-circle:hover { transform: scale(1.05); }
         .score-circle::before { content: ""; position: absolute; width: 130px; height: 130px; background: var(--glass-bg); border-radius: 50%; box-shadow: inset 0 4px 10px rgba(0,0,0,0.05); }
         .score-val { position: relative; font-size: 2.5rem; font-weight: 800; color: var(--theme-color); text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -320,7 +398,7 @@
             background: rgba(255,255,255,0.7); padding: 12px; border-radius: 12px; border-left: 4px solid var(--theme-color);
             box-shadow: 0 2px 10px rgba(0,0,0,0.02); transition: all 0.3s;
         }
-        [data-theme="dark"] .funny-msg { background: rgba(79, 46, 140, 0.22); color: #c4b5fd; border: 1px solid rgba(139, 92, 246, 0.2); }
+        [data-theme="dark"] .funny-msg { background: rgba(60, 90, 150, 0.22); color: #a9c4ff; border: 1px solid rgba(124, 158, 255, 0.2); }
 
         .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
         .stat-item { background: var(--stat-bg); padding: 15px; border-radius: 16px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.04); border: 1px solid var(--card-border); transition: transform 0.2s; }
@@ -375,7 +453,7 @@
         .sub-percent { font-weight: 800; font-size: 1.1rem; white-space: nowrap; }
         
         .progress-track { width: 100%; height: 10px; background: #f3f4f6; border-radius: 10px; overflow: hidden; margin-bottom: 10px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
-        [data-theme="dark"] .progress-track { background: rgba(79, 46, 140, 0.3); }
+        [data-theme="dark"] .progress-track { background: rgba(51, 65, 90, 0.5); }
         .progress-fill { height: 100%; border-radius: 10px; transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1); }
         
         .sub-msg { font-size: 0.75rem; font-weight: 700; padding: 6px 10px; border-radius: 6px; display: inline-block; }
@@ -415,7 +493,7 @@
         [data-theme="dark"] .btn-tool-yellow { background: rgba(217, 119, 6, 0.15); color: #fbbf24; border: 1px solid rgba(217, 119, 6, 0.3); }
         [data-theme="dark"] .btn-tool-green { background: rgba(5, 150, 105, 0.15); color: #34d399; border: 1px solid rgba(5, 150, 105, 0.3); }
         [data-theme="dark"] .btn-tool-pink { background: rgba(219, 39, 119, 0.15); color: #f472b6; border: 1px solid rgba(219, 39, 119, 0.3); }
-        [data-theme="dark"] .btn-tool-purple { background: rgba(124, 58, 237, 0.15); color: #a78bfa; border: 1px solid rgba(124, 58, 237, 0.3); }
+        [data-theme="dark"] .btn-tool-purple { background: rgba(124, 58, 237, 0.15); color: #c4b5fd; border: 1px solid rgba(124, 58, 237, 0.3); }
 
         .result-text { font-size: 0.9rem; color: var(--text-light); margin-bottom: 15px; margin-left: 2px; font-weight: 600; }
         
@@ -547,10 +625,15 @@
         
         <div class="header-row">
             <h1>Academic Pro <span class="version-badge">v7</span></h1>
-            <button class="theme-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
-                <span class="theme-toggle-icon sun"><i class="fas fa-sun"></i></span>
-                <span class="theme-toggle-icon moon"><i class="fas fa-moon"></i></span>
-            </button>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <button class="customize-btn" id="customizeBtn" onclick="openThemeStudio()" title="Customize colors">
+                    <i class="fas fa-palette"></i>
+                </button>
+                <button class="theme-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+                    <span class="theme-toggle-icon sun"><i class="fas fa-sun"></i></span>
+                    <span class="theme-toggle-icon moon"><i class="fas fa-moon"></i></span>
+                </button>
+            </div>
         </div>
         <p class="subtitle">Attendance & Target Manager</p>
 
@@ -855,6 +938,8 @@
         </button>
 
         <div class="sugg-privacy"><i class="fas fa-shield-alt"></i> No email, phone, or device data is ever collected</div>
+
+        <div id="replyStatusArea"></div>
     </div>
 
     <div class="glass-card stats-card" id="statsSection">
@@ -991,6 +1076,8 @@ async function sendSuggestion() {
             box.value = '';
             nameEl.value = '';
             branchEl.value = '';
+            saveSuggestionId(data.id, text);
+            renderReplyStatus();
         } else {
             showToast('❌ Could not send. Try again later.', 'error');
         }
@@ -1000,6 +1087,167 @@ async function sendSuggestion() {
         btn.disabled = false;
         btn.innerHTML = originalHTML;
     }
+}
+
+// ===== SUGGESTION REPLY TRACKING =====
+// Each suggestion you send gets a private id, stored only in YOUR browser
+// (localStorage). We poll a tiny endpoint asking "has the developer replied
+// to this id yet?". No login, no push — this shows the answer whenever you
+// happen to have the site open, and keeps checking until you get it,
+// however many days that takes.
+const SUGG_STORE_KEY = 'my_suggestions_v1';
+
+function getMySuggestions() {
+    try { return JSON.parse(localStorage.getItem(SUGG_STORE_KEY) || '[]'); }
+    catch { return []; }
+}
+function saveMySuggestions(list) {
+    localStorage.setItem(SUGG_STORE_KEY, JSON.stringify(list.slice(-10))); // keep last 10 only
+}
+function saveSuggestionId(id, text) {
+    const list = getMySuggestions();
+    list.push({ id, text: text.slice(0, 80), sentAt: Date.now(), reply: null, seen: false });
+    saveMySuggestions(list);
+}
+
+async function pollOneSuggestion(item) {
+    try {
+        const res = await fetch(`/.netlify/functions/check-reply?id=${encodeURIComponent(item.id)}`);
+        const data = await res.json();
+        if (data.ok && data.replied && !item.reply) {
+            item.reply = data.reply;
+            item.repliedAt = data.repliedAt;
+            return true;
+        }
+    } catch { /* silent - will retry next poll */ }
+    return false;
+}
+
+async function pollAllSuggestions() {
+    const list = getMySuggestions();
+    const pending = list.filter(i => !i.reply);
+    if (!pending.length) return;
+    let changed = false;
+    for (const item of pending) {
+        const got = await pollOneSuggestion(item);
+        if (got) changed = true;
+    }
+    if (changed) {
+        saveMySuggestions(list);
+        renderReplyStatus();
+        showToast('💬 The developer replied to your suggestion!', 'success');
+        haptic(40);
+    }
+}
+
+function renderReplyStatus() {
+    const area = document.getElementById('replyStatusArea');
+    if (!area) return;
+    const list = getMySuggestions().slice().reverse();
+    if (!list.length) { area.innerHTML = ''; return; }
+
+    area.innerHTML = list.map(item => {
+        if (item.reply) {
+            return `
+            <div class="reply-box replied">
+                <div class="reply-box-head"><i class="fas fa-circle-check"></i> Developer replied</div>
+                <div class="reply-box-your">You: "${escapeHtml(item.text)}"</div>
+                <div class="reply-box-msg">${escapeHtml(item.reply)}</div>
+            </div>`;
+        }
+        return `
+            <div class="reply-box pending">
+                <div class="reply-box-head"><i class="fas fa-clock"></i> Sent — waiting for reply</div>
+                <div class="reply-box-your">"${escapeHtml(item.text)}"</div>
+            </div>`;
+    }).join('');
+}
+
+function escapeHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+}
+
+// Poll on load, then every 20s while the tab is open (cheap - only runs
+// while user actually has the page open, no server cost otherwise).
+document.addEventListener('DOMContentLoaded', () => {
+    renderReplyStatus();
+    pollAllSuggestions();
+    setInterval(pollAllSuggestions, 20000);
+    maybeStartTour();
+});
+
+// ===== FIRST-TIME ONBOARDING TOUR =====
+const TOUR_SEEN_KEY = 'tour_seen_v1';
+const TOUR_STEPS = [
+    {
+        icon: 'fa-hand-sparkles',
+        title: 'Welcome to Academic Pro!',
+        text: "Your personal attendance tracker, built for exam-focused students. Let's take a quick 30-second look around."
+    },
+    {
+        icon: 'fa-clipboard-list',
+        title: 'Paste & Track Attendance',
+        text: 'Paste your attendance report in the box at the top and the app instantly calculates your percentage, subject-wise stats, and how many classes you can safely bunk.'
+    },
+    {
+        icon: 'fa-palette',
+        title: 'Make It Yours',
+        text: 'Tap the palette icon next to the moon icon anytime to pick your own accent color, card background, and text color — your custom look is saved automatically.'
+    },
+    {
+        icon: 'fa-moon',
+        title: 'Light or Dark, Your Call',
+        text: 'Tap the toggle switch at the top to flip between light and dark mode whenever you like — it remembers your choice.'
+    },
+    {
+        icon: 'fa-comment-dots',
+        title: 'Got Feedback? Just Type It',
+        text: 'Scroll down to the suggestion box to send ideas or bug reports directly to the developer — anonymously if you like. You will see a reply right here on the site once one comes in.'
+    }
+];
+let tourIndex = 0;
+
+function maybeStartTour() {
+    if (localStorage.getItem(TOUR_SEEN_KEY)) return;
+    tourIndex = 0;
+    renderTourStep();
+    document.getElementById('tourOverlay').classList.add('open');
+}
+
+function renderTourStep() {
+    const step = TOUR_STEPS[tourIndex];
+    document.getElementById('tourIcon').innerHTML = `<i class="fas ${step.icon}"></i>`;
+    document.getElementById('tourTitle').textContent = step.title;
+    document.getElementById('tourText').textContent = step.text;
+    document.querySelectorAll('.tour-dot').forEach((dot, i) => {
+        dot.classList.toggle('active', i === tourIndex);
+        dot.classList.toggle('done', i < tourIndex);
+    });
+    const nextBtn = document.getElementById('tourNextBtn');
+    const isLast = tourIndex === TOUR_STEPS.length - 1;
+    nextBtn.innerHTML = isLast ? 'Get Started <i class="fas fa-check"></i>' : 'Next <i class="fas fa-arrow-right"></i>';
+}
+
+function nextTourStep() {
+    haptic(15);
+    if (tourIndex >= TOUR_STEPS.length - 1) {
+        endTour();
+        return;
+    }
+    tourIndex++;
+    renderTourStep();
+}
+
+function skipTour() {
+    haptic(15);
+    endTour();
+}
+
+function endTour() {
+    document.getElementById('tourOverlay').classList.remove('open');
+    localStorage.setItem(TOUR_SEEN_KEY, '1');
 }
 
 // ===== GLOBAL STATE =====
@@ -1016,7 +1264,109 @@ let g_currentSort = null;
     const saved = localStorage.getItem('theme') || 
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     document.documentElement.setAttribute('data-theme', saved);
+    applyCustomThemeIfSaved();
 })();
+
+// ===== THEME STUDIO (custom user colors) =====
+// User picks 3 colors -> we override the same CSS variables the built-in
+// light/dark themes already use, then persist as JSON in localStorage.
+// This works on top of light/dark mode, doesn't fight with it.
+const CUSTOM_THEME_KEY = 'custom_theme_v1';
+
+function applyCustomThemeIfSaved() {
+    const saved = localStorage.getItem(CUSTOM_THEME_KEY);
+    if (!saved) return;
+    try {
+        const t = JSON.parse(saved);
+        applyCustomThemeVars(t.accent, t.card, t.text);
+    } catch {}
+}
+
+function applyCustomThemeVars(accent, card, text) {
+    const root = document.documentElement.style;
+    root.setProperty('--theme-color', accent);
+    root.setProperty('--card-bg', card);
+    root.setProperty('--glass-bg', card);
+    root.setProperty('--text-main', text);
+    root.setProperty('--input-bg', card);
+    root.setProperty('--result-bg', card);
+}
+
+function clearCustomThemeVars() {
+    const root = document.documentElement.style;
+    ['--theme-color','--card-bg','--glass-bg','--text-main','--input-bg','--result-bg'].forEach(p => root.removeProperty(p));
+}
+
+function openThemeStudio() {
+    const saved = localStorage.getItem(CUSTOM_THEME_KEY);
+    let t;
+    try { t = saved ? JSON.parse(saved) : null; } catch { t = null; }
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const accentDefault = getComputedStyle(document.documentElement).getPropertyValue('--theme-color').trim() || (isDark ? '#7c9eff' : '#4f46e5');
+    const cardDefault = isDark ? '#181e2e' : '#ffffff';
+    const textDefault = isDark ? '#eef2f7' : '#1f2937';
+
+    document.getElementById('tsAccent').value = toHex(t?.accent || accentDefault);
+    document.getElementById('tsCard').value = toHex(t?.card || cardDefault);
+    document.getElementById('tsText').value = toHex(t?.text || textDefault);
+    updateHexLabels();
+
+    document.getElementById('themeStudioOverlay').classList.add('open');
+    haptic(20);
+}
+
+function closeThemeStudio() {
+    document.getElementById('themeStudioOverlay').classList.remove('open');
+}
+
+function toHex(v) {
+    // color inputs need #rrggbb; strip alpha/rgba if a css var leaked through
+    if (/^#[0-9a-f]{6}$/i.test(v)) return v;
+    return '#4f46e5';
+}
+
+function updateHexLabels() {
+    document.getElementById('tsAccentHex').textContent = document.getElementById('tsAccent').value;
+    document.getElementById('tsCardHex').textContent = document.getElementById('tsCard').value;
+    document.getElementById('tsTextHex').textContent = document.getElementById('tsText').value;
+}
+
+function previewThemeStudio() {
+    updateHexLabels();
+    applyCustomThemeVars(
+        document.getElementById('tsAccent').value,
+        document.getElementById('tsCard').value,
+        document.getElementById('tsText').value
+    );
+}
+
+function applyPreset(accent, card, text) {
+    document.getElementById('tsAccent').value = accent;
+    document.getElementById('tsCard').value = card;
+    document.getElementById('tsText').value = text;
+    previewThemeStudio();
+    haptic(15);
+}
+
+function saveThemeStudio() {
+    const t = {
+        accent: document.getElementById('tsAccent').value,
+        card: document.getElementById('tsCard').value,
+        text: document.getElementById('tsText').value
+    };
+    localStorage.setItem(CUSTOM_THEME_KEY, JSON.stringify(t));
+    applyCustomThemeVars(t.accent, t.card, t.text);
+    closeThemeStudio();
+    showToast('🎨 Your theme is saved!', 'success');
+    haptic(30);
+}
+
+function resetThemeStudio() {
+    localStorage.removeItem(CUSTOM_THEME_KEY);
+    clearCustomThemeVars();
+    closeThemeStudio();
+    showToast('↩️ Back to default theme', 'info');
+}
 
 function toggleDarkMode() {
     const html = document.documentElement;
@@ -1580,126 +1930,4 @@ function checkBunk() {
 
 function calcTarget() {
     const target = parseFloat(document.getElementById('targetInput').value);
-    if (!target) { showToast('Enter target percentage!', 'warning'); return; }
-    const p = target / 100;
-    if (p >= 1 || target <= parseFloat(g_percent)) {
-        document.getElementById('targetResult').innerText = "Target already met or invalid!";
-        showToast('Target already met! 🎯', 'success');
-        return;
-    }
-    haptic(40);
-    const required = Math.ceil((p * g_total - g_present) / (1 - p));
-    document.getElementById('targetResult').innerHTML =
-        `You need to attend <b>${required}</b> more classes continuously.`;
-    showToast(`🎯 Need ${required} classes for ${target}%`, 'info');
-}
-
-function checkOD() {
-    const od = parseInt(document.getElementById('odInput').value);
-    if (!od) { showToast('Enter OD classes count!', 'warning'); return; }
-    haptic(40);
-    const newPresent = g_present + od;
-    const newPercent = (newPresent / g_total) * 100;
-    const boost = newPercent - parseFloat(g_percent);
-    document.getElementById('odResult').innerHTML =
-        `New %: <b>${newPercent.toFixed(2)}%</b> <span style="color:#db2777; font-weight:800;">(+${boost.toFixed(2)}%)</span>`;
-    showToast(`🏥 OD Applied! New: ${newPercent.toFixed(1)}%`, 'success');
-}
-
-function calcMix() {
-    const att = parseInt(document.getElementById('mixAttend').value) || 0;
-    const bnk = parseInt(document.getElementById('mixBunk').value) || 0;
-    if (att === 0 && bnk === 0) { showToast('Enter at least one value!', 'warning'); return; }
-    haptic(40);
-    const newPresent = g_present + att;
-    const newTotal = g_total + att + bnk;
-    const newPercent = (newPresent / newTotal) * 100;
-    const diff = newPercent - parseFloat(g_percent);
-    const diffStr = diff >= 0
-        ? `<span style="color:var(--theme-color); font-weight:800;">(+${diff.toFixed(2)}%)</span>`
-        : `<span style="color:#dc2626; font-weight:800;">(${diff.toFixed(2)}%)</span>`;
-    document.getElementById('mixResult').innerHTML = `Final %: <b>${newPercent.toFixed(2)}%</b> ${diffStr}`;
-    showToast(`🧮 Mix Result: ${newPercent.toFixed(1)}%`, newPercent >= 75 ? 'success' : 'warning');
-}
-
-// ===== DATE PREDICTION =====
-function liveUpdateDate() {
-    if (document.getElementById('dateResult').style.display === 'block') calculateDate();
-}
-
-function calculateDate() {
-    haptic(40);
-    if (parseFloat(g_percent) >= 75) {
-        document.getElementById('dateResult').style.display = 'block';
-        document.getElementById('dateResult').innerHTML = "<b style='font-size:1.1rem;'>Relax!</b><br>You are already above 75%. <br>Enjoy your life! 😎";
-        return;
-    }
-
-    const holidays = ["2026-02-15","2026-03-02","2026-03-03","2026-03-26","2026-08-15","2026-08-28","2026-09-04","2026-10-20"];
-
-    function isHolidayOrSunday(date) {
-        if (date.getDay() === 0) return true;
-        const dStr = date.toISOString().split('T')[0];
-        if (holidays.includes(dStr)) return true;
-        const aS = new Date("2026-11-06"), aE = new Date("2026-11-15");
-        if (date >= aS && date <= aE) return true;
-        const wS = new Date("2026-12-25"), wE = new Date("2026-12-31");
-        if (date >= wS && date <= wE) return true;
-        return false;
-    }
-
-    const schedule = [
-        0,
-        parseInt(document.getElementById('sch_mon').value) || 0,
-        parseInt(document.getElementById('sch_tue').value) || 0,
-        parseInt(document.getElementById('sch_wed').value) || 0,
-        parseInt(document.getElementById('sch_thu').value) || 0,
-        parseInt(document.getElementById('sch_fri').value) || 0,
-        parseInt(document.getElementById('sch_sat').value) || 0
-    ];
-
-    let needed = Math.ceil((0.75 * g_total - g_present) / 0.25);
-    let daysPassed = 0;
-    let currentDate = new Date();
-
-    while (needed > 0) {
-        currentDate.setDate(currentDate.getDate() + 1);
-        daysPassed++;
-        if (isHolidayOrSunday(currentDate)) continue;
-        needed -= schedule[currentDate.getDay()];
-        if (daysPassed > 365) {
-            document.getElementById('dateResult').style.display = 'block';
-            document.getElementById('dateResult').innerHTML = "⚠️ Schedule is empty or target too far.";
-            return;
-        }
-    }
-
-    const dateString = currentDate.toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
-    document.getElementById('dateResult').style.display = 'block';
-    document.getElementById('dateResult').innerHTML =
-        `If you attend daily (excluding holidays):<br><b style="font-size:1.2rem; color:#6a11cb; display:inline-block; margin-top:8px;">${dateString}</b><br><span style="font-size:0.85rem; color:var(--text-light); font-weight:600;">(${daysPassed} days from now)</span>`;
-    showToast(`📅 Target date calculated!`, 'info');
-}
-
-// ===== SHARE =====
-function shareResult() {
-    haptic([50, 30, 50]);
-    const p = parseFloat(g_percent);
-    let shareText = '';
-    if (p >= 85) shareText = `🤓 My Attendance is ${p}%. I attend classes so you don't have to.`;
-    else if (p >= 75) shareText = `😎 My Attendance is ${p}%. Chill vibes only. Safe Zone.`;
-    else if (p >= 65) shareText = `💀 My Attendance is ${p}%. Risk hai toh Ishq hai.`;
-    else if (p >= 45) shareText = `🆘 My Attendance is ${p}%. Send prayers, HOD is watching.`;
-    else shareText = `🗿 My Attendance is ${p}%. Legend status achieved.`;
-    shareText += `\n\nCheck yours, Find Safe Bunks & Download College Notes here: https://presentsir.me/`;
-
-    if (navigator.share) {
-        navigator.share({ title: 'Academic Status', text: shareText }).catch(console.error);
-    } else {
-        window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
-    }
-    showToast('📤 Sharing...', 'info', 2000);
-}
-</script>
-</body>
-</html>
+    if (!target
