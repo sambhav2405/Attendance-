@@ -1,0 +1,2208 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4XQ0JK7ELF"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-4XQ0JK7ELF');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Academic Pro v7</title>
+    <meta name="theme-color" content="#4f46e5">
+
+    <link rel="icon" type="image/jpeg" href="unnamed.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+    <style>
+        /* ===== CSS CUSTOM PROPERTIES (LIGHT MODE) ===== */
+        :root {
+            --theme-color: #4f46e5;
+            --glass-bg: rgba(255, 255, 255, 0.92);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --text-main: #1f2937;
+            --text-light: #6b7280;
+            --card-bg: #ffffff;
+            --card-border: #f3f4f6;
+            --input-bg: rgba(255,255,255,0.8);
+            --stat-bg: linear-gradient(135deg, #ffffff, #f9fafb);
+            --skeleton-base: #e5e7eb;
+            --skeleton-shine: #f3f4f6;
+            --toggle-bg: #f1f5f9;
+            --toggle-text: #374151;
+            --hr-color: #e5e7eb;
+            --result-bg: #f8fafc;
+        }
+
+        /* ===== DARK MODE: Slate & Aurora Theme (better contrast) ===== */
+        [data-theme="dark"] {
+            --glass-bg: rgba(17, 22, 34, 0.90);
+            --glass-border: rgba(99, 179, 237, 0.18);
+            --text-main: #eef2f7;
+            --text-light: #94a3b8;
+            --card-bg: rgba(24, 30, 46, 0.82);
+            --card-border: rgba(99, 179, 237, 0.14);
+            --input-bg: rgba(14, 18, 30, 0.85);
+            --stat-bg: linear-gradient(135deg, rgba(28, 35, 54, 0.8), rgba(17, 22, 34, 0.9));
+            --skeleton-base: rgba(51, 65, 90, 0.5);
+            --skeleton-shine: rgba(80, 100, 135, 0.4);
+            --toggle-bg: rgba(28, 35, 54, 0.8);
+            --toggle-text: #cbd5e1;
+            --hr-color: rgba(99, 179, 237, 0.2);
+            --result-bg: rgba(14, 18, 30, 0.92);
+            --theme-color: #7c9eff;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(-45deg, #000428, #004e92, #6a11cb, #2b0854);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--text-main);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: color 0.3s;
+            overscroll-behavior-y: contain;
+        }
+
+        [data-theme="dark"] body {
+            background: linear-gradient(-45deg, #0b0f1a, #131c2e, #17233a, #0d1220, #101828);
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* ===== RESPONSIVE MAIN CARD ===== */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.4);
+            width: 100%;
+            max-width: 600px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s;
+        }
+
+        .glass-card:hover {
+            box-shadow: 0 15px 50px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        @media (min-width: 768px) {
+            .glass-card { max-width: 850px; padding: 35px; }
+            .dashboard-grid { display: grid; grid-template-columns: 320px 1fr; gap: 30px; align-items: start; }
+            .dash-left { position: sticky; top: 20px; }
+            .tools-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+            .full-width-tool { grid-column: span 2; }
+        }
+        
+        @media (min-width: 1024px) {
+            .glass-card { max-width: 1100px; }
+        }
+
+        /* ===== HEADER ROW ===== */
+        .header-row {
+            display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;
+        }
+
+        h1 {
+            font-size: 1.6rem; margin: 0;
+            background: linear-gradient(135deg, #4f46e5, #ec4899);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-weight: 800; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px;
+        }
+
+        .version-badge {
+            font-size: 0.5em; color: #ffffff; background: #ec4899; padding: 4px 10px;
+            border-radius: 12px; display: inline-block; -webkit-text-fill-color: #ffffff;
+            box-shadow: 0 2px 6px rgba(236, 72, 153, 0.3); transform: translateY(-2px);
+        }
+
+        /* ===== DARK MODE TOGGLE ===== */
+        .tour-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(8, 10, 18, 0.78); z-index: 10000;
+            backdrop-filter: blur(3px);
+        }
+        .tour-overlay.open { display: block; animation: tourFadeIn 0.35s ease; }
+        @keyframes tourFadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .tour-spotlight-hole {
+            position: fixed; border-radius: 16px; box-shadow: 0 0 0 9999px rgba(8, 10, 18, 0.78);
+            border: 3px solid var(--theme-color); transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+            pointer-events: none; z-index: 10001;
+        }
+
+        .tour-card {
+            position: fixed; z-index: 10002; background: var(--card-bg); backdrop-filter: blur(24px);
+            border: 1px solid var(--card-border); border-radius: 22px; width: calc(100% - 40px); max-width: 340px;
+            padding: 22px 22px 18px; box-shadow: 0 25px 70px rgba(0,0,0,0.5);
+            animation: tourPop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .tour-card.tour-centered { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+        @keyframes tourPop { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .tour-card.tour-centered { animation: tourPopCenter 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+        @keyframes tourPopCenter { from { transform: translate(-50%,-50%) scale(0.85); opacity: 0; } to { transform: translate(-50%,-50%) scale(1); opacity: 1; } }
+
+        .tour-arrow {
+            position: fixed; z-index: 10002; width: 16px; height: 16px; background: var(--card-bg);
+            border-left: 1px solid var(--card-border); border-top: 1px solid var(--card-border);
+            transform: rotate(45deg); display: none;
+        }
+
+        .tour-progress { display: flex; justify-content: center; gap: 6px; margin-bottom: 16px; }
+        .tour-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--card-border); transition: all 0.3s; }
+        .tour-dot.active { width: 22px; border-radius: 5px; background: var(--theme-color); }
+        .tour-dot.done { background: var(--theme-color); opacity: 0.5; }
+        .tour-icon {
+            width: 56px; height: 56px; border-radius: 50%; margin: 0 auto 14px; display: flex; align-items: center;
+            justify-content: center; font-size: 1.45rem; color: #fff;
+            background: linear-gradient(135deg, var(--theme-color), #3b82f6); box-shadow: 0 10px 25px rgba(79,70,229,0.35);
+        }
+        .tour-card:not(.tour-centered) .tour-icon { margin: 0 0 12px; }
+        .tour-title { font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0 0 8px; }
+        .tour-text { font-size: 0.9rem; color: var(--text-light); line-height: 1.55; margin: 0 0 20px; }
+        .tour-actions { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+        .tour-skip { background: none; border: none; color: var(--text-light); font-weight: 700; font-size: 0.85rem; cursor: pointer; padding: 10px; white-space: nowrap; }
+        .tour-next {
+            flex: 1; padding: 13px; border-radius: 12px; border: none; cursor: pointer; font-weight: 700; font-size: 0.9rem;
+            background: linear-gradient(135deg, var(--theme-color), #3b82f6); color: #fff; display: flex; align-items: center;
+            justify-content: center; gap: 8px; box-shadow: 0 8px 20px rgba(79,70,229,0.3);
+        }
+
+        .customize-btn {
+            width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--card-border);
+            background: var(--toggle-bg); color: var(--theme-color); font-size: 1rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: transform 0.2s;
+        }
+        .customize-btn:hover { transform: rotate(15deg) scale(1.05); }
+
+        .ts-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 9999;
+            align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px);
+        }
+        .ts-overlay.open { display: flex; }
+        .ts-modal {
+            background: var(--card-bg); backdrop-filter: blur(20px); border: 1px solid var(--card-border);
+            border-radius: 20px; width: 100%; max-width: 380px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .ts-head {
+            display: flex; align-items: center; justify-content: space-between; padding: 18px 20px;
+            font-weight: 800; font-size: 1.05rem; color: var(--text-main); border-bottom: 1px solid var(--card-border);
+        }
+        .ts-close { background: none; border: none; color: var(--text-light); font-size: 1.1rem; cursor: pointer; padding: 4px 8px; }
+        .ts-body { padding: 18px 20px; }
+        .ts-label { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; font-weight: 700; color: var(--text-light); margin: 14px 0 6px; }
+        .ts-label:first-child { margin-top: 0; }
+        .ts-hex { font-family: monospace; font-size: 0.75rem; color: var(--text-main); }
+        .ts-color-input { width: 100%; height: 42px; border-radius: 12px; border: 1px solid var(--card-border); cursor: pointer; background: none; padding: 2px; }
+        .ts-hint { font-size: 0.75rem; color: var(--text-light); margin-top: 16px; line-height: 1.4; }
+        .ts-presets { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+        .ts-preset-swatch { width: 34px; height: 34px; border-radius: 50%; cursor: pointer; border: 2px solid var(--card-border); transition: transform 0.15s; }
+        .ts-preset-swatch:hover { transform: scale(1.12); }
+        .ts-actions { display: flex; gap: 10px; padding: 16px 20px; border-top: 1px solid var(--card-border); }
+        .ts-btn { flex: 1; padding: 12px; border-radius: 12px; font-weight: 700; font-size: 0.85rem; border: none; cursor: pointer; }
+        .ts-btn-reset { background: var(--toggle-bg); color: var(--text-light); }
+        .ts-btn-save { background: linear-gradient(135deg, var(--theme-color), #3b82f6); color: #fff; }
+
+        .theme-toggle {
+            background: var(--toggle-bg); border: 2px solid var(--card-border); border-radius: 50px;
+            width: 56px; height: 30px; cursor: pointer; position: relative; transition: all 0.3s ease; flex-shrink: 0;
+        }
+        .theme-toggle::before {
+            content: ''; position: absolute; top: 2px; left: 2px; width: 22px; height: 22px; border-radius: 50%;
+            background: linear-gradient(135deg, #f59e0b, #f97316); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        [data-theme="dark"] .theme-toggle::before {
+            transform: translateX(26px); background: linear-gradient(135deg, #818cf8, #c084fc);
+        }
+        .theme-toggle-icon {
+            position: absolute; top: 50%; transform: translateY(-50%); font-size: 0.6rem; transition: opacity 0.3s;
+        }
+        .theme-toggle-icon.sun { left: 6px; color: #f59e0b; }
+        .theme-toggle-icon.moon { right: 5px; color: #818cf8; }
+        [data-theme="dark"] .theme-toggle-icon.sun { opacity: 0.3; }
+        [data-theme="light"] .theme-toggle-icon.moon { opacity: 0.3; }
+
+        .subtitle { text-align: center; font-size: 0.85rem; color: var(--text-light); margin-bottom: 20px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+
+        textarea {
+            width: 100%; height: 110px; padding: 15px; border-radius: 15px; border: 2px solid var(--card-border);
+            font-family: monospace; font-size: 0.9rem; resize: none; transition: all 0.3s ease; outline: none;
+            background: var(--input-bg); color: var(--text-main); box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+        textarea:focus { border-color: var(--theme-color); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); background: var(--card-bg); }
+
+        /* ===== TOP MARQUEE ===== */
+        .top-marquee {
+            position: sticky; top: 0; z-index: 999; width: 100%; overflow: hidden;
+            background: linear-gradient(90deg, #312e81, #4338ca, #4f46e5, #4338ca, #312e81);
+            background-size: 300% 100%;
+            animation: marqueeGradient 8s ease infinite;
+            box-shadow: 0 2px 10px rgba(67, 56, 202, 0.35);
+            padding: 9px 0;
+        }
+        [data-theme="dark"] .top-marquee {
+            background: linear-gradient(90deg, #1e1b4b, #4c1d95, #6d28d9, #4c1d95, #1e1b4b);
+            background-size: 300% 100%;
+        }
+        @keyframes marqueeGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .marquee-track {
+            display: flex; align-items: center; white-space: nowrap;
+            animation: marqueeScroll 18s linear infinite;
+            width: max-content;
+        }
+        .top-marquee:active .marquee-track { animation-play-state: paused; }
+        @keyframes marqueeScroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .marquee-item {
+            color: #fff; font-weight: 700; font-size: 0.82rem; cursor: pointer;
+            padding: 4px 10px; border-radius: 20px; transition: background 0.25s ease;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .marquee-item i { font-size: 0.8rem; }
+        .marquee-item:hover, .marquee-item:active { background: rgba(255,255,255,0.18); }
+        .marquee-sep { color: rgba(255,255,255,0.5); margin: 0 8px; font-size: 0.7rem; }
+
+        /* ===== STATS COUNTER ===== */
+        .stats-card { text-align: center; padding: 26px 20px; position: relative; overflow: hidden; }
+        .stats-card::before {
+            content: ''; position: absolute; top: -50%; right: -20%; width: 160%; height: 160%;
+            background: radial-gradient(circle at 80% 20%, rgba(79,70,229,0.10), transparent 55%);
+            pointer-events: none;
+        }
+        .stats-header { display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; }
+        .stats-badge {
+            width: 48px; height: 48px; border-radius: 14px; margin-bottom: 10px;
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3);
+        }
+        .stats-badge i { color: #fff; font-size: 1.2rem; }
+        .stats-title { margin: 0; font-weight: 800; font-size: 1.05rem; color: var(--text-main); }
+        .stats-grid { display: flex; gap: 14px; justify-content: center; }
+        .stats-box {
+            flex: 1; max-width: 160px; background: var(--input-bg); border: 2px solid var(--card-border);
+            border-radius: 16px; padding: 18px 10px; transition: transform 0.3s ease;
+        }
+        .stats-box:hover { transform: translateY(-3px); }
+        .stats-number {
+            font-size: 1.7rem; font-weight: 900; line-height: 1.1;
+            background: linear-gradient(135deg, var(--theme-color), #3b82f6);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .stats-label {
+            font-size: 0.72rem; font-weight: 700; color: var(--text-light); margin-top: 6px;
+            display: flex; align-items: center; justify-content: center; gap: 5px; text-transform: uppercase; letter-spacing: 0.3px;
+        }
+        .stats-footnote { font-size: 0.72rem; color: var(--text-light); font-weight: 600; margin-top: 16px; margin-bottom: 0; }
+        @media (max-width: 340px) {
+            .stats-number { font-size: 1.4rem; }
+        }
+
+        /* ===== SUGGESTION BOX ===== */
+        .suggestion-card {
+            text-align: center; padding: 25px 22px; position: relative; overflow: hidden;
+        }
+        .suggestion-card::before {
+            content: ''; position: absolute; top: -40%; left: -20%; width: 140%; height: 140%;
+            background: radial-gradient(circle at 20% 20%, rgba(79,70,229,0.10), transparent 55%);
+            pointer-events: none;
+        }
+        .sugg-icon-badge {
+            width: 52px; height: 52px; margin: 0 auto 12px auto; border-radius: 16px;
+            background: linear-gradient(135deg, var(--theme-color), #3b82f6);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35);
+        }
+        .sugg-icon-badge i { color: #fff; font-size: 1.3rem; }
+        .sugg-title { margin: 0; font-weight: 800; font-size: 1.15rem; color: var(--text-main); }
+        .sugg-subtitle { font-size: 0.82rem; color: var(--text-light); margin: 6px 0 18px 0; font-weight: 600; line-height: 1.4; }
+        .sugg-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .sugg-input {
+            width: 100%; padding: 13px 14px; border-radius: 13px; border: 2px solid var(--card-border);
+            font-family: 'Poppins', sans-serif; font-size: 0.88rem; transition: all 0.3s ease; outline: none;
+            background: var(--input-bg); color: var(--text-main); box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .sugg-input:focus { border-color: var(--theme-color); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); background: var(--card-bg); }
+        .sugg-textarea { min-height: 95px; margin-bottom: 12px; text-align: left; font-family: 'Poppins', sans-serif; font-size: 0.9rem; }
+        .sugg-privacy { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 14px; font-size: 0.72rem; color: var(--text-light); font-weight: 600; }
+        .sugg-privacy i { color: #10b981; }
+
+        #replyStatusArea { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
+        .reply-box { position: relative; border-radius: 14px; padding: 12px 34px 12px 14px; font-size: 0.85rem; border: 1px solid var(--card-border); background: var(--input-bg); }
+        .reply-box-close { position: absolute; top: 10px; right: 10px; background: none; border: none; color: var(--text-light); font-size: 0.8rem; cursor: pointer; padding: 4px 6px; opacity: 0.6; }
+        .reply-box-close:hover { opacity: 1; }
+        .reply-view-all { background: none; border: none; color: var(--theme-color); font-weight: 700; font-size: 0.78rem; cursor: pointer; padding: 4px 2px; text-align: left; }
+        .reply-box-head { font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+        .reply-box.pending .reply-box-head { color: #d97706; }
+        .reply-box.replied .reply-box-head { color: #059669; }
+        .reply-box-your { color: var(--text-light); font-size: 0.8rem; margin-bottom: 4px; font-style: italic; }
+        .reply-box-msg { color: var(--text-main); font-weight: 600; line-height: 1.4; }
+        [data-theme="dark"] .reply-box.pending .reply-box-head { color: #fbbf24; }
+        [data-theme="dark"] .reply-box.replied .reply-box-head { color: #34d399; }
+
+        /* Stack name/branch on very narrow phones */
+        @media (max-width: 360px) {
+            .sugg-row { flex-direction: column; }
+        }
+
+        .btn-main {
+            width: 100%; padding: 15px; background: linear-gradient(135deg, var(--theme-color), #3b82f6);
+            color: white; border: none; border-radius: 14px; font-size: 1.05rem; font-weight: 700;
+            cursor: pointer; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4); transition: all 0.3s ease;
+            margin-top: 15px; position: relative; overflow: hidden;
+        }
+        .btn-main::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
+            transform: skewX(-20deg); animation: shine 3s infinite;
+        }
+        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(79, 70, 229, 0.6); }
+
+        .erp-btn {
+            display: inline-block; background-color: #EEF2FF; color: #4F46E5; font-weight: 700; font-size: 0.85rem; text-decoration: none; padding: 10px 20px; border-radius: 50px; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.15); border: 1px solid #c7d2fe; transition: all 0.3s;
+        }
+        [data-theme="dark"] .erp-btn { background-color: rgba(60, 90, 150, 0.3); color: #a9c4ff; border-color: rgba(124, 158, 255, 0.35); box-shadow: none; }
+
+        /* ===== SKELETON LOADING ===== */
+        #skeleton-loader { display: none; }
+        .skeleton-card { background: var(--card-bg); border-radius: 16px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--card-border); border-left: 6px solid var(--skeleton-base); }
+        .skeleton-line { height: 12px; border-radius: 8px; background: linear-gradient(90deg, var(--skeleton-base) 25%, var(--skeleton-shine) 50%, var(--skeleton-base) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; margin-bottom: 10px; }
+        .skeleton-line.short { width: 40%; } .skeleton-line.medium { width: 70%; } .skeleton-line.full { width: 100%; }
+        .skeleton-bar { height: 10px; border-radius: 10px; background: linear-gradient(90deg, var(--skeleton-base) 25%, var(--skeleton-shine) 50%, var(--skeleton-base) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; margin-bottom: 8px; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        /* ===== DASHBOARD ===== */
+        #dashboard { display: none; animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        @keyframes slideUpFade { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        .score-circle {
+            position: relative; width: 160px; height: 160px; margin: 0 auto 25px auto; border-radius: 50%;
+            background: conic-gradient(var(--theme-color) 0deg, #e5e7eb 0deg); display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15); transition: all 0.3s ease;
+        }
+        [data-theme="dark"] .score-circle { box-shadow: 0 10px 40px rgba(124, 158, 255, 0.3); }
+        .score-circle:hover { transform: scale(1.05); }
+        .score-circle::before { content: ""; position: absolute; width: 130px; height: 130px; background: var(--glass-bg); border-radius: 50%; box-shadow: inset 0 4px 10px rgba(0,0,0,0.05); }
+        .score-val { position: relative; font-size: 2.5rem; font-weight: 800; color: var(--theme-color); text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+
+        .status-badge { text-align: center; font-size: 1.3rem; font-weight: 800; margin-bottom: 8px; color: var(--theme-color); text-transform: uppercase; letter-spacing: 1px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+        .funny-msg {
+            text-align: center; font-size: 0.95rem; font-style: italic; color: #4b5563; margin-bottom: 25px;
+            background: rgba(255,255,255,0.7); padding: 12px; border-radius: 12px; border-left: 4px solid var(--theme-color);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02); transition: all 0.3s;
+        }
+        [data-theme="dark"] .funny-msg { background: rgba(60, 90, 150, 0.22); color: #a9c4ff; border: 1px solid rgba(124, 158, 255, 0.2); }
+
+        .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .stat-item { background: var(--stat-bg); padding: 15px; border-radius: 16px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.04); border: 1px solid var(--card-border); transition: transform 0.2s; }
+        .stat-item:hover { transform: translateY(-3px); }
+        .stat-val { font-weight: 800; font-size: 1.4rem; color: var(--text-main); }
+        .stat-label { font-size: 0.85rem; color: var(--text-light); font-weight: 600; text-transform: uppercase; margin-top: 4px; }
+
+        /* ===== TOGGLE BUTTONS ===== */
+        .toggle-btn {
+            width: 100%; background: var(--toggle-bg); border: 1px solid var(--card-border); padding: 16px; border-radius: 14px; font-weight: 700;
+            color: var(--toggle-text); text-align: left; display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer; margin-bottom: 15px; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+        .toggle-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.05); border-color: var(--theme-color); }
+        .toggle-btn.active { border-left: 5px solid var(--theme-color); background: rgba(79, 70, 229, 0.05); }
+        .toggle-btn i.fa-chevron-down { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .toggle-btn.active i.fa-chevron-down { transform: rotate(180deg); color: var(--theme-color); }
+
+        .collapsible-content { display: none; padding: 5px 0 15px 0; animation: slideDown 0.4s ease forwards; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ===== SCHEDULE GRID ===== */
+        .schedule-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 15px; }
+        .day-input { text-align: center; }
+        .day-input label { display: block; font-size: 0.75rem; color: var(--text-light); margin-bottom: 6px; text-transform: uppercase; font-weight: 700; }
+        .day-input input {
+            width: 100%; padding: 12px 0; border: 2px solid var(--card-border); border-radius: 12px; text-align: center; font-weight: 800; font-size: 1.1rem;
+            background: var(--card-bg); color: var(--text-main); transition: all 0.3s;
+        }
+        .day-input input:focus { border-color: var(--theme-color); outline: none; background: rgba(79, 70, 229, 0.08); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+
+        /* ===== SUBJECT FILTER/SORT BAR ===== */
+        .filter-bar { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
+        .filter-btn {
+            padding: 7px 14px; border-radius: 50px; border: 2px solid var(--card-border); background: var(--card-bg); color: var(--text-light);
+            font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 5px;
+        }
+        .filter-btn:hover { border-color: var(--theme-color); color: var(--theme-color); }
+        .filter-btn.active { background: var(--theme-color); border-color: var(--theme-color); color: white; box-shadow: 0 3px 10px rgba(79, 70, 229, 0.3); }
+        [data-theme="dark"] .filter-btn:hover:not(.active) { background: rgba(79, 70, 229, 0.15); border-color: rgba(79, 70, 229, 0.5); }
+
+        /* ===== SUBJECT CARDS ===== */
+        .sub-card {
+            background: var(--card-bg); padding: 18px; border-radius: 16px; margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid var(--card-border); border-left: 6px solid #ccc;
+            transition: all 0.3s ease; opacity: 0;
+        }
+        .sub-card:hover { transform: translateX(5px); box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
+        [data-theme="dark"] .sub-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.4); }
+        .sub-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .sub-name { font-weight: 700; font-size: 0.95rem; color: var(--text-main); flex: 1; padding-right: 15px; word-wrap: break-word; line-height: 1.3; }
+        .sub-percent { font-weight: 800; font-size: 1.1rem; white-space: nowrap; }
+        
+        .progress-track { width: 100%; height: 10px; background: #f3f4f6; border-radius: 10px; overflow: hidden; margin-bottom: 10px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
+        [data-theme="dark"] .progress-track { background: rgba(51, 65, 90, 0.5); }
+        .progress-fill { height: 100%; border-radius: 10px; transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        .sub-msg { font-size: 0.75rem; font-weight: 700; padding: 6px 10px; border-radius: 6px; display: inline-block; }
+        .msg-danger { background: #fef2f2; color: #ef4444; border: 1px solid #fee2e2; }
+        .msg-safe { background: #f0fdf4; color: #16a34a; border: 1px solid #dcfce7; }
+        .msg-warning { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+
+        [data-theme="dark"] .msg-danger { background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
+        [data-theme="dark"] .msg-safe { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+        [data-theme="dark"] .msg-warning { background: rgba(148, 163, 184, 0.15); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.3); }
+
+        /* ===== CHART ===== */
+        .chart-container { background: var(--card-bg); border-radius: 16px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--card-border); box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .chart-tabs { display: flex; gap: 8px; margin-bottom: 15px; }
+        .chart-tab { flex: 1; padding: 8px; border: 2px solid var(--card-border); border-radius: 10px; background: var(--card-bg); color: var(--text-light); font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s; text-align: center; }
+        .chart-tab.active { background: var(--theme-color); border-color: var(--theme-color); color: white; }
+        [data-theme="dark"] .chart-tab:hover:not(.active) { background: rgba(255,255,255,0.05); }
+
+        /* ===== TOOLS SECTION (Auto-Color Buttons) ===== */
+        .tool-header { font-size: 1rem; font-weight: 700; margin: 20px 0 10px 0; display: flex; align-items: center; gap: 8px; }
+        .tool-row { display: flex; gap: 12px; margin-bottom: 8px; }
+
+        input[type="number"] { width: 80px; padding: 12px; border: 2px solid var(--card-border); border-radius: 12px; text-align: center; font-weight: 800; transition: all 0.3s ease; font-size: 1rem; background: var(--card-bg); color: var(--text-main); }
+        input[type="number"]:focus { border-color: var(--theme-color); outline: none; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2); }
+
+        .btn-action { flex: 1; padding: 12px; border: none; border-radius: 12px; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all 0.2s ease; }
+        .btn-action:hover { filter: brightness(0.95); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .btn-action:active { transform: scale(0.98); }
+
+        .btn-tool-blue { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+        .btn-tool-yellow { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+        .btn-tool-green { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+        .btn-tool-pink { background: #fdf2f8; color: #db2777; border: 1px solid #fbcfe8; }
+        .btn-tool-purple { background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+
+        [data-theme="dark"] .btn-tool-blue { background: rgba(37, 99, 235, 0.15); color: #60a5fa; border: 1px solid rgba(37, 99, 235, 0.3); }
+        [data-theme="dark"] .btn-tool-yellow { background: rgba(217, 119, 6, 0.15); color: #fbbf24; border: 1px solid rgba(217, 119, 6, 0.3); }
+        [data-theme="dark"] .btn-tool-green { background: rgba(5, 150, 105, 0.15); color: #34d399; border: 1px solid rgba(5, 150, 105, 0.3); }
+        [data-theme="dark"] .btn-tool-pink { background: rgba(219, 39, 119, 0.15); color: #f472b6; border: 1px solid rgba(219, 39, 119, 0.3); }
+        [data-theme="dark"] .btn-tool-purple { background: rgba(124, 58, 237, 0.15); color: #c4b5fd; border: 1px solid rgba(124, 58, 237, 0.3); }
+
+        .result-text { font-size: 0.9rem; color: var(--text-light); margin-bottom: 15px; margin-left: 2px; font-weight: 600; }
+        
+        .info-btn { background: none; border: none; color: #9ca3af; cursor: pointer; margin-left: auto; font-size: 1.1rem; padding: 5px; transition: color 0.3s; }
+        .info-btn:hover { color: var(--theme-color); }
+        .info-text { display: none; font-size: 0.85rem; color: var(--text-light); background: var(--result-bg); padding: 12px; border-radius: 10px; margin-bottom: 15px; border-left: 4px solid var(--theme-color); line-height: 1.5; box-shadow: 0 2px 5px rgba(0,0,0,0.02); animation: slideDown 0.3s ease; }
+
+        /* ===== TOAST NOTIFICATION ===== */
+        #toast-container { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; align-items: center; gap: 10px; pointer-events: none; }
+        .toast { background: #1f2937; color: white; padding: 12px 22px; border-radius: 50px; font-size: 0.9rem; font-weight: 600; box-shadow: 0 8px 25px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 10px; animation: toastIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; white-space: nowrap; pointer-events: auto; }
+        .toast.removing { animation: toastOut 0.3s ease forwards; }
+        .toast-icon { font-size: 1.1rem; }
+        @keyframes toastIn { from { opacity: 0; transform: translateY(20px) scale(0.8); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes toastOut { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(20px) scale(0.8); } }
+
+        /* ===== PULL TO REFRESH ===== */
+        #ptr-indicator { position: fixed; top: 0; left: 50%; transform: translateX(-50%) translateY(-60px); background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 0 0 20px 20px; padding: 10px 25px; font-size: 0.85rem; font-weight: 700; color: var(--theme-color); display: flex; align-items: center; gap: 8px; z-index: 1000; transition: transform 0.2s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+        #ptr-indicator.visible { transform: translateX(-50%) translateY(0); }
+        #ptr-spinner { animation: spin 1s linear infinite; display: none; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* ===== SHARE & BANNERS ===== */
+        .btn-share { background: linear-gradient(135deg, #25D366, #128C7E); color: white; width: 100%; margin-top: 25px; padding: 15px; border-radius: 50px; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 700; border: none; cursor: pointer; font-size: 1.05rem; box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4); transition: all 0.3s ease; }
+        .btn-share:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(37, 211, 102, 0.5); }
+        .notes-banner { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(135deg, #1e3a8a 0%, #4338ca 100%); color: white; padding: 18px 20px; border-radius: 16px; text-decoration: none; margin-bottom: 25px; box-shadow: 0 8px 25px rgba(67, 56, 202, 0.4); transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .notes-banner::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%); animation: spinBg 10s linear infinite; }
+        @keyframes spinBg { 100% { transform: rotate(360deg); } }
+        .notes-banner:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 12px 30px rgba(67, 56, 202, 0.5); }
+        .notes-banner .notes-text { flex: 1; margin-left: 18px; display: flex; flex-direction: column; z-index: 1; }
+        .notes-banner .notes-text strong { font-size: 1.15rem; font-weight: 800; margin-bottom: 4px; letter-spacing: 0.5px; }
+        .notes-banner .notes-text span { font-size: 0.8rem; opacity: 0.9; font-weight: 300; }
+        .notes-icon { font-size: 2.2rem; z-index: 1; text-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .notes-banner .fa-arrow-right { z-index: 1; background: rgba(255,255,255,0.2); padding: 10px; border-radius: 50%; backdrop-filter: blur(5px); }
+
+        .divider { display: flex; align-items: center; text-align: center; margin: 25px 0 20px 0; color: var(--text-light); font-size: 0.8rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 2px solid var(--hr-color); }
+        .divider span { padding: 0 15px; }
+
+        .cgpa-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .cgpa-card { background: var(--card-bg); border: 2px solid transparent; padding: 18px 12px; border-radius: 16px; text-align: center; text-decoration: none; color: var(--text-main); transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.04); display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .cgpa-card:hover { transform: translateY(-4px); border-color: var(--theme-color); box-shadow: 0 8px 25px rgba(79, 70, 229, 0.15); }
+        .cgpa-icon { font-size: 1.8rem; color: var(--theme-color); transition: transform 0.3s; }
+        .cgpa-card:hover .cgpa-icon { transform: scale(1.1) rotate(5deg); }
+        .cgpa-label { font-size: 0.95rem; font-weight: 800; }
+        .cgpa-sub { font-size: 0.75rem; color: var(--text-light); font-weight: 600; }
+
+        /* ===== COLOR THEMES ===== */
+        .color-elite { --theme-color: #059669; }
+        .color-safe { --theme-color: #0ea5e9; }
+        .color-risky { --theme-color: #f59e0b; }
+        .color-danger { --theme-color: #ea580c; }
+        .color-critical { --theme-color: #dc2626; }
+
+        .qr-container { margin-top: 15px; background: white; padding: 15px; border-radius: 16px; display: inline-block; box-shadow: 0 8px 25px rgba(0,0,0,0.1); transition: transform 0.3s; }
+        .qr-container:hover { transform: scale(1.05); }
+
+        /* ===== CAMPUSBEE BUTTON ===== */
+        .campusbee-btn {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; margin-top: 12px; padding: 14px 20px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white; border: none; border-radius: 14px;
+            font-size: 1rem; font-weight: 800; text-decoration: none;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+            transition: all 0.3s ease; letter-spacing: 0.3px; cursor: pointer;
+            position: relative; overflow: hidden;
+        }
+        .campusbee-btn::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.25), transparent);
+            transform: skewX(-20deg); animation: shine 3s infinite;
+        }
+        .campusbee-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6); }
+
+        /* ===== CLEAR BUTTON ===== */
+        .btn-clear {
+            width: 100%; padding: 12px; margin-top: 10px;
+            background: #fff1f2; color: #dc2626;
+            border: 1.5px solid #fecaca; border-radius: 12px;
+            font-size: 0.95rem; font-weight: 700; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: all 0.2s ease;
+        }
+        .btn-clear:hover { background: #fee2e2; transform: translateY(-1px); box-shadow: 0 4px 10px rgba(220,38,38,0.15); }
+        .btn-clear:active { transform: scale(0.98); }
+        [data-theme="dark"] .btn-clear { background: rgba(220, 38, 38, 0.12); color: #fca5a5; border-color: rgba(220, 38, 38, 0.3); }
+        [data-theme="dark"] .btn-clear:hover { background: rgba(220, 38, 38, 0.22); }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            60% { left: 150%; }
+            100% { left: 150%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="topMarquee" class="top-marquee">
+        <div class="marquee-track">
+            <span class="marquee-item" onclick="scrollToSection('suggestionSection')">
+                <i class="fas fa-lightbulb"></i> Have an idea? Give us a suggestion
+            </span>
+            <span class="marquee-sep">✦</span>
+            <span class="marquee-item" onclick="scrollToSection('supportSection')">
+                <i class="fas fa-heart"></i> Check out Developer Support
+            </span>
+            <span class="marquee-sep">✦</span>
+            <span class="marquee-item" onclick="scrollToSection('suggestionSection')">
+                <i class="fas fa-lightbulb"></i> Have an idea? Give us a suggestion
+            </span>
+            <span class="marquee-sep">✦</span>
+            <span class="marquee-item" onclick="scrollToSection('supportSection')">
+                <i class="fas fa-heart"></i> Check out Developer Support
+            </span>
+            <span class="marquee-sep">✦</span>
+        </div>
+    </div>
+
+    <div id="ptr-indicator">
+        <i class="fas fa-arrow-down" id="ptr-arrow"></i>
+        <i class="fas fa-spinner" id="ptr-spinner"></i>
+        <span id="ptr-text">Pull to refresh</span>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <div class="glass-card" id="mainContainer">
+
+        
+        <div class="header-row">
+            <h1>Academic Pro <span class="version-badge">v7</span></h1>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <button class="customize-btn" id="customizeBtn" onclick="openThemeStudio()" title="Customize colors">
+                    <i class="fas fa-palette"></i>
+                </button>
+                <button class="theme-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+                    <span class="theme-toggle-icon sun"><i class="fas fa-sun"></i></span>
+                    <span class="theme-toggle-icon moon"><i class="fas fa-moon"></i></span>
+                </button>
+            </div>
+        </div>
+        <p class="subtitle">Attendance & Target Manager</p>
+
+        <div id="inputSection">
+            <p style="font-size: 0.95rem; color: var(--text-light); font-weight: 600; margin-bottom: 12px; display:flex; align-items:center; justify-content:space-between;">
+                <span><i class="fas fa-clipboard" style="color:var(--theme-color);"></i> Paste Attendance Report:</span>
+                <button class="info-btn" onclick="toggleInfo('infoPaste')"><i class="fas fa-info-circle"></i></button>
+            </p>
+            <div id="infoPaste" class="info-text">
+                <b>Guide:</b> ERP Login करें > Reports > Student Aggregate Attendance पर जाएं। पूरी टेबल (Subject से % तक) कॉपी करें और यहाँ पेस्ट करें।
+            </div>
+
+            <textarea id="inputData" placeholder="Copy full table from your ERP and paste here..."></textarea>
+            <button class="btn-main" onclick="processReport()">Calculate Attendance 🚀</button>
+
+            <!-- CLEAR BUTTON -->
+            <button class="btn-clear" onclick="document.getElementById('inputData').value=''; showToast('🗑️ Cleared!', 'info');">
+                <i class="fas fa-trash-alt"></i> Clear Text
+            </button>
+
+            <div style="text-align:center; margin-top:15px;">
+                <a href="https://erp.skit.ac.in/reports/student_aggregate" class="erp-btn">
+                   <i class="fas fa-external-link-alt"></i> Go to ERP Portal
+                </a>
+            </div>
+
+            <!-- CAMPUSBEE INTERNSHIP BUTTON -->
+            <a href="https://campusbee.me" target="_blank" class="campusbee-btn">
+                <i class="fas fa-briefcase" style="font-size:1.1rem;"></i>
+                Find Internships – CampusBee.me
+                <i class="fas fa-arrow-right" style="font-size:0.85rem;"></i>
+            </a>
+
+            <div class="divider"><span>📚 STUDY & EXAMS</span></div>
+            <a href="https://notes-clg.netlify.app/" target="_blank" class="notes-banner">
+                <div class="notes-icon"><i class="fas fa-book-reader"></i></div>
+                <div class="notes-text">
+                    <strong>College Notes</strong>
+                    <span>Get free premium notes & ace your exams!</span>
+                </div>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+
+            <div class="divider"><span>📊 CGPA CALCULATORS</span></div>
+            <div class="cgpa-grid">
+                <a href="https://cgpa-1sem.netlify.app/" target="_blank" class="cgpa-card">
+                    <i class="fas fa-baby cgpa-icon"></i>
+                    <span class="cgpa-label">1st Sem</span>
+                    <span class="cgpa-sub">Fresher Calculator</span>
+                </a>
+                <a href="https://bestcgpa.netlify.app/" target="_blank" class="cgpa-card">
+                    <i class="fas fa-user-graduate cgpa-icon"></i>
+                    <span class="cgpa-label">3rd Sem</span>
+                    <span class="cgpa-sub">Senior Calculator</span>
+                </a>
+            </div>
+        </div>
+
+        <div id="skeleton-loader">
+            <div style="width:160px; height:160px; border-radius:50%; background: var(--skeleton-base); margin: 0 auto 25px; animation: shimmer 1.5s infinite; background: linear-gradient(90deg, var(--skeleton-base) 25%, var(--skeleton-shine) 50%, var(--skeleton-base) 75%); background-size: 200% 100%;"></div>
+            <div class="skeleton-line medium" style="margin: 0 auto 25px; height:20px; border-radius:10px;"></div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:25px;">
+                <div class="skeleton-card"><div class="skeleton-line short"></div><div class="skeleton-line full"></div></div>
+                <div class="skeleton-card"><div class="skeleton-line short"></div><div class="skeleton-line full"></div></div>
+            </div>
+            <div class="skeleton-card"><div class="skeleton-line medium"></div><div class="skeleton-bar"></div><div class="skeleton-line short"></div></div>
+            <div class="skeleton-card"><div class="skeleton-line medium"></div><div class="skeleton-bar"></div><div class="skeleton-line short"></div></div>
+        </div>
+
+        <div id="dashboard">
+            <div class="dashboard-grid">
+                
+                <div class="dash-left">
+                    <div class="status-badge" id="statusBadge">Checking...</div>
+
+                    <div class="score-circle">
+                        <span class="score-val" id="percentDisplay">0%</span>
+                    </div>
+
+                    <div class="funny-msg" id="funnyMsg">"Calculating..."</div>
+
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <div class="stat-val" id="attendedVal">0</div>
+                            <div class="stat-label">Attended</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-val" id="totalVal">0</div>
+                            <div class="stat-label">Total Held</div>
+                        </div>
+                    </div>
+
+                    <button class="toggle-btn" onclick="toggleSection('chartSection', this)">
+                        <div style="display:flex; align-items:center;">
+                            <i class="fas fa-chart-bar" style="margin-right:12px; color:#7c3aed; font-size:1.2rem;"></i>
+                            <b>Attendance Charts</b>
+                        </div>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div id="chartSection" class="collapsible-content">
+                        <div class="chart-container">
+                            <div class="chart-tabs">
+                                <button class="chart-tab active" onclick="switchChart('bar', this)"><i class="fas fa-chart-bar"></i> Bar Chart</button>
+                                <button class="chart-tab" onclick="switchChart('doughnut', this)"><i class="fas fa-circle-notch"></i> Donut</button>
+                            </div>
+                            <canvas id="attendanceChart" height="250"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dash-right">
+                    
+                    <hr style="border: 0; border-top: 2px dashed var(--hr-color); margin: 0 0 25px 0;">
+
+                    <button class="toggle-btn" onclick="toggleSection('timeTravel', this)">
+                        <div style="display:flex; align-items:center;">
+                            <i class="fas fa-calendar-alt" style="margin-right:12px; color:#6a11cb; font-size:1.2rem;"></i>
+                            <b>75% Prediction Date</b>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span class="info-btn" onclick="event.stopPropagation(); toggleInfo('infoDate')" style="margin:0;"><i class="fas fa-info-circle"></i></span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </button>
+                    <div id="infoDate" class="info-text">
+                        <b>हिंदी:</b> यह कैलकुलेट करता है कि अगर आप आज से रोज़ (छुट्टियों को छोड़कर) कॉलेज जाएं, तो आपकी 75% अटेंडेंस किस तारीख को पूरी होगी।
+                    </div>
+                    <div id="timeTravel" class="collapsible-content">
+                        <p style="font-size:0.8rem; color:var(--text-light); font-weight:600; margin-bottom:12px; text-align:center;">Edit daily classes (Sun & Holidays are off):</p>
+                        <div class="schedule-grid">
+                            <div class="day-input"><label>Mon</label><input type="number" id="sch_mon" value="5" oninput="liveUpdateDate()"></div>
+                            <div class="day-input"><label>Tue</label><input type="number" id="sch_tue" value="5" oninput="liveUpdateDate()"></div>
+                            <div class="day-input"><label>Wed</label><input type="number" id="sch_wed" value="5" oninput="liveUpdateDate()"></div>
+                            <div class="day-input"><label>Thu</label><input type="number" id="sch_thu" value="6" oninput="liveUpdateDate()"></div>
+                            <div class="day-input"><label>Fri</label><input type="number" id="sch_fri" value="5" oninput="liveUpdateDate()"></div>
+                            <div class="day-input"><label>Sat</label><input type="number" id="sch_sat" value="5" oninput="liveUpdateDate()"></div>
+                        </div>
+                        <button class="btn-action btn-tool-blue" style="width:100%; margin-bottom:10px; padding:15px; font-size:1.05rem;" onclick="calculateDate()">
+                            📅 When will I reach 75%?
+                        </button>
+                        <div id="dateResult" class="result-text" style="background:var(--result-bg); padding:15px; border-radius:12px; display:none; border-left: 5px solid #6a11cb; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align:center;"></div>
+                    </div>
+
+                    <button class="toggle-btn" onclick="toggleSection('subjectList', this)">
+                        <div style="display:flex; align-items:center;">
+                            <i class="fas fa-list-ul" style="margin-right:12px; font-size:1.2rem; color:#4f46e5;"></i>
+                            <b>Subject Breakdown</b>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span class="info-btn" onclick="event.stopPropagation(); toggleInfo('infoSub')" style="margin:0;"><i class="fas fa-info-circle"></i></span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </button>
+                    <div id="infoSub" class="info-text">
+                        <b>हिंदी:</b> हर सब्जेक्ट की अलग-अलग अटेंडेंस देखें। जानें कि किसमें बंक मार सकते हैं (हरा) और किसमें क्लास लेनी पड़ेगी (लाल)।
+                    </div>
+                    <div id="subjectList" class="collapsible-content">
+                        <div class="filter-bar">
+                            <button class="filter-btn active" onclick="filterSubjects('all', this)"><i class="fas fa-th"></i> All</button>
+                            <button class="filter-btn" onclick="filterSubjects('danger', this)"><i class="fas fa-exclamation-triangle"></i> Danger</button>
+                            <button class="filter-btn" onclick="filterSubjects('safe', this)"><i class="fas fa-check-circle"></i> Safe</button>
+                            <button class="filter-btn" onclick="sortSubjects('asc', this)"><i class="fas fa-sort-amount-up-alt"></i> Low→High</button>
+                            <button class="filter-btn" onclick="sortSubjects('desc', this)"><i class="fas fa-sort-amount-down"></i> High→Low</button>
+                        </div>
+                        <div id="subjectCards"></div>
+                    </div>
+
+                    <div class="divider"><span>⚙️ PREDICTION TOOLS</span></div>
+
+                    <div class="tools-grid">
+                        
+                        <div class="tool-group">
+                            <div class="tool-header" style="color: #2563EB;">
+                                <i class="fas fa-plus-circle"></i> Attend Future Classes
+                                <button class="info-btn" onclick="toggleInfo('infoFuture')"><i class="fas fa-info-circle"></i></button>
+                            </div>
+                            <div id="infoFuture" class="info-text">
+                                <b>हिंदी:</b> चेक करें कि अगर आप आने वाली क्लासेस अटेंड करते हैं तो आपकी % कितनी बढ़ेगी।
+                            </div>
+                            <div class="tool-row">
+                                <input type="number" id="futureInput" placeholder="classes">
+                                <button class="btn-action btn-tool-blue" onclick="checkFuture()">Check Boost 🚀</button>
+                            </div>
+                            <div id="futureResult" class="result-text"></div>
+                        </div>
+
+                        <div class="tool-group">
+                            <div class="tool-header" style="color: #f59e0b;">
+                                <i class="fas fa-bed"></i> Can I Bunk?
+                                <button class="info-btn" onclick="toggleInfo('infoBunk')"><i class="fas fa-info-circle"></i></button>
+                            </div>
+                            <div id="infoBunk" class="info-text">
+                                <b>हिंदी:</b> चेक करें कि अगर आप क्लासेस छोड़ते (Bunk) हैं तो आपकी % कितनी गिरेगी।
+                            </div>
+                            <div class="tool-row">
+                                <input type="number" id="bunkInput" placeholder="classes">
+                                <button class="btn-action btn-tool-yellow" onclick="checkBunk()">Check Drop 📉</button>
+                            </div>
+                            <div id="bunkResult" class="result-text"></div>
+                        </div>
+
+                        <div class="tool-group">
+                            <div class="tool-header" style="color: #059669;">
+                                <i class="fas fa-bullseye"></i> Reach Target
+                                <button class="info-btn" onclick="toggleInfo('infoTarget')"><i class="fas fa-info-circle"></i></button>
+                            </div>
+                            <div id="infoTarget" class="info-text">
+                                <b>हिंदी:</b> पता करें कि अपनी मनचाही % (जैसे 75%) तक पहुँचने के लिए आपको लगातार कितनी क्लासेस लेनी होंगी।
+                            </div>
+                            <div class="tool-row">
+                                <input type="number" id="targetInput" placeholder="%">
+                                <button class="btn-action btn-tool-green" onclick="calcTarget()">Classes Needed 📈</button>
+                            </div>
+                            <div id="targetResult" class="result-text"></div>
+                        </div>
+
+                        <div class="tool-group">
+                            <div class="tool-header" style="color: #db2777;">
+                                <i class="fas fa-file-signature"></i> Add OD (On Duty)
+                                <button class="info-btn" onclick="toggleInfo('infoOD')"><i class="fas fa-info-circle"></i></button>
+                            </div>
+                            <div id="infoOD" class="info-text">
+                                <b>हिंदी:</b> अगर आपको कॉलेज से OD (On Duty) मिली है, तो उसे यहाँ जोड़कर अपनी बढ़ी हुई % देखें।
+                            </div>
+                            <div class="tool-row">
+                                <input type="number" id="odInput" placeholder="classes">
+                                <button class="btn-action btn-tool-pink" onclick="checkOD()">Check Impact 🏥</button>
+                            </div>
+                            <div id="odResult" class="result-text"></div>
+                        </div>
+                        
+                        <div class="tool-group full-width-tool">
+                            <div class="tool-header" style="color: #7c3aed;">
+                                <i class="fas fa-balance-scale"></i> Mix Mode (Attend + Bunk)
+                                <button class="info-btn" onclick="toggleInfo('infoMix')"><i class="fas fa-info-circle"></i></button>
+                            </div>
+                            <div id="infoMix" class="info-text">
+                                <b>हिंदी:</b> एक साथ देखें: अगर आप कुछ क्लास अटेंड करें और उसके बाद कुछ बंक करें, तो फाइनल % क्या होगी।
+                            </div>
+                            <div class="tool-row">
+                                <input type="number" id="mixAttend" placeholder="Attend" style="width: 35%;">
+                                <input type="number" id="mixBunk" placeholder="Bunk" style="width: 35%;">
+                                <button class="btn-action btn-tool-purple" onclick="calcMix()">Calc 🧮</button>
+                            </div>
+                            <div id="mixResult" class="result-text"></div>
+                        </div>
+
+                    </div>
+
+                    <a href="https://notes-clg.netlify.app/" target="_blank" style="display:flex; justify-content:center; align-items:center; gap:10px; margin-top: 30px; background:linear-gradient(90deg, #312e81, #4338ca); color:white; padding:15px; border-radius:12px; text-decoration:none; font-weight:700; box-shadow:0 4px 15px rgba(67, 56, 202, 0.4);">
+                        <i class="fas fa-book-open"></i> Read College Notes
+                    </a>
+
+                    <button class="btn-share" onclick="shareResult()">
+                        <i class="fab fa-whatsapp" style="font-size: 1.3rem;"></i> Share Status on WhatsApp
+                    </button>
+
+                    <button style="background:transparent; border:none; color:var(--text-light); width:100%; margin-top:20px; font-size:0.9rem; font-weight:600; text-decoration:underline; cursor:pointer;" onclick="resetApp()">
+                        Check Another Report
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-card" id="supportSection" style="text-align: center; padding: 25px;">
+        <p style="margin: 0; font-weight: 800; font-size: 1.1rem; color:var(--text-main);">Enjoying the Safe Bunks?</p>
+        <p style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 20px; font-weight:600;">Support the Developer ☕</p>
+
+        <div class="qr-container">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=jainsambhav877@oksbi&pn=Sambhav&cu=INR"
+                 alt="Scan to Pay" width="150" height="150" style="border-radius: 8px;">
+        </div>
+
+        <br><br>
+        <a href="upi://pay?pa=jainsambhav877@oksbi&pn=Sambhav&cu=INR"
+           style="background:linear-gradient(135deg, #2563EB, #1d4ed8); color:white; padding:12px 30px; border-radius:50px; text-decoration:none; font-size:1rem; font-weight:700; display:inline-block; box-shadow: 0 6px 15px rgba(37,99,235,0.4); transition: transform 0.3s;">
+            Pay via UPI App <i class="fas fa-arrow-right" style="margin-left:5px; font-size:0.8rem;"></i>
+        </a>
+        <p style="margin-top:14px;">
+            <a href="upi://pay?pa=jainsambhav877@oksbi&pn=Sambhav&cu=INR" style="font-size:0.8rem; font-weight:700; color:var(--theme-color); text-decoration:underline;">
+                Click here to pay <i class="fas fa-arrow-up-right-from-square" style="font-size:0.7rem;"></i>
+            </a>
+        </p>
+    </div>
+
+    <div class="glass-card suggestion-card" id="suggestionSection">
+        <div class="sugg-icon-badge"><i class="fas fa-comment-dots"></i></div>
+        <p class="sugg-title">Got an Idea or Bug to Report?</p>
+        <p class="sugg-subtitle">Sent directly to the developer.<br>Name &amp; Branch are optional — you can stay fully anonymous.</p>
+
+        <div class="sugg-row">
+            <input type="text" id="suggName" class="sugg-input" placeholder="Name (optional)" maxlength="60">
+            <input type="text" id="suggBranch" class="sugg-input" placeholder="Branch (optional)" maxlength="60">
+        </div>
+
+        <textarea id="suggestionText" class="sugg-input sugg-textarea" placeholder="Type your suggestion, idea, or bug report here..."></textarea>
+
+        <button class="btn-main" id="suggestionBtn" onclick="sendSuggestion()">
+            <i class="fas fa-paper-plane"></i> Send Suggestion
+        </button>
+
+        <div class="sugg-privacy"><i class="fas fa-shield-alt"></i> No email, phone, or device data is ever collected</div>
+
+        <div id="replyStatusArea"></div>
+    </div>
+
+    <div class="glass-card stats-card" id="statsSection">
+        <div class="stats-header">
+            <div class="stats-badge"><i class="fas fa-chart-line"></i></div>
+            <p class="stats-title">Trusted by Students Nationwide</p>
+        </div>
+        <div class="stats-grid">
+            <div class="stats-box">
+                <div class="stats-number" id="statUsers">0</div>
+                <div class="stats-label"><i class="fas fa-users"></i> Total Users</div>
+            </div>
+            <div class="stats-box">
+                <div class="stats-number" id="statStudents">0</div>
+                <div class="stats-label"><i class="fas fa-graduation-cap"></i> Students Helped</div>
+            </div>
+        </div>
+        <p class="stats-footnote">Live count · grows with every new visitor ✨</p>
+    </div>
+
+<script>
+// ===== LIVE VISITOR / STUDENT COUNTER =====
+// Uses a free public counter service (no signup, no server needed).
+// The counter persists globally — every unique DEVICE bumps it by 1, forever.
+// A localStorage flag (not sessionStorage) stops the count from increasing on
+// refresh / new tab / same-browser revisits from the same device. It will only
+// count again if the user clears site data or opens the site in a different
+// browser/incognito profile — this is an inherent limit of a frontend-only,
+// no-login/no-backend counter.
+const STATS_BASE_USERS = 1890;
+const STATS_BASE_STUDENTS = 14245;
+const STATS_RATIO = STATS_BASE_STUDENTS / STATS_BASE_USERS;
+const STATS_NAMESPACE = 'academicpro-v7-attendance-app';
+const STATS_KEY = 'total-visits';
+const STATS_DEVICE_FLAG = 'stats_counted_device_v7';
+
+function animateCounter(el, target) {
+    const start = 0;
+    const duration = 1200;
+    const startTime = performance.now();
+    function tick(now) {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const val = Math.floor(start + (target - start) * eased);
+        el.textContent = val.toLocaleString('en-IN');
+        if (progress < 1) requestAnimationFrame(tick);
+        else el.textContent = target.toLocaleString('en-IN');
+    }
+    requestAnimationFrame(tick);
+}
+
+async function loadVisitorStats() {
+    const usersEl = document.getElementById('statUsers');
+    const studentsEl = document.getElementById('statStudents');
+    if (!usersEl || !studentsEl) return;
+
+    try {
+        let raw;
+        // localStorage persists across refreshes, tab closes, and new tabs on the
+        // SAME device/browser -> only the first-ever visit from this device hits
+        // (increments) the counter. Every later visit just reads the current value.
+        if (!localStorage.getItem(STATS_DEVICE_FLAG)) {
+            const res = await fetch(`https://abacus.jasoncameron.dev/hit/${STATS_NAMESPACE}/${STATS_KEY}`);
+            const data = await res.json();
+            raw = data.value;
+            localStorage.setItem(STATS_DEVICE_FLAG, '1');
+        } else {
+            const res = await fetch(`https://abacus.jasoncameron.dev/get/${STATS_NAMESPACE}/${STATS_KEY}`);
+            const data = await res.json();
+            raw = data.value;
+        }
+
+        const totalUsers = STATS_BASE_USERS + raw;
+        const totalStudents = STATS_BASE_STUDENTS + Math.round(raw * STATS_RATIO);
+
+        animateCounter(usersEl, totalUsers);
+        animateCounter(studentsEl, totalStudents);
+        localStorage.setItem('stats_cache', JSON.stringify({ u: totalUsers, s: totalStudents }));
+    } catch (err) {
+        // Offline / API down -> fall back to last known cached numbers (never shows a decrease)
+        const cached = JSON.parse(localStorage.getItem('stats_cache') || 'null');
+        const fallbackUsers = cached ? cached.u : STATS_BASE_USERS;
+        const fallbackStudents = cached ? cached.s : STATS_BASE_STUDENTS;
+        animateCounter(usersEl, fallbackUsers);
+        animateCounter(studentsEl, fallbackStudents);
+    }
+}
+document.addEventListener('DOMContentLoaded', loadVisitorStats);
+
+// ===== TOP MARQUEE SCROLL =====
+function scrollToSection(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.style.transition = 'box-shadow 0.3s ease';
+    el.style.boxShadow = '0 0 0 3px var(--theme-color)';
+    setTimeout(() => { el.style.boxShadow = ''; }, 1200);
+}
+
+// ===== SUGGESTION BOX =====
+// Sends to a Netlify Function (netlify/functions/suggest.js) which forwards to Telegram.
+// The bot token & chat ID live only in Netlify's Environment Variables — never in this file,
+// so they are never visible in page source. See netlify/functions/suggest.js for setup notes.
+async function sendSuggestion() {
+    const nameEl = document.getElementById('suggName');
+    const branchEl = document.getElementById('suggBranch');
+    const box = document.getElementById('suggestionText');
+    const btn = document.getElementById('suggestionBtn');
+    const text = box.value.trim();
+
+    if (!text) {
+        showToast('✍️ Please type something first!', 'error');
+        return;
+    }
+
+    btn.disabled = true;
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+
+    try {
+        const res = await fetch('/.netlify/functions/suggest', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: nameEl.value.trim(),
+                branch: branchEl.value.trim(),
+                text: text
+            })
+        });
+        const data = await res.json();
+
+        if (data.ok) {
+            showToast('✅ Thanks! Suggestion sent.', 'success');
+            box.value = '';
+            nameEl.value = '';
+            branchEl.value = '';
+            saveSuggestionId(data.id, text);
+            renderReplyStatus();
+        } else {
+            showToast('❌ Could not send. Try again later.', 'error');
+        }
+    } catch (err) {
+        showToast('❌ Network error. Try again later.', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+    }
+}
+
+// ===== SUGGESTION REPLY TRACKING =====
+// Each suggestion you send gets a private id, stored only in YOUR browser
+// (localStorage). We poll a tiny endpoint asking "has the developer replied
+// to this id yet?". No login, no push — this shows the answer whenever you
+// happen to have the site open, and keeps checking until you get it,
+// however many days that takes.
+const SUGG_STORE_KEY = 'my_suggestions_v1';
+
+function getMySuggestions() {
+    try { return JSON.parse(localStorage.getItem(SUGG_STORE_KEY) || '[]'); }
+    catch { return []; }
+}
+function saveMySuggestions(list) {
+    localStorage.setItem(SUGG_STORE_KEY, JSON.stringify(list.slice(-10))); // keep last 10 only
+}
+function saveSuggestionId(id, text) {
+    const list = getMySuggestions();
+    list.push({ id, text: text.slice(0, 80), sentAt: Date.now(), reply: null, seen: false });
+    saveMySuggestions(list);
+}
+
+async function pollOneSuggestion(item) {
+    try {
+        const res = await fetch(`/.netlify/functions/check-reply?id=${encodeURIComponent(item.id)}`);
+        const data = await res.json();
+        if (data.ok && data.replied && !item.reply) {
+            item.reply = data.reply;
+            item.repliedAt = data.repliedAt;
+            return true;
+        }
+    } catch { /* silent - will retry next poll */ }
+    return false;
+}
+
+async function pollAllSuggestions() {
+    const list = getMySuggestions();
+    const pending = list.filter(i => !i.reply);
+    if (!pending.length) return;
+    let changed = false;
+    for (const item of pending) {
+        const got = await pollOneSuggestion(item);
+        if (got) changed = true;
+    }
+    if (changed) {
+        saveMySuggestions(list);
+        renderReplyStatus();
+        showToast('💬 The developer replied to your suggestion!', 'success');
+        haptic(40);
+    }
+}
+
+function renderReplyStatus() {
+    const area = document.getElementById('replyStatusArea');
+    if (!area) return;
+    const list = getMySuggestions().filter(i => !i.dismissed).slice().reverse();
+    if (!list.length) { area.innerHTML = ''; return; }
+
+    const expanded = area.dataset.expanded === '1';
+    const visible = expanded ? list : list.slice(0, 1);
+    const extraCount = list.length - visible.length;
+
+    area.innerHTML = visible.map(item => renderOneReplyBox(item)).join('') +
+        (extraCount > 0 ? `<button class="reply-view-all" onclick="toggleReplyExpand()">View ${extraCount} more</button>` : '') +
+        (expanded && list.length > 1 ? `<button class="reply-view-all" onclick="toggleReplyExpand()">Show less</button>` : '');
+}
+
+function toggleReplyExpand() {
+    const area = document.getElementById('replyStatusArea');
+    area.dataset.expanded = area.dataset.expanded === '1' ? '0' : '1';
+    renderReplyStatus();
+}
+
+function renderOneReplyBox(item) {
+    if (item.reply) {
+        return `
+        <div class="reply-box replied">
+            <button class="reply-box-close" onclick="dismissSuggestion('${item.id}')" title="Dismiss"><i class="fas fa-times"></i></button>
+            <div class="reply-box-head"><i class="fas fa-circle-check"></i> Developer replied</div>
+            <div class="reply-box-your">You: "${escapeHtml(item.text)}"</div>
+            <div class="reply-box-msg">${escapeHtml(item.reply)}</div>
+        </div>`;
+    }
+    return `
+        <div class="reply-box pending">
+            <button class="reply-box-close" onclick="dismissSuggestion('${item.id}')" title="Dismiss"><i class="fas fa-times"></i></button>
+            <div class="reply-box-head"><i class="fas fa-clock"></i> Sent — waiting for reply</div>
+            <div class="reply-box-your">"${escapeHtml(item.text)}"</div>
+        </div>`;
+}
+
+function dismissSuggestion(id) {
+    const list = getMySuggestions();
+    const item = list.find(i => i.id === id);
+    if (item) item.dismissed = true;
+    saveMySuggestions(list);
+    renderReplyStatus();
+}
+
+function escapeHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+}
+
+// Poll on load, then every 20s while the tab is open (cheap - only runs
+// while user actually has the page open, no server cost otherwise).
+document.addEventListener('DOMContentLoaded', () => {
+    renderReplyStatus();
+    pollAllSuggestions();
+    setInterval(pollAllSuggestions, 20000);
+    maybeStartTour();
+});
+
+// ===== FIRST-TIME ONBOARDING TOUR =====
+const TOUR_SEEN_KEY = 'tour_seen_v1';
+const TOUR_STEPS = [
+    {
+        icon: 'fa-hand-sparkles',
+        title: 'Welcome to Academic Pro!',
+        text: "Your personal attendance tracker, built for exam-focused students. Let's take a quick look around.",
+        target: null
+    },
+    {
+        icon: 'fa-clipboard-list',
+        title: 'Paste & Track Attendance',
+        text: 'Paste your attendance report here and the app instantly calculates your percentage, subject-wise stats, and how many classes you can safely bunk.',
+        target: '#inputSection'
+    },
+    {
+        icon: 'fa-palette',
+        title: 'Make It Yours',
+        text: 'Tap this palette button anytime to pick your own accent color, card background, and text color — saved automatically for next time.',
+        target: '#customizeBtn'
+    },
+    {
+        icon: 'fa-moon',
+        title: 'Light or Dark, Your Call',
+        text: 'Tap this switch to flip between light and dark mode whenever you like — it remembers your choice.',
+        target: '.theme-toggle'
+    },
+    {
+        icon: 'fa-comment-dots',
+        title: 'Got Feedback? Just Type It',
+        text: 'Send ideas or bug reports directly to the developer here — anonymously if you like. Any reply shows up right on this page.',
+        target: '#suggestionSection'
+    }
+];
+let tourIndex = 0;
+
+function maybeStartTour() {
+    if (localStorage.getItem(TOUR_SEEN_KEY)) return;
+    tourIndex = 0;
+    document.getElementById('tourOverlay').classList.add('open');
+    renderTourStep();
+    window.addEventListener('resize', () => { if (document.getElementById('tourOverlay').classList.contains('open')) renderTourStep(); });
+}
+
+function renderTourStep() {
+    const step = TOUR_STEPS[tourIndex];
+    const card = document.getElementById('tourCard');
+    const spotlight = document.getElementById('tourSpotlight');
+
+    card.innerHTML = `
+        <div class="tour-progress">
+            ${TOUR_STEPS.map((_, i) => `<span class="tour-dot ${i === tourIndex ? 'active' : i < tourIndex ? 'done' : ''}"></span>`).join('')}
+        </div>
+        <div class="tour-icon"><i class="fas ${step.icon}"></i></div>
+        <h2 class="tour-title">${step.title}</h2>
+        <p class="tour-text">${step.text}</p>
+        <div class="tour-actions">
+            <button class="tour-skip" onclick="skipTour()">Skip</button>
+            <button class="tour-next" onclick="nextTourStep()">${tourIndex === TOUR_STEPS.length - 1 ? 'Get Started <i class="fas fa-check"></i>' : 'Next <i class="fas fa-arrow-right"></i>'}</button>
+        </div>
+    `;
+
+    const targetEl = step.target ? document.querySelector(step.target) : null;
+
+    if (!targetEl) {
+        card.classList.add('tour-centered');
+        spotlight.style.display = 'none';
+        return;
+    }
+
+    card.classList.remove('tour-centered');
+    targetEl.scrollIntoView({ block: 'center', behavior: 'instant' in document.documentElement.style ? 'instant' : 'auto' });
+
+    // Give scroll a tick, then position spotlight + card around the real element.
+    requestAnimationFrame(() => {
+        const rect = targetEl.getBoundingClientRect();
+        const pad = 10;
+        spotlight.style.display = 'block';
+        spotlight.style.top = (rect.top - pad) + 'px';
+        spotlight.style.left = (rect.left - pad) + 'px';
+        spotlight.style.width = (rect.width + pad * 2) + 'px';
+        spotlight.style.height = (rect.height + pad * 2) + 'px';
+
+        const cardWidth = Math.min(340, window.innerWidth - 40);
+        card.style.width = cardWidth + 'px';
+
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const spaceAbove = rect.top;
+        let top;
+        if (spaceBelow > 260 || spaceBelow > spaceAbove) {
+            top = rect.bottom + pad + 14;
+        } else {
+            top = rect.top - pad - 14 - 260; // approx card height, clamped below
+            if (top < 10) top = 10;
+        }
+        let left = rect.left + rect.width / 2 - cardWidth / 2;
+        left = Math.max(20, Math.min(left, window.innerWidth - cardWidth - 20));
+
+        card.style.top = top + 'px';
+        card.style.left = left + 'px';
+    });
+}
+
+function nextTourStep() {
+    haptic(15);
+    if (tourIndex >= TOUR_STEPS.length - 1) {
+        endTour();
+        return;
+    }
+    tourIndex++;
+    renderTourStep();
+}
+
+function skipTour() {
+    haptic(15);
+    endTour();
+}
+
+function endTour() {
+    document.getElementById('tourOverlay').classList.remove('open');
+    localStorage.setItem(TOUR_SEEN_KEY, '1');
+}
+
+// ===== GLOBAL STATE =====
+let g_present = 0;
+let g_total = 0;
+let g_percent = 0;
+let g_subjects = [];
+let g_chart = null;
+let g_currentFilter = 'all';
+let g_currentSort = null;
+
+// ===== THEME MANAGEMENT =====
+(function initTheme() {
+    const saved = localStorage.getItem('theme') || 
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', saved);
+    applyCustomThemeIfSaved();
+})();
+
+// ===== THEME STUDIO (custom user colors) =====
+// User picks 3 colors -> we override the same CSS variables the built-in
+// light/dark themes already use, then persist as JSON in localStorage.
+// This works on top of light/dark mode, doesn't fight with it.
+const CUSTOM_THEME_KEY = 'custom_theme_v1';
+
+function applyCustomThemeIfSaved() {
+    const saved = localStorage.getItem(CUSTOM_THEME_KEY);
+    if (!saved) return;
+    try {
+        const t = JSON.parse(saved);
+        applyCustomThemeVars(t.accent, t.card, t.text);
+    } catch {}
+}
+
+function applyCustomThemeVars(accent, card, text) {
+    const root = document.documentElement.style;
+    root.setProperty('--theme-color', accent);
+    root.setProperty('--card-bg', card);
+    root.setProperty('--glass-bg', card);
+    root.setProperty('--text-main', text);
+    root.setProperty('--input-bg', card);
+    root.setProperty('--result-bg', card);
+}
+
+function clearCustomThemeVars() {
+    const root = document.documentElement.style;
+    ['--theme-color','--card-bg','--glass-bg','--text-main','--input-bg','--result-bg'].forEach(p => root.removeProperty(p));
+}
+
+function openThemeStudio() {
+    const saved = localStorage.getItem(CUSTOM_THEME_KEY);
+    let t;
+    try { t = saved ? JSON.parse(saved) : null; } catch { t = null; }
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const accentDefault = getComputedStyle(document.documentElement).getPropertyValue('--theme-color').trim() || (isDark ? '#7c9eff' : '#4f46e5');
+    const cardDefault = isDark ? '#181e2e' : '#ffffff';
+    const textDefault = isDark ? '#eef2f7' : '#1f2937';
+
+    document.getElementById('tsAccent').value = toHex(t?.accent || accentDefault);
+    document.getElementById('tsCard').value = toHex(t?.card || cardDefault);
+    document.getElementById('tsText').value = toHex(t?.text || textDefault);
+    updateHexLabels();
+
+    document.getElementById('themeStudioOverlay').classList.add('open');
+    haptic(20);
+}
+
+function closeThemeStudio() {
+    document.getElementById('themeStudioOverlay').classList.remove('open');
+}
+
+function toHex(v) {
+    // color inputs need #rrggbb; strip alpha/rgba if a css var leaked through
+    if (/^#[0-9a-f]{6}$/i.test(v)) return v;
+    return '#4f46e5';
+}
+
+function updateHexLabels() {
+    document.getElementById('tsAccentHex').textContent = document.getElementById('tsAccent').value;
+    document.getElementById('tsCardHex').textContent = document.getElementById('tsCard').value;
+    document.getElementById('tsTextHex').textContent = document.getElementById('tsText').value;
+}
+
+function previewThemeStudio() {
+    updateHexLabels();
+    applyCustomThemeVars(
+        document.getElementById('tsAccent').value,
+        document.getElementById('tsCard').value,
+        document.getElementById('tsText').value
+    );
+}
+
+function applyPreset(accent, card, text) {
+    document.getElementById('tsAccent').value = accent;
+    document.getElementById('tsCard').value = card;
+    document.getElementById('tsText').value = text;
+    previewThemeStudio();
+    haptic(15);
+}
+
+function saveThemeStudio() {
+    const t = {
+        accent: document.getElementById('tsAccent').value,
+        card: document.getElementById('tsCard').value,
+        text: document.getElementById('tsText').value
+    };
+    localStorage.setItem(CUSTOM_THEME_KEY, JSON.stringify(t));
+    applyCustomThemeVars(t.accent, t.card, t.text);
+    closeThemeStudio();
+    showToast('🎨 Your theme is saved!', 'success');
+    haptic(30);
+}
+
+function resetThemeStudio() {
+    localStorage.removeItem(CUSTOM_THEME_KEY);
+    clearCustomThemeVars();
+    closeThemeStudio();
+    showToast('↩️ Back to default theme', 'info');
+}
+
+function toggleDarkMode() {
+    const html = document.documentElement;
+    const current = html.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    haptic(30);
+    showToast(next === 'dark' ? '🌙 Dark Mode On' : '☀️ Light Mode On', 'info');
+
+    if (g_chart) {
+        setTimeout(() => renderChart(g_chart.config.type === 'bar' ? 'bar' : 'doughnut'), 100);
+    }
+}
+
+// ===== HAPTIC FEEDBACK =====
+function haptic(duration = 50) {
+    if (navigator.vibrate) {
+        navigator.vibrate(duration);
+    }
+}
+
+// ===== TOAST NOTIFICATIONS =====
+function showToast(message, type = 'success', duration = 3000) {
+    haptic(40);
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+
+    const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️', party: '🎉' };
+    const colors = {
+        success: 'linear-gradient(135deg, #059669, #10b981)',
+        error: 'linear-gradient(135deg, #dc2626, #ef4444)',
+        info: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+        warning: 'linear-gradient(135deg, #d97706, #f59e0b)',
+        party: 'linear-gradient(135deg, #ec4899, #8b5cf6)'
+    };
+
+    toast.style.background = colors[type] || colors.success;
+    toast.innerHTML = `<span class="toast-icon">${icons[type] || '✅'}</span>${message}`;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.classList.add('removing');
+        setTimeout(() => toast.remove(), 300);
+    }, duration);
+}
+
+// ===== PULL TO REFRESH =====
+(function initPTR() {
+    let startY = 0;
+    let pulling = false;
+    const indicator = document.getElementById('ptr-indicator');
+    const ptrText = document.getElementById('ptr-text');
+    const ptrArrow = document.getElementById('ptr-arrow');
+    const ptrSpinner = document.getElementById('ptr-spinner');
+
+    document.addEventListener('touchstart', (e) => {
+        if (window.scrollY === 0) {
+            startY = e.touches[0].clientY;
+            pulling = true;
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchmove', (e) => {
+        if (!pulling) return;
+        const dy = e.touches[0].clientY - startY;
+        if (dy > 30) {
+            indicator.classList.add('visible');
+            ptrText.textContent = dy > 80 ? 'Release to refresh!' : 'Pull to refresh...';
+            ptrArrow.style.transform = `rotate(${Math.min(dy * 2, 180)}deg)`;
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+        if (!pulling) return;
+        const dy = e.changedTouches[0].clientY - startY;
+        pulling = false;
+        if (dy > 80) {
+            ptrText.textContent = 'Refreshing...';
+            ptrArrow.style.display = 'none';
+            ptrSpinner.style.display = 'inline-block';
+            haptic([50, 100, 50]);
+            setTimeout(() => {
+                location.reload();
+            }, 800);
+        } else {
+            indicator.classList.remove('visible');
+            ptrArrow.style.transform = '';
+            ptrArrow.style.display = '';
+        }
+    }, { passive: true });
+})();
+
+// ===== ON LOAD =====
+window.addEventListener('load', () => {
+    const saved = localStorage.getItem('academic_data_v7');
+    if (saved) {
+        document.getElementById('inputData').value = saved;
+    }
+});
+
+// ===== UI HELPERS =====
+const _chartOpened = { done: false };
+
+function toggleSection(id, btn) {
+    const el = document.getElementById(id);
+    if (el.style.display === 'block') {
+        el.style.display = 'none';
+        btn.classList.remove('active');
+    } else {
+        el.style.display = 'block';
+        btn.classList.add('active');
+        haptic(30);
+        
+        if (id === 'chartSection' && !_chartOpened.done) {
+            _chartOpened.done = true;
+            setTimeout(() => renderChart('bar'), 50);
+        }
+    }
+}
+
+function toggleInfo(id) {
+    const el = document.getElementById(id);
+    el.style.display = (el.style.display === 'block') ? 'none' : 'block';
+}
+
+function resetApp() {
+    haptic(50);
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('skeleton-loader').style.display = 'none';
+    document.getElementById('inputSection').style.display = 'block';
+    document.getElementById('inputData').value = '';
+    localStorage.removeItem('academic_data_v7');
+
+    ['futureInput','bunkInput','targetInput','odInput','mixAttend','mixBunk'].forEach(id => {
+        document.getElementById(id).value = '';
+    });
+    ['futureResult','bunkResult','targetResult','odResult','mixResult'].forEach(id => {
+        document.getElementById(id).innerText = '';
+    });
+    document.querySelectorAll('.info-text').forEach(i => i.style.display = 'none');
+    g_subjects = [];
+    
+    _chartOpened.done = false;
+    if (g_chart) { g_chart.destroy(); g_chart = null; }
+    
+    showToast('🔄 Reset! Ready for new report.', 'info');
+}
+
+// ===== PROCESS REPORT (with Skeleton Loading) =====
+function processReport() {
+    const text = document.getElementById('inputData').value;
+    if (!text.trim()) {
+        showToast('Please paste your attendance data first!', 'error');
+        haptic([100, 50, 100]);
+        return;
+    }
+
+    haptic(60);
+    document.getElementById('inputSection').style.display = 'none';
+    document.getElementById('skeleton-loader').style.display = 'block';
+    document.getElementById('dashboard').style.display = 'none';
+
+    setTimeout(() => {
+        const lines = text.split('\n');
+        g_present = 0; g_total = 0; g_subjects = [];
+        let found = false;
+        const regex = /^(.*?)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+([0-9.]+)$/;
+
+        lines.forEach(line => {
+            const match = line.trim().match(regex);
+            if (match) {
+                found = true;
+                const rawName = match[1].replace(/^\d+\s+/, '').trim();
+                const present = parseInt(match[2]);
+                const od = parseInt(match[3]);
+                const makeup = parseInt(match[4]);
+                const absent = parseInt(match[5]);
+                const attended = present + od + makeup;
+                const total = present + od + absent;
+
+                if (total > 0) {
+                    g_present += attended;
+                    g_total += total;
+                    g_subjects.push({ name: rawName, attended, total, percent: ((attended / total) * 100).toFixed(2) });
+                }
+            }
+        });
+
+        if (!found) {
+            document.getElementById('skeleton-loader').style.display = 'none';
+            document.getElementById('inputSection').style.display = 'block';
+            showToast('❌ Data not found! Copy full table from ERP.', 'error');
+            haptic([100, 50, 100, 50, 100]);
+            return;
+        }
+
+        localStorage.setItem('academic_data_v7', text);
+        g_percent = ((g_present / g_total) * 100).toFixed(2);
+
+        document.getElementById('skeleton-loader').style.display = 'none';
+        updateDashboard();
+    }, 1200);
+}
+
+// ===== UPDATE DASHBOARD =====
+function updateDashboard() {
+    const mainCard = document.getElementById('mainContainer');
+    const statusBadge = document.getElementById('statusBadge');
+    const funnyMsg = document.getElementById('funnyMsg');
+    const p = parseFloat(g_percent);
+
+    mainCard.classList.remove('color-elite','color-safe','color-risky','color-danger','color-critical');
+
+    let themeClass, badgeText, msg;
+
+    if (p >= 85) {
+        themeClass = 'color-elite'; badgeText = '👑 ELITE STUDENT';
+        msg = "Attendance itni high ki HOD bhi autograph maange. Nerd Alert! 🤓";
+    } else if (p >= 75) {
+        themeClass = 'color-safe'; badgeText = '😎 SAFE ZONE';
+        msg = "Perfect balance. Life set hai, bas maintain rakhna bhai. ✨";
+    } else if (p >= 65) {
+        themeClass = 'color-risky'; badgeText = '⚠️ WARNING ZONE';
+        msg = "Living on the edge? Ek-do bunk aur game over. Sambhal ja! 🛑";
+    } else if (p >= 45) {
+        themeClass = 'color-danger'; badgeText = '🔥 DANGER ZONE';
+        msg = "HOD Room loading... Mummy ko call aane wala hai. Prayers sent. 🙏";
+    } else {
+        themeClass = 'color-critical'; badgeText = '💀 LEGENDARY';
+        msg = "College is temporary, Backlogs are permanent. Next sem phodenge! 🗿";
+    }
+
+    mainCard.classList.add(themeClass);
+    statusBadge.innerText = badgeText;
+    funnyMsg.innerText = `"${msg}"`;
+
+    animateCountUp('attendedVal', g_present);
+    animateCountUp('totalVal', g_total);
+    animateCircle(p);
+
+    g_currentFilter = 'all';
+    g_currentSort = null;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('.filter-btn').classList.add('active'); 
+    renderSubjectCards();
+
+    document.getElementById('dashboard').style.display = 'block';
+    haptic(p >= 75 ? [50, 30, 80] : [100, 50, 100]);
+
+    if (p >= 75) {
+        setTimeout(() => launchConfetti(p), 800);
+        showToast(p >= 85 ? '🎉 Elite! Top of the class!' : '🎊 Safe Zone! You can bunk safely!', 'party', 4000);
+    } else {
+        showToast(`📊 Report loaded! ${g_subjects.length} subjects found.`, 'info');
+    }
+}
+
+// ===== FEATURE 1: COUNT-UP ANIMATION =====
+function animateCountUp(elementId, targetValue) {
+    const el = document.getElementById(elementId);
+    const startTime = performance.now();
+    const duration = 1200;
+
+    function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = easeOutCubic(progress);
+        el.innerText = Math.round(eased * targetValue);
+        if (progress < 1) requestAnimationFrame(update);
+        else el.innerText = targetValue;
+    }
+    requestAnimationFrame(update);
+}
+
+// ===== FEATURE 3: CONFETTI =====
+function launchConfetti(percent) {
+    const colors = percent >= 85
+        ? ['#059669', '#10b981', '#34d399', '#ffd700']
+        : ['#0ea5e9', '#38bdf8', '#7dd3fc', '#a78bfa'];
+
+    confetti({
+        particleCount: percent >= 85 ? 150 : 80,
+        spread: 70,
+        origin: { y: 0.3 },
+        colors,
+        disableForReducedMotion: true
+    });
+
+    if (percent >= 85) {
+        setTimeout(() => confetti({ particleCount: 80, angle: 60, spread: 55, origin: { x: 0 }, colors }), 300);
+        setTimeout(() => confetti({ particleCount: 80, angle: 120, spread: 55, origin: { x: 1 }, colors }), 500);
+    }
+}
+
+// ===== FEATURE 8: SUBJECT FILTER & SORT =====
+function filterSubjects(type, btn) {
+    haptic(30);
+    g_currentFilter = type;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderSubjectCards();
+}
+
+function sortSubjects(order, btn) {
+    haptic(30);
+    g_currentFilter = 'all'; 
+    g_currentSort = order;
+    
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    
+    renderSubjectCards();
+}
+
+function renderSubjects() {
+    g_currentFilter = 'all';
+    g_currentSort = null;
+    renderSubjectCards();
+}
+
+function renderSubjectCards() {
+    const container = document.getElementById('subjectCards');
+    container.innerHTML = '';
+
+    let subjects = [...g_subjects];
+
+    if (g_currentFilter === 'danger') subjects = subjects.filter(s => parseFloat(s.percent) < 75);
+    else if (g_currentFilter === 'safe') subjects = subjects.filter(s => parseFloat(s.percent) >= 75);
+
+    if (g_currentSort === 'asc') subjects.sort((a, b) => parseFloat(a.percent) - parseFloat(b.percent));
+    else if (g_currentSort === 'desc') subjects.sort((a, b) => parseFloat(b.percent) - parseFloat(a.percent));
+
+    if (subjects.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-light); font-weight:600;">No subjects match this filter.</div>`;
+        return;
+    }
+
+    subjects.forEach((sub, index) => {
+        const p = parseFloat(sub.percent);
+        const color = p < 75 ? '#ef4444' : '#10b981';
+        let msgHtml = '';
+
+        if (p < 75) {
+            const reqClasses = Math.ceil((0.75 * sub.total - sub.attended) / 0.25);
+            msgHtml = `<div class="sub-msg msg-danger"><i class="fas fa-exclamation-triangle"></i> Attend <b>${reqClasses}</b> more</div>`;
+        } else {
+            const bunks = Math.floor((sub.attended / 0.75) - sub.total);
+            msgHtml = bunks > 0
+                ? `<div class="sub-msg msg-safe"><i class="fas fa-check-circle"></i> Safe to bunk <b>${bunks}</b></div>`
+                : `<div class="sub-msg msg-warning">Near 75%. Don't bunk!</div>`;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'sub-card';
+        card.style.borderLeftColor = color;
+        card.style.animationDelay = `${index * 0.08}s`;
+        card.innerHTML = `
+            <div class="sub-header">
+                <span class="sub-name">${sub.name}</span>
+                <span class="sub-percent" style="color:${color}">${sub.percent}%</span>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill" style="width:0%; background:${color};" data-target="${sub.percent}"></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.8rem; font-weight:700; color:var(--text-light);">${sub.attended}/${sub.total} classes</span>
+                ${msgHtml}
+            </div>
+        `;
+
+        container.appendChild(card);
+
+        requestAnimationFrame(() => {
+            card.style.animation = `slideUpFade 0.5s ease forwards`;
+            card.style.animationDelay = `${index * 0.08}s`;
+            setTimeout(() => {
+                const fill = card.querySelector('.progress-fill');
+                if (fill) fill.style.width = fill.dataset.target + '%';
+            }, index * 80 + 100);
+        });
+    });
+}
+
+// ===== FEATURE 9: CHART VISUALIZATION =====
+function renderChart(type = 'bar') {
+    if (g_chart) { g_chart.destroy(); g_chart = null; }
+
+    const canvas = document.getElementById('attendanceChart');
+    const ctx = canvas.getContext('2d');
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+    const labels = g_subjects.map(s => s.name.length > 15 ? s.name.substring(0, 15) + '…' : s.name);
+    const data = g_subjects.map(s => parseFloat(s.percent));
+    const colors = data.map(p => p >= 75 ? (isDark ? 'rgba(16,185,129,0.7)' : 'rgba(16,185,129,0.8)') : (isDark ? 'rgba(239,68,68,0.7)' : 'rgba(239,68,68,0.8)'));
+    const borderColors = data.map(p => p >= 75 ? '#10b981' : '#ef4444');
+
+    const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+    const textColor = isDark ? '#cbd5e1' : '#6b7280';
+
+    if (type === 'bar') {
+        g_chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Attendance %',
+                    data,
+                    backgroundColor: colors,
+                    borderColor: borderColors,
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: { label: ctx => ` ${ctx.raw}%` },
+                        backgroundColor: isDark ? 'rgba(15, 23, 42, 0.9)' : 'rgba(0,0,0,0.8)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff'
+                    }
+                },
+                scales: {
+                    y: {
+                        min: 0, max: 100,
+                        grid: { color: gridColor },
+                        ticks: { color: textColor, callback: v => v + '%' },
+                        border: { display: false }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: textColor, font: { size: 10 }, maxRotation: 40 }
+                    }
+                },
+                animation: { duration: 800, easing: 'easeOutCubic' }
+            }
+        });
+
+        const originalDraw = g_chart.draw.bind(g_chart);
+        g_chart.draw = function() {
+            originalDraw();
+            const yScale = g_chart.scales.y;
+            const xStart = g_chart.chartArea.left;
+            const xEnd = g_chart.chartArea.right;
+            const yPos = yScale.getPixelForValue(75);
+            ctx.save();
+            ctx.beginPath();
+            ctx.setLineDash([6, 4]);
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 2;
+            ctx.moveTo(xStart, yPos);
+            ctx.lineTo(xEnd, yPos);
+            ctx.stroke();
+            ctx.fillStyle = '#f59e0b';
+            ctx.font = 'bold 11px Poppins';
+            ctx.fillText('75%', xEnd - 28, yPos - 5);
+            ctx.restore();
+        };
+
+    } else {
+        g_chart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels,
+                datasets: [{
+                    data,
+                    backgroundColor: colors,
+                    borderColor: isDark ? '#1e293b' : '#ffffff',
+                    borderWidth: 3,
+                    hoverOffset: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '60%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: textColor, font: { size: 10 }, boxWidth: 12, padding: 10,
+                            generateLabels: (chart) => {
+                                return chart.data.labels.map((label, i) => ({
+                                    text: `${label}: ${data[i]}%`, fillStyle: colors[i], strokeStyle: borderColors[i],
+                                    lineWidth: 2, hidden: false, index: i
+                                }));
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw}%` },
+                        backgroundColor: isDark ? 'rgba(15, 23, 42, 0.9)' : 'rgba(0,0,0,0.8)'
+                    }
+                },
+                animation: { animateRotate: true, duration: 900, easing: 'easeOutCubic' }
+            }
+        });
+    }
+}
+
+function switchChart(type, btn) {
+    haptic(30);
+    document.querySelectorAll('.chart-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderChart(type);
+}
+
+// ===== ANIMATE CIRCLE =====
+function animateCircle(target) {
+    const circle = document.querySelector('.score-circle');
+    const text = document.getElementById('percentDisplay');
+    const startTime = performance.now();
+    const duration = 1200;
+
+    function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = easeOutCubic(progress);
+        const current = eased * target;
+        text.innerText = current.toFixed(2) + '%';
+        circle.style.background = `conic-gradient(var(--theme-color) ${current * 3.6}deg, ${document.documentElement.getAttribute('data-theme') === 'dark' ? '#334155' : '#e5e7eb'} 0deg)`;
+        if (progress < 1) requestAnimationFrame(update);
+        else text.innerText = target.toFixed(2) + '%';
+    }
+    requestAnimationFrame(update);
+}
+
+// ===== PREDICTION TOOLS =====
+function checkFuture() {
+    const extra = parseInt(document.getElementById('futureInput').value);
+    if (!extra) { showToast('Enter number of classes!', 'warning'); return; }
+    haptic(40);
+    const newTotal = g_total + extra, newPresent = g_present + extra;
+    const newPercent = (newPresent / newTotal) * 100;
+    const boost = newPercent - parseFloat(g_percent);
+    document.getElementById('futureResult').innerHTML =
+        `New %: <b>${newPercent.toFixed(2)}%</b> <span style="color:var(--theme-color); font-weight:800;">(+${boost.toFixed(2)}%)</span>`;
+    showToast(`🚀 Attend ${extra} classes → ${newPercent.toFixed(1)}%`, 'success');
+}
+
+function checkBunk() {
+    const bunk = parseInt(document.getElementById('bunkInput').value);
+    if (!bunk) { showToast('Enter number of classes!', 'warning'); return; }
+    haptic(60);
+    const newTotal = g_total + bunk;
+    const newPercent = (g_present / newTotal) * 100;
+    const drop = parseFloat(g_percent) - newPercent;
+    document.getElementById('bunkResult').innerHTML =
+        `New %: <b>${newPercent.toFixed(2)}%</b> <span style="color:#dc2626; font-weight:800;">(-${drop.toFixed(2)}%)</span>`;
+    const warn = newPercent < 75 ? ' ⚠️ Below 75%!' : ' ✅ Still safe!';
+    showToast(`💤 Bunk ${bunk} → ${newPercent.toFixed(1)}%${warn}`, newPercent < 75 ? 'warning' : 'info');
+}
+
+function calcTarget() {
+    const target = parseFloat(document.getElementById('targetInput').value);
+    if (!target) { showToast('Enter target percentage!', 'warning'); return; }
+    const p = target / 100;
+    if (p >= 1 || target <= parseFloat(g_percent)) {
+        document.getElementById('targetResult').innerText = "Target already met or invalid!";
+        showToast('Target already met! 🎯', 'success');
+        return;
+    }
+    haptic(40);
+    const required = Math.ceil((p * g_total - g_present) / (1 - p));
+    document.getElementById('targetResult').innerHTML =
+        `You need to attend <b>${required}</b> more classes continuously.`;
+    showToast(`🎯 Need ${required} classes for ${target}%`, 'info');
+}
+
+function checkOD() {
+    const od = parseInt(document.getElementById('odInput').value);
+    if (!od) { showToast('Enter OD classes count!', 'warning'); return; }
+    haptic(40);
+    const newPresent = g_present + od;
+    const newPercent = (newPresent / g_total) * 100;
+    const boost = newPercent - parseFloat(g_percent);
+    document.getElementById('odResult').innerHTML =
+        `New %: <b>${newPercent.toFixed(2)}%</b> <span style="color:#db2777; font-weight:800;">(+${boost.toFixed(2)}%)</span>`;
+    showToast(`🏥 OD Applied! New: ${newPercent.toFixed(1)}%`, 'success');
+}
+
+function calcMix() {
+    const att = parseInt(document.getElementById('mixAttend').value) || 0;
+    const bnk = parseInt(document.getElementById('mixBunk').value) || 0;
+    if (att === 0 && bnk === 0) { showToast('Enter at least one value!', 'warning'); return; }
+    haptic(40);
+    const newPresent = g_present + att;
+    const newTotal = g_total + att + bnk;
+    const newPercent = (newPresent / newTotal) * 100;
+    const diff = newPercent - parseFloat(g_percent);
+    const diffStr = diff >= 0
+        ? `<span style="color:var(--theme-color); font-weight:800;">(+${diff.toFixed(2)}%)</span>`
+        : `<span style="color:#dc2626; font-weight:800;">(${diff.toFixed(2)}%)</span>`;
+    document.getElementById('mixResult').innerHTML = `Final %: <b>${newPercent.toFixed(2)}%</b> ${diffStr}`;
+    showToast(`🧮 Mix Result: ${newPercent.toFixed(1)}%`, newPercent >= 75 ? 'success' : 'warning');
+}
+
+// ===== DATE PREDICTION =====
+function liveUpdateDate() {
+    if (document.getElementById('dateResult').style.display === 'block') calculateDate();
+}
+
+function calculateDate() {
+    haptic(40);
+    if (parseFloat(g_percent) >= 75) {
+        document.getElementById('dateResult').style.display = 'block';
+        document.getElementById('dateResult').innerHTML = "<b style='font-size:1.1rem;'>Relax!</b><br>You are already above 75%. <br>Enjoy your life! 😎";
+        return;
+    }
+
+    const holidays = ["2026-02-15","2026-03-02","2026-03-03","2026-03-26","2026-08-15","2026-08-28","2026-09-04","2026-10-20"];
+
+    function isHolidayOrSunday(date) {
+        if (date.getDay() === 0) return true;
+        const dStr = date.toISOString().split('T')[0];
+        if (holidays.includes(dStr)) return true;
+        const aS = new Date("2026-11-06"), aE = new Date("2026-11-15");
+        if (date >= aS && date <= aE) return true;
+        const wS = new Date("2026-12-25"), wE = new Date("2026-12-31");
+        if (date >= wS && date <= wE) return true;
+        return false;
+    }
+
+    const schedule = [
+        0,
+        parseInt(document.getElementById('sch_mon').value) || 0,
+        parseInt(document.getElementById('sch_tue').value) || 0,
+        parseInt(document.getElementById('sch_wed').value) || 0,
+        parseInt(document.getElementById('sch_thu').value) || 0,
+        parseInt(document.getElementById('sch_fri').value) || 0,
+        parseInt(document.getElementById('sch_sat').value) || 0
+    ];
+
+    let needed = Math.ceil((0.75 * g_total - g_present) / 0.25);
+    let daysPassed = 0;
+    let currentDate = new Date();
+
+    while (needed > 0) {
+        currentDate.setDate(currentDate.getDate() + 1);
+        daysPassed++;
+        if (isHolidayOrSunday(currentDate)) continue;
+        needed -= schedule[currentDate.getDay()];
+        if (daysPassed > 365) {
+            document.getElementById('dateResult').style.display = 'block';
+            document.getElementById('dateResult').innerHTML = "⚠️ Schedule is empty or target too far.";
+            return;
+        }
+    }
+
+    const dateString = currentDate.toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+    document.getElementById('dateResult').style.display = 'block';
+    document.getElementById('dateResult').innerHTML =
+        `If you attend daily (excluding holidays):<br><b style="font-size:1.2rem; color:#6a11cb; display:inline-block; margin-top:8px;">${dateString}</b><br><span style="font-size:0.85rem; color:var(--text-light); font-weight:600;">(${daysPassed} days from now)</span>`;
+    showToast(`📅 Target date calculated!`, 'info');
+}
+
+// ===== SHARE =====
+function shareResult() {
+    haptic([50, 30, 50]);
+    const p = parseFloat(g_percent);
+    let shareText = '';
+    if (p >= 85) shareText = `🤓 My Attendance is ${p}%. I attend classes so you don't have to.`;
+    else if (p >= 75) shareText = `😎 My Attendance is ${p}%. Chill vibes only. Safe Zone.`;
+    else if (p >= 65) shareText = `💀 My Attendance is ${p}%. Risk hai toh Ishq hai.`;
+    else if (p >= 45) shareText = `🆘 My Attendance is ${p}%. Send prayers, HOD is watching.`;
+    else shareText = `🗿 My Attendance is ${p}%. Legend status achieved.`;
+    shareText += `\n\nCheck yours, Find Safe Bunks & Download College Notes here: https://presentsir.me/`;
+
+    if (navigator.share) {
+        navigator.share({ title: 'Academic Status', text: shareText }).catch(console.error);
+    } else {
+        window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');
+    }
+    showToast('📤 Sharing...', 'info', 2000);
+}
+</script>
+    <div id="tourOverlay" class="tour-overlay">
+        <div id="tourSpotlight" class="tour-spotlight-hole" style="display:none;"></div>
+        <div class="tour-card" id="tourCard">
+            <div class="tour-progress">
+                <span class="tour-dot" data-i="0"></span>
+                <span class="tour-dot" data-i="1"></span>
+                <span class="tour-dot" data-i="2"></span>
+                <span class="tour-dot" data-i="3"></span>
+                <span class="tour-dot" data-i="4"></span>
+            </div>
+
+            <div class="tour-icon" id="tourIcon"><i class="fas fa-hand-sparkles"></i></div>
+            <h2 class="tour-title" id="tourTitle">Welcome to Academic Pro!</h2>
+            <p class="tour-text" id="tourText">Your personal attendance tracker, built for exam-focused students. Let's take a 30-second look at what's here.</p>
+
+            <div class="tour-actions">
+                <button class="tour-skip" onclick="skipTour()">Skip</button>
+                <button class="tour-next" id="tourNextBtn" onclick="nextTourStep()">Next <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <div id="themeStudioOverlay" class="ts-overlay">
+        <div class="ts-modal">
+            <div class="ts-head">
+                <span><i class="fas fa-palette"></i> Customize Theme</span>
+                <button class="ts-close" onclick="closeThemeStudio()"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div class="ts-body">
+                <label class="ts-label">Accent Color <span id="tsAccentHex" class="ts-hex"></span></label>
+                <input type="color" id="tsAccent" class="ts-color-input" oninput="previewThemeStudio()">
+
+                <label class="ts-label">Card Background <span id="tsCardHex" class="ts-hex"></span></label>
+                <input type="color" id="tsCard" class="ts-color-input" oninput="previewThemeStudio()">
+
+                <label class="ts-label">Text Color <span id="tsTextHex" class="ts-hex"></span></label>
+                <input type="color" id="tsText" class="ts-color-input" oninput="previewThemeStudio()">
+
+                <p class="ts-hint">Preview updates live behind this window. Save to keep it — it'll be remembered next time you open the app.</p>
+
+                <div class="ts-presets">
+                    <span class="ts-preset-swatch" style="background:linear-gradient(135deg,#4f46e5,#3b82f6)" onclick="applyPreset('#4f46e5','#ffffff','#1f2937')" title="Classic Indigo"></span>
+                    <span class="ts-preset-swatch" style="background:linear-gradient(135deg,#7c9eff,#111622)" onclick="applyPreset('#7c9eff','#181e2e','#eef2f7')" title="Slate Aurora"></span>
+                    <span class="ts-preset-swatch" style="background:linear-gradient(135deg,#059669,#f0fdf4)" onclick="applyPreset('#059669','#ffffff','#064e3b')" title="Emerald"></span>
+                    <span class="ts-preset-swatch" style="background:linear-gradient(135deg,#db2777,#1a0e14)" onclick="applyPreset('#f472b6','#1f0f18','#fce7f3')" title="Rose Night"></span>
+                    <span class="ts-preset-swatch" style="background:linear-gradient(135deg,#d97706,#fffbeb)" onclick="applyPreset('#d97706','#ffffff','#451a03')" title="Amber"></span>
+                </div>
+            </div>
+
+            <div class="ts-actions">
+                <button class="ts-btn ts-btn-reset" onclick="resetThemeStudio()">Reset to Default</button>
+                <button class="ts-btn ts-btn-save" onclick="saveThemeStudio()">Save My Theme</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
