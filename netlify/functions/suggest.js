@@ -1,17 +1,26 @@
 // netlify/functions/suggest.js
 //
-// This runs on Netlify's servers, NOT in the browser — so the bot token
-// and chat ID stay hidden and are never visible in your page source.
+// Runs on Netlify servers. Saves each suggestion to Netlify Blobs (free,
+// built-in) with a unique ID, and forwards it to Telegram with that ID
+// visible. Reply to that Telegram message and telegram-webhook.js will
+// save your reply back against this ID, so check-reply.js can return it
+// to the right user's browser later — even days later.
 //
-// SETUP:
-// 1. On Telegram, message @BotFather -> /newbot -> follow steps -> you get a BOT TOKEN.
-// 2. Send any message to your new bot once (so it can see your chat).
-// 3. Open in browser: https://api.telegram.org/bot<YOUR_TOKEN>/getUpdates
-//    Look for "chat":{"id": ...}  -> that number is your CHAT ID.
-// 4. In Netlify: Site settings -> Environment variables -> add:
-//      TELEGRAM_BOT_TOKEN = <your token>
-//      TELEGRAM_CHAT_ID   = <your chat id>
-// 5. Redeploy the site (env vars only apply after a new deploy).
+// SETUP (same as before):
+// 1. BotFather -> /newbot -> get BOT TOKEN.
+// 2. Message your bot once, open https://api.telegram.org/bot<TOKEN>/getUpdates
+//    to find your CHAT ID.
+// 3. Netlify -> Site settings -> Environment variables:
+//      TELEGRAM_BOT_TOKEN = <token>
+//      TELEGRAM_CHAT_ID   = <chat id>
+// 4. Redeploy.
+// 5. Set the Telegram webhook once (see telegram-webhook.js header for the URL to call).
+
+const { getStore } = require('@netlify/blobs');
+
+function genId() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
@@ -41,10 +50,12 @@ exports.handler = async (event) => {
     return { statusCode: 500, body: JSON.stringify({ ok: false, error: 'Server not configured' }) };
   }
 
+  const id = genId();
+
   const lines = ['💡 New Suggestion (Academic Pro v7)', ''];
   if (name) lines.push(`👤 Name: ${name}`);
   if (branch) lines.push(`🎓 Branch: ${branch}`);
-  lines.push('', `📝 ${text}`);
+  lines.push('', `📝 ${text}`, '', `🆔 ID: ${id}`, '↩️ Reply to THIS message to answer the user.');
 
   try {
     const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
@@ -57,7 +68,23 @@ exports.handler = async (event) => {
     if (!data.ok) {
       return { statusCode: 502, body: JSON.stringify({ ok: false, error: 'Telegram rejected message' }) };
     }
-    return { statusCode: 200, body: JSON.stringify({ ok: true }) };
+
+    const telegramMessageId = data.result.message_id;
+
+    const store = getStore('suggestions');
+    const record = {
+      id, name, branch, text,
+      telegramMessageId,
+      createdAt: Date.now(),
+      reply: null,
+      repliedAt: null
+    };
+    await store.setJSON(id, record);
+    // Reverse lookup: when your Telegram reply comes in, we only know which
+    // Telegram message you replied to — this map gets us back to our own id.
+    await store.setJSON(`tg:${telegramMessageId}`, { pointsTo: id });
+
+    return { statusCode: 200, body: JSON.stringify({ ok: true, id }) };
   } catch (err) {
     return { statusCode: 500, body: JSON.stringify({ ok: false, error: 'Server error' }) };
   }
