@@ -14,7 +14,7 @@
 // every reply you send in Telegram is captured automatically. No further
 // action needed on your side other than typing your reply in Telegram.
 
-const { getStore } = require('@netlify/blobs');
+const { getSuggestionsStore } = require('./lib/blobs-store');
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
@@ -44,7 +44,7 @@ exports.handler = async (event) => {
   }
 
   try {
-    const store = getStore('suggestions');
+    const store = getSuggestionsStore();
     const pointer = await store.get(`tg:${repliedToId}`, { type: 'json' });
     if (!pointer || !pointer.pointsTo) {
       return { statusCode: 200, body: 'ok' }; // reply to some unrelated message, ignore

@@ -10,11 +10,12 @@
 // replied" tracking feature won't work until this is fixed — the error
 // field explains why.
 
-const { getStore } = require('@netlify/blobs');
+const { getSuggestionsStore } = require('./lib/blobs-store');
 
 exports.handler = async () => {
+  const usingManualConfig = Boolean(process.env.NETLIFY_SITE_ID && process.env.NETLIFY_BLOBS_TOKEN);
   try {
-    const store = getStore('suggestions');
+    const store = getSuggestionsStore();
     const testKey = `selftest:${Date.now()}`;
     await store.setJSON(testKey, { ok: true, at: Date.now() });
     const readBack = await store.get(testKey, { type: 'json' });
@@ -23,13 +24,21 @@ exports.handler = async () => {
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ok: true, writeRead: Boolean(readBack && readBack.ok) })
+      body: JSON.stringify({ ok: true, writeRead: Boolean(readBack && readBack.ok), usingManualConfig })
     };
   } catch (err) {
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ok: false, error: err.message, stack: (err.stack || '').split('\n').slice(0, 3) })
+      body: JSON.stringify({
+        ok: false,
+        usingManualConfig,
+        error: err.message,
+        hint: usingManualConfig
+          ? 'NETLIFY_SITE_ID / NETLIFY_BLOBS_TOKEN are set but Blobs still failed — double check the token has Blobs access and the site ID is correct.'
+          : 'NETLIFY_SITE_ID / NETLIFY_BLOBS_TOKEN are not set — see the setup notes at the top of netlify/functions/lib/blobs-store.js.',
+        stack: (err.stack || '').split('\n').slice(0, 3)
+      })
     };
   }
 };

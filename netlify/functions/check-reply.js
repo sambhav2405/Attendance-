@@ -5,7 +5,7 @@
 // in Telegram, then { ok:true, replied:true, reply:"..." }. No expiry —
 // works whether you reply in 5 minutes or 5 days.
 
-const { getStore } = require('@netlify/blobs');
+const { getSuggestionsStore } = require('./lib/blobs-store');
 
 exports.handler = async (event) => {
   const id = (event.queryStringParameters || {}).id;
@@ -14,7 +14,7 @@ exports.handler = async (event) => {
   }
 
   try {
-    const store = getStore('suggestions');
+    const store = getSuggestionsStore();
     const record = await store.get(id, { type: 'json' });
 
     if (!record) {

@@ -16,7 +16,7 @@
 // 4. Redeploy.
 // 5. Set the Telegram webhook once (see telegram-webhook.js header for the URL to call).
 
-const { getStore } = require('@netlify/blobs');
+const { getSuggestionsStore } = require('./lib/blobs-store');
 
 function genId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -76,7 +76,7 @@ exports.handler = async (event) => {
     // below is only for the "developer replied" tracking feature, so a
     // failure here must NOT make the user think their suggestion was lost.
     try {
-      const store = getStore('suggestions');
+      const store = getSuggestionsStore();
       const record = {
         id, name, branch, text,
         telegramMessageId,
