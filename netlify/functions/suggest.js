@@ -71,18 +71,27 @@ exports.handler = async (event) => {
 
     const telegramMessageId = data.result.message_id;
 
-    const store = getStore('suggestions');
-    const record = {
-      id, name, branch, text,
-      telegramMessageId,
-      createdAt: Date.now(),
-      reply: null,
-      repliedAt: null
-    };
-    await store.setJSON(id, record);
-    // Reverse lookup: when your Telegram reply comes in, we only know which
-    // Telegram message you replied to — this map gets us back to our own id.
-    await store.setJSON(`tg:${telegramMessageId}`, { pointsTo: id });
+    // The message has already reached the developer on Telegram at this
+    // point — that's the part the user actually cares about. Everything
+    // below is only for the "developer replied" tracking feature, so a
+    // failure here must NOT make the user think their suggestion was lost.
+    try {
+      const store = getStore('suggestions');
+      const record = {
+        id, name, branch, text,
+        telegramMessageId,
+        createdAt: Date.now(),
+        reply: null,
+        repliedAt: null
+      };
+      await store.setJSON(id, record);
+      // Reverse lookup: when your Telegram reply comes in, we only know which
+      // Telegram message you replied to — this map gets us back to our own id.
+      await store.setJSON(`tg:${telegramMessageId}`, { pointsTo: id });
+    } catch (storeErr) {
+      console.error('suggest: blobs store failed (message still sent to Telegram):', storeErr);
+      return { statusCode: 200, body: JSON.stringify({ ok: true, id, replyTrackingUnavailable: true }) };
+    }
 
     return { statusCode: 200, body: JSON.stringify({ ok: true, id }) };
   } catch (err) {
