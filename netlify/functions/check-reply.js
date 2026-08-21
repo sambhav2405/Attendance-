@@ -30,6 +30,7 @@ exports.handler = async (event) => {
 
     return { statusCode: 200, body: JSON.stringify({ ok: true, replied: false }) };
   } catch (err) {
+    console.error('check-reply error:', err);
     return { statusCode: 500, body: JSON.stringify({ ok: false, error: 'Server error' }) };
   }
 };

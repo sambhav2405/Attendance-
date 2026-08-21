@@ -71,6 +71,7 @@ exports.handler = async (event) => {
 
     return { statusCode: 200, body: 'ok' };
   } catch (err) {
+    console.error('telegram-webhook error:', err);
     return { statusCode: 200, body: 'ok' }; // always 200 so Telegram doesn't retry-storm
   }
 };
