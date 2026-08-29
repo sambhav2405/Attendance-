@@ -1,6 +1,6 @@
 {
-    "name": "SKIT Attendance Manager",
-    "short_name": "SKIT Manager",
+    "name": "Academic Pro Attendance Manager",
+    "short_name": "Academic Pro",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#000428",

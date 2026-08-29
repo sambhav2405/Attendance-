@@ -14,7 +14,8 @@
 // every reply you send in Telegram is captured automatically. No further
 // action needed on your side other than typing your reply in Telegram.
 
-const { getSuggestionsStore } = require('./lib/blobs-store');
+const { getSuggestionsStore, getBlobStore } = require('./lib/blobs-store');
+const { sendPush } = require('./lib/push');
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
@@ -58,6 +59,26 @@ exports.handler = async (event) => {
     record.reply = replyText;
     record.repliedAt = Date.now();
     await store.setJSON(pointer.pointsTo, record);
+
+    // Push a real notification to the user's device (even if the site/PWA
+    // is closed), if they ever granted permission and we saved a
+    // subscription for their device id. Best-effort — never let a push
+    // failure affect the Telegram-side confirmation below.
+    if (record.deviceId) {
+      try {
+        const pushStore = getBlobStore('push-subs');
+        const subscription = await pushStore.get(record.deviceId, { type: 'json' });
+        if (subscription) {
+          await sendPush(subscription, {
+            title: '💬 Developer replied!',
+            body: replyText.slice(0, 140),
+            url: '/'
+          });
+        }
+      } catch (pushErr) {
+        console.error('telegram-webhook: push send failed:', pushErr);
+      }
+    }
 
     // Optional: confirm to yourself in Telegram that it was saved.
     const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;

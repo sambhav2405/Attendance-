@@ -38,6 +38,7 @@ exports.handler = async (event) => {
   const name = clean(payload.name, 60);
   const branch = clean(payload.branch, 60);
   const text = clean(payload.text, 800);
+  const deviceId = clean(payload.deviceId, 64);
 
   if (!text) {
     return { statusCode: 400, body: JSON.stringify({ ok: false, error: 'Empty suggestion' }) };
@@ -78,7 +79,7 @@ exports.handler = async (event) => {
     try {
       const store = getSuggestionsStore();
       const record = {
-        id, name, branch, text,
+        id, name, branch, text, deviceId,
         telegramMessageId,
         createdAt: Date.now(),
         reply: null,

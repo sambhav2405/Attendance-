@@ -15,6 +15,10 @@
     <meta name="theme-color" content="#4f46e5">
 
     <link rel="icon" type="image/jpeg" href="unnamed.jpg">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="unnamed.jpg">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -178,6 +182,18 @@
         .tour-card:not(.tour-centered) .tour-icon { margin: 0 0 12px; }
         .tour-title { font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin: 0 0 8px; }
         .tour-text { font-size: 0.9rem; color: var(--text-light); line-height: 1.55; margin: 0 0 20px; }
+        .tour-feedback { text-align: center; margin: 4px 0 18px; }
+        .tour-feedback-caption { font-size: 0.78rem; color: var(--text-light); margin: 0 0 10px; }
+        .tour-feedback-btns { display: flex; justify-content: center; gap: 14px; }
+        .tour-feedback-btn {
+            width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--card-border);
+            background: var(--toggle-bg); color: var(--text-light); font-size: 1.05rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+        }
+        .tour-feedback-btn:hover:not(:disabled) { transform: scale(1.1); }
+        .tour-feedback-btn.like.chosen { background: #d1fae5; border-color: #059669; color: #059669; }
+        .tour-feedback-btn.dislike.chosen { background: #fee2e2; border-color: #dc2626; color: #dc2626; }
+        .tour-feedback-btn:disabled { cursor: default; opacity: 0.6; }
         .tour-actions { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
         .tour-skip { background: none; border: none; color: var(--text-light); font-weight: 700; font-size: 0.85rem; cursor: pointer; padding: 10px; white-space: nowrap; }
         .tour-next {
@@ -192,6 +208,40 @@
             display: flex; align-items: center; justify-content: center; transition: transform 0.2s;
         }
         .customize-btn:hover { transform: rotate(15deg) scale(1.05); }
+
+        .notif-wrap { position: relative; }
+        .notif-badge {
+            position: absolute; top: -2px; right: -2px; min-width: 16px; height: 16px; padding: 0 3px;
+            border-radius: 50%; background: #ef4444; border: 2px solid var(--card-bg); color: #fff;
+            font-size: 0.6rem; font-weight: 800; display: flex; align-items: center; justify-content: center;
+            animation: notifPulse 1.6s ease-in-out infinite;
+        }
+        @keyframes notifPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+        .notif-panel {
+            display: none; position: absolute; top: 50px; right: 0; width: 300px; max-width: calc(100vw - 40px);
+            background: var(--card-bg); backdrop-filter: blur(20px); border: 1px solid var(--card-border);
+            border-radius: 18px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); z-index: 500; overflow: hidden;
+        }
+        .notif-panel.open { display: block; animation: tourFadeIn 0.2s ease; }
+        .notif-panel-head {
+            display: flex; justify-content: space-between; align-items: center; padding: 14px 16px;
+            font-weight: 800; color: var(--text-main); border-bottom: 1px solid var(--card-border); font-size: 0.95rem;
+        }
+        .notif-panel-close { background: none; border: none; color: var(--text-light); cursor: pointer; font-size: 0.95rem; padding: 4px; }
+        .notif-panel-body { max-height: 320px; overflow-y: auto; padding: 8px; }
+        .notif-empty { padding: 26px 16px; text-align: center; color: var(--text-light); font-size: 0.82rem; }
+        .notif-item {
+            padding: 10px 12px; border-radius: 12px; margin-bottom: 6px; background: var(--toggle-bg);
+            border-left: 3px solid var(--theme-color);
+        }
+        .notif-item:last-child { margin-bottom: 0; }
+        .notif-item-you { font-size: 0.72rem; color: var(--text-light); margin-bottom: 4px; }
+        .notif-item-reply { font-size: 0.85rem; color: var(--text-main); font-weight: 600; line-height: 1.4; }
+        .notif-enable-btn {
+            width: 100%; padding: 10px; margin-bottom: 8px; border-radius: 12px; border: none; cursor: pointer;
+            background: linear-gradient(135deg, var(--theme-color), #3b82f6); color: #fff; font-weight: 700;
+            font-size: 0.82rem; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
 
         .ts-overlay {
             display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 9999;
@@ -646,6 +696,19 @@
         <div class="header-row">
             <h1>Academic Pro <span class="version-badge">v7</span></h1>
             <div style="display:flex; align-items:center; gap:8px;">
+                <div class="notif-wrap">
+                    <button class="customize-btn" id="notifBtn" onclick="toggleNotifPanel()" title="Notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="notif-badge" id="notifBadge" style="display:none;"></span>
+                    </button>
+                    <div class="notif-panel" id="notifPanel">
+                        <div class="notif-panel-head">
+                            <span>Replies</span>
+                            <button class="notif-panel-close" onclick="toggleNotifPanel(false)"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div class="notif-panel-body" id="notifPanelBody"></div>
+                    </div>
+                </div>
                 <button class="customize-btn" id="helpBtn" onclick="openTour()" title="How this app works">
                     <i class="fas fa-question"></i>
                 </button>
@@ -985,19 +1048,23 @@
 
 <script>
 // ===== LIVE VISITOR / STUDENT COUNTER =====
-// Uses a free public counter service (no signup, no server needed).
-// The counter persists globally — every unique DEVICE bumps it by 1, forever.
-// A localStorage flag (not sessionStorage) stops the count from increasing on
-// refresh / new tab / same-browser revisits from the same device. It will only
-// count again if the user clears site data or opens the site in a different
-// browser/incognito profile — this is an inherent limit of a frontend-only,
-// no-login/no-backend counter.
+// Backed by our own netlify/functions/visit-count.js (Netlify Blobs), keyed
+// by a stable per-device id kept in localStorage. The server only counts
+// each device id once, ever, so this is safe to call on every page load —
+// no more races, no more depending on a third-party global counter.
 const STATS_BASE_USERS = 1890;
 const STATS_BASE_STUDENTS = 14245;
 const STATS_RATIO = STATS_BASE_STUDENTS / STATS_BASE_USERS;
-const STATS_NAMESPACE = 'academicpro-v7-attendance-app';
-const STATS_KEY = 'total-visits';
-const STATS_DEVICE_FLAG = 'stats_counted_device_v7';
+const DEVICE_ID_KEY = 'device_id_v1';
+
+function getDeviceId() {
+    let id = localStorage.getItem(DEVICE_ID_KEY);
+    if (!id) {
+        id = (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`);
+        localStorage.setItem(DEVICE_ID_KEY, id);
+    }
+    return id;
+}
 
 function animateCounter(el, target) {
     const start = 0;
@@ -1020,20 +1087,14 @@ async function loadVisitorStats() {
     if (!usersEl || !studentsEl) return;
 
     try {
-        let raw;
-        // localStorage persists across refreshes, tab closes, and new tabs on the
-        // SAME device/browser -> only the first-ever visit from this device hits
-        // (increments) the counter. Every later visit just reads the current value.
-        if (!localStorage.getItem(STATS_DEVICE_FLAG)) {
-            const res = await fetch(`https://abacus.jasoncameron.dev/hit/${STATS_NAMESPACE}/${STATS_KEY}`);
-            const data = await res.json();
-            raw = data.value;
-            localStorage.setItem(STATS_DEVICE_FLAG, '1');
-        } else {
-            const res = await fetch(`https://abacus.jasoncameron.dev/get/${STATS_NAMESPACE}/${STATS_KEY}`);
-            const data = await res.json();
-            raw = data.value;
-        }
+        const res = await fetch('/.netlify/functions/visit-count', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ deviceId: getDeviceId() })
+        });
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'visit-count failed');
+        const raw = data.raw;
 
         const totalUsers = STATS_BASE_USERS + raw;
         const totalStudents = STATS_BASE_STUDENTS + Math.round(raw * STATS_RATIO);
@@ -1089,7 +1150,8 @@ async function sendSuggestion() {
             body: JSON.stringify({
                 name: nameEl.value.trim(),
                 branch: branchEl.value.trim(),
-                text: text
+                text: text,
+                deviceId: getDeviceId()
             })
         });
         const data = await res.json();
@@ -1101,6 +1163,9 @@ async function sendSuggestion() {
             branchEl.value = '';
             saveSuggestionId(data.id, text);
             renderReplyStatus();
+            if (Notification.permission === 'default') {
+                showToast('🔔 Tap the bell icon to get notified the moment the developer replies!', 'info', 5000);
+            }
         } else {
             showToast('❌ Could not send. Try again later.', 'error');
         }
@@ -1158,10 +1223,138 @@ async function pollAllSuggestions() {
     if (changed) {
         saveMySuggestions(list);
         renderReplyStatus();
+        updateNotifBadge();
         showToast('💬 The developer replied to your suggestion!', 'success');
         haptic(40);
     }
 }
+
+// ===== PUSH NOTIFICATIONS (works even when Chrome/PWA is closed) =====
+// Registers the service worker, then (if the user opts in via the bell
+// panel) subscribes to Web Push using our own VAPID keys — no third-party
+// push provider, no separate backend: netlify/functions/telegram-webhook.js
+// sends the actual push straight from the same Netlify Function that
+// already handles Telegram replies.
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = atob(base64);
+    return Uint8Array.from([...rawData].map(c => c.charCodeAt(0)));
+}
+
+async function registerServiceWorker() {
+    if (!('serviceWorker' in navigator)) return null;
+    try {
+        return await navigator.serviceWorker.register('/sw.js');
+    } catch (err) {
+        console.error('Service worker registration failed:', err);
+        return null;
+    }
+}
+
+async function isPushSubscribed() {
+    if (!('serviceWorker' in navigator) || Notification.permission !== 'granted') return false;
+    const reg = await navigator.serviceWorker.getRegistration();
+    if (!reg) return false;
+    const sub = await reg.pushManager.getSubscription();
+    return Boolean(sub);
+}
+
+async function enablePushNotifications() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        showToast('❌ Push notifications aren\'t supported on this browser.', 'error');
+        return;
+    }
+    try {
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+            showToast('🔕 Notifications permission not granted.', 'error');
+            return;
+        }
+        const keyRes = await fetch('/.netlify/functions/vapid-public-key');
+        const keyData = await keyRes.json();
+        if (!keyData.ok || !keyData.publicKey) {
+            showToast('❌ Notifications aren\'t set up on the server yet.', 'error');
+            return;
+        }
+        const reg = await navigator.serviceWorker.ready;
+        const subscription = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(keyData.publicKey)
+        });
+        await fetch('/.netlify/functions/push-subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ deviceId: getDeviceId(), subscription })
+        });
+        showToast('🔔 Notifications enabled!', 'success');
+        haptic(30);
+        renderNotifPanel();
+    } catch (err) {
+        console.error('enablePushNotifications failed:', err);
+        showToast('❌ Could not enable notifications.', 'error');
+    }
+}
+
+// ===== NOTIFICATION BELL =====
+function updateNotifBadge() {
+    const badge = document.getElementById('notifBadge');
+    if (!badge) return;
+    const unread = getMySuggestions().filter(i => i.reply && !i.seen).length;
+    if (unread > 0) {
+        badge.textContent = unread > 9 ? '9+' : String(unread);
+        badge.style.display = 'flex';
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+async function renderNotifPanel() {
+    const body = document.getElementById('notifPanelBody');
+    if (!body) return;
+
+    const subscribed = await isPushSubscribed();
+    const enableRow = subscribed ? '' : `
+        <button class="notif-enable-btn" onclick="enablePushNotifications()">
+            <i class="fas fa-bell"></i> Enable push notifications
+        </button>`;
+
+    const replied = getMySuggestions().filter(i => i.reply).slice().reverse();
+    const listHtml = !replied.length
+        ? '<div class="notif-empty">No replies yet. Send a suggestion and the developer\'s reply will show up here.</div>'
+        : replied.map(item => `
+            <div class="notif-item">
+                <div class="notif-item-you">You: "${escapeHtml(item.text)}"</div>
+                <div class="notif-item-reply">${escapeHtml(item.reply)}</div>
+            </div>
+        `).join('');
+
+    body.innerHTML = enableRow + listHtml;
+}
+
+function toggleNotifPanel(forceOpen) {
+    const panel = document.getElementById('notifPanel');
+    if (!panel) return;
+    const shouldOpen = typeof forceOpen === 'boolean' ? forceOpen : !panel.classList.contains('open');
+
+    if (shouldOpen) {
+        renderNotifPanel();
+        panel.classList.add('open');
+        haptic(15);
+        // Opening the bell = you've seen these replies.
+        const list = getMySuggestions();
+        list.forEach(i => { if (i.reply) i.seen = true; });
+        saveMySuggestions(list);
+        updateNotifBadge();
+    } else {
+        panel.classList.remove('open');
+    }
+}
+
+document.addEventListener('click', (e) => {
+    const wrap = document.querySelector('.notif-wrap');
+    if (wrap && !wrap.contains(e.target)) toggleNotifPanel(false);
+});
 
 function renderReplyStatus() {
     const area = document.getElementById('replyStatusArea');
@@ -1220,8 +1413,10 @@ function escapeHtml(str) {
 // while user actually has the page open, no server cost otherwise).
 document.addEventListener('DOMContentLoaded', () => {
     renderReplyStatus();
+    updateNotifBadge();
     pollAllSuggestions();
     setInterval(pollAllSuggestions, 20000);
+    registerServiceWorker();
 });
 
 // ===== APP TOUR (opened manually via the "?" header button) =====
@@ -1267,6 +1462,46 @@ function openTour() {
     haptic(20);
 }
 
+const TOUR_FEEDBACK_KEY = 'tour_feedback_v1';
+
+function renderTourFeedbackHtml() {
+    const given = localStorage.getItem(TOUR_FEEDBACK_KEY);
+    return `
+        <div class="tour-feedback">
+            <p class="tour-feedback-caption">Liked the app? / App pasand aayi?</p>
+            <div class="tour-feedback-btns">
+                <button class="tour-feedback-btn like ${given === 'like' ? 'chosen' : ''}" onclick="tourFeedback('like')" ${given ? 'disabled' : ''} title="Like">
+                    <i class="fas fa-thumbs-up"></i>
+                </button>
+                <button class="tour-feedback-btn dislike ${given === 'dislike' ? 'chosen' : ''}" onclick="tourFeedback('dislike')" ${given ? 'disabled' : ''} title="Dislike">
+                    <i class="fas fa-thumbs-down"></i>
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function tourFeedback(kind) {
+    if (localStorage.getItem(TOUR_FEEDBACK_KEY)) return; // one-time only
+    localStorage.setItem(TOUR_FEEDBACK_KEY, kind);
+    haptic(kind === 'like' ? 25 : 15);
+
+    if (kind === 'like') {
+        if (typeof confetti === 'function') {
+            confetti({ particleCount: 50, spread: 65, startVelocity: 28, origin: { y: 0.65 } });
+        }
+        showToast('❤️ Thanks for the love!', 'success');
+        renderTourStep(); // refresh buttons to show the chosen/disabled state
+    } else {
+        showToast('😕 Sorry to hear that — tell us what to fix below.', 'info', 4000);
+        endTour();
+        setTimeout(() => {
+            document.getElementById('suggestionSection')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            document.getElementById('suggestionText')?.focus();
+        }, 300);
+    }
+}
+
 function renderTourStep() {
     const step = TOUR_STEPS[tourIndex];
     const card = document.getElementById('tourCard');
@@ -1279,6 +1514,7 @@ function renderTourStep() {
         <div class="tour-icon"><i class="fas ${step.icon}"></i></div>
         <h2 class="tour-title">${step.title}</h2>
         <p class="tour-text">${step.text}</p>
+        ${tourIndex === TOUR_STEPS.length - 1 ? renderTourFeedbackHtml() : ''}
         <div class="tour-actions">
             <button class="tour-skip" onclick="skipTour()">Skip</button>
             <button class="tour-next" onclick="nextTourStep()">${tourIndex === TOUR_STEPS.length - 1 ? 'Get Started <i class="fas fa-check"></i>' : 'Next <i class="fas fa-arrow-right"></i>'}</button>
@@ -1308,16 +1544,24 @@ function renderTourStep() {
 
         const cardWidth = Math.min(340, window.innerWidth - 40);
         card.style.width = cardWidth + 'px';
+        const cardHeight = card.offsetHeight;
 
+        // Only place the card above/below the target if it actually fits there.
+        // A target that fills most of the viewport (e.g. the whole input form)
+        // leaves no real room either way, so fall back to just centering the
+        // card over everything instead of pushing it off-screen.
         const spaceBelow = window.innerHeight - rect.bottom;
         const spaceAbove = rect.top;
         let top;
-        if (spaceBelow > 260 || spaceBelow > spaceAbove) {
+        if (spaceBelow >= cardHeight + 24) {
             top = rect.bottom + pad + 14;
+        } else if (spaceAbove >= cardHeight + 24) {
+            top = rect.top - pad - 14 - cardHeight;
         } else {
-            top = rect.top - pad - 14 - 260; // approx card height, clamped below
-            if (top < 10) top = 10;
+            top = (window.innerHeight - cardHeight) / 2;
         }
+        top = Math.max(10, Math.min(top, window.innerHeight - cardHeight - 10));
+
         let left = rect.left + rect.width / 2 - cardWidth / 2;
         left = Math.max(20, Math.min(left, window.innerWidth - cardWidth - 20));
 
@@ -1354,19 +1598,19 @@ let g_chart = null;
 let g_currentFilter = 'all';
 let g_currentSort = null;
 
-// ===== THEME MANAGEMENT =====
-(function initTheme() {
-    const saved = localStorage.getItem('theme') || 
-        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    document.documentElement.setAttribute('data-theme', saved);
-    applyCustomThemeIfSaved();
-})();
-
 // ===== THEME STUDIO (custom user colors) =====
 // User picks 3 colors -> we override the same CSS variables the built-in
 // light/dark themes already use, then persist as JSON in localStorage.
 // This works on top of light/dark mode, doesn't fight with it.
 const CUSTOM_THEME_KEY = 'custom_theme_v1';
+
+// ===== THEME MANAGEMENT =====
+(function initTheme() {
+    const saved = localStorage.getItem('theme') ||
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', saved);
+    applyCustomThemeIfSaved();
+})();
 
 function applyCustomThemeIfSaved() {
     const saved = localStorage.getItem(CUSTOM_THEME_KEY);
