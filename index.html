@@ -1285,39 +1285,94 @@
         </div>
     </div>
 
-    <!-- ===== STUDENT DEALS SECTION ===== -->
-    <div class="glass-card" id="dealsSection" style="padding: 25px; margin-bottom: 25px;">
+    <!-- ===== STUDENT DEALS SECTION (VISUAL) ===== -->
+    <div class="glass-card" id="dealsSection" style="padding: 25px; margin-bottom: 25px; overflow: hidden;">
         <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px;">
             <div style="background: linear-gradient(135deg, #f59e0b, #d97706); width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; color:white; font-size:1.2rem; box-shadow:0 4px 10px rgba(245,158,11,0.3);">
                 <i class="fas fa-shopping-bag"></i>
             </div>
             <div>
-                <h3 style="margin:0; font-size:1.1rem; color:var(--text-main);">Student Deals</h3>
-                <p style="margin:0; font-size:0.8rem; color:var(--text-light); font-weight:600;">Powered by Amazon</p>
+                <h3 style="margin:0; font-size:1.1rem; color:var(--text-main);">Trending Top Picks ✨</h3>
+                <p style="margin:0; font-size:0.8rem; color:var(--text-light); font-weight:600;">Curated for you by Amazon</p>
             </div>
         </div>
-        
-        <div style="display:flex; gap:8px; margin-bottom:15px;">
+
+        <div style="display:flex; gap:8px; margin-bottom:18px;">
             <input type="text" id="amazonSearchInput" placeholder="Search laptops, books, gadgets..." style="flex:1; padding:12px 15px; border-radius:12px; border:2px solid var(--card-border); background:var(--input-bg); color:var(--text-main); font-family:inherit; outline:none;" onkeydown="if(event.key === 'Enter') searchAmazon()">
             <button onclick="searchAmazon()" style="background:var(--theme-color); color:white; border:none; border-radius:12px; padding:0 20px; font-weight:700; cursor:pointer; box-shadow:0 4px 10px rgba(79,70,229,0.3); transition:transform 0.2s;">
                 <i class="fas fa-search"></i>
             </button>
         </div>
-        
-        <div style="display:flex; gap:10px; overflow-x:auto; padding-bottom:5px; scrollbar-width:none;" class="hide-scroll">
-            <button onclick="openAmazonCategory('laptop for college students')" style="white-space:nowrap; background:var(--card-bg); border:1px solid var(--card-border); padding:8px 15px; border-radius:50px; font-size:0.85rem; font-weight:600; color:var(--text-main); cursor:pointer; display:flex; align-items:center; gap:6px;">
-                💻 Laptops
-            </button>
-            <button onclick="openAmazonCategory('trendy fashion dresses')" style="white-space:nowrap; background:var(--card-bg); border:1px solid var(--card-border); padding:8px 15px; border-radius:50px; font-size:0.85rem; font-weight:600; color:var(--text-main); cursor:pointer; display:flex; align-items:center; gap:6px;">
-                👗 Fashion
-            </button>
-            <button onclick="openAmazonCategory('engineering books')" style="white-space:nowrap; background:var(--card-bg); border:1px solid var(--card-border); padding:8px 15px; border-radius:50px; font-size:0.85rem; font-weight:600; color:var(--text-main); cursor:pointer; display:flex; align-items:center; gap:6px;">
-                📚 Books
-            </button>
-            <button onclick="openAmazonCategory('study lamp')" style="white-space:nowrap; background:var(--card-bg); border:1px solid var(--card-border); padding:8px 15px; border-radius:50px; font-size:0.85rem; font-weight:600; color:var(--text-main); cursor:pointer; display:flex; align-items:center; gap:6px;">
-                💡 Gadgets
-            </button>
+
+        <div id="visualDealsContainer" style="display:flex; gap:12px; overflow-x:auto; padding-bottom:10px; scrollbar-width:none; scroll-snap-type: x mandatory;" class="hide-scroll">
+            <!-- Cards will be dynamically injected here by JS -->
         </div>
+        
+        <style>
+            .deal-card {
+                min-width: 160px;
+                height: 200px;
+                border-radius: 16px;
+                position: relative;
+                overflow: hidden;
+                scroll-snap-align: start;
+                flex-shrink: 0;
+                cursor: pointer;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                transition: transform 0.3s ease;
+                border: 1px solid var(--card-border);
+            }
+            .deal-card:hover {
+                transform: translateY(-5px);
+            }
+            .deal-img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.5s ease;
+            }
+            .deal-card:hover .deal-img {
+                transform: scale(1.08);
+            }
+            .deal-overlay {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 60%;
+                background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 50%, transparent 100%);
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-end;
+                padding: 15px;
+            }
+            .deal-title {
+                color: white;
+                margin: 0;
+                font-size: 0.9rem;
+                font-weight: 800;
+                line-height: 1.2;
+                text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            }
+            .deal-btn {
+                background: rgba(255,255,255,0.2);
+                backdrop-filter: blur(5px);
+                color: white;
+                border: 1px solid rgba(255,255,255,0.3);
+                padding: 5px 10px;
+                border-radius: 50px;
+                font-size: 0.7rem;
+                font-weight: 700;
+                margin-top: 8px;
+                width: fit-content;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+            @media (max-width: 480px) {
+                .deal-card { min-width: 140px; height: 180px; }
+            }
+        </style>
     </div>
 
     <!-- ===== SUPPORT SECTION ===== -->
@@ -1384,15 +1439,47 @@
 
 <script>
 // ===== STUDENT DEALS & SUPPORT (AMAZON & UPI) =====
+const amazonCategories = [
+    { id: 'fashion', title: '👗 Trendy Fashion', img: 'https://images.unsplash.com/photo-1515347619152-4b8c946fcd98?w=400&q=80', keyword: 'trendy fashion dresses for college' },
+    { id: 'laptop', title: '💻 College Laptops', img: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&q=80', keyword: 'laptops for college students' },
+    { id: 'gadget', title: '🎧 Tech Gadgets', img: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80', keyword: 'tech gadgets for students' },
+    { id: 'gift', title: '🎁 Unique Gifts', img: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=400&q=80', keyword: 'unique gifts for friends' },
+    { id: 'book', title: '📚 Engg. Books', img: 'https://images.unsplash.com/photo-1456406644174-8ddd4cd52a06?w=400&q=80', keyword: 'engineering books' }
+];
+
+function renderVisualDeals() {
+    const container = document.getElementById('visualDealsContainer');
+    if (!container) return;
+    
+    // Sort based on local preference
+    const pref = localStorage.getItem('amazon_pref_category');
+    let sortedCategories = [...amazonCategories];
+    if (pref) {
+        sortedCategories.sort((a, b) => (a.id === pref ? -1 : (b.id === pref ? 1 : 0)));
+    }
+    
+    container.innerHTML = sortedCategories.map(cat => `
+        <div class="deal-card" onclick="openVisualCategory('${cat.id}', '${cat.keyword}')">
+            <img src="${cat.img}" class="deal-img" loading="lazy" alt="${cat.title}">
+            <div class="deal-overlay">
+                <h4 class="deal-title">${cat.title}</h4>
+                <div class="deal-btn">Shop <i class="fas fa-external-link-alt"></i></div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function openVisualCategory(id, keyword) {
+    localStorage.setItem('amazon_pref_category', id);
+    const url = `https://www.amazon.in/s?k=${encodeURIComponent(keyword)}&tag=academicpro-21`;
+    window.open(url, '_blank');
+    renderVisualDeals(); // Re-render to push it to the front immediately
+}
+
 function searchAmazon() {
     const query = document.getElementById('amazonSearchInput').value.trim();
     if (!query) return;
     const url = `https://www.amazon.in/s?k=${encodeURIComponent(query)}&tag=academicpro-21`;
-    window.open(url, '_blank');
-}
-
-function openAmazonCategory(category) {
-    const url = `https://www.amazon.in/s?k=${encodeURIComponent(category)}&tag=academicpro-21`;
     window.open(url, '_blank');
 }
 
@@ -1403,6 +1490,8 @@ function copyUPI() {
         showToast("❌ Failed to copy", "error");
     });
 }
+
+document.addEventListener('DOMContentLoaded', renderVisualDeals);
 
 // ===== LIVE VISITOR / STUDENT COUNTER =====
 // Backed by our own netlify/functions/visit-count.js (Netlify Blobs), keyed
