@@ -575,7 +575,7 @@
             background-size: 300% 100%;
             animation: marqueeGradient 8s ease infinite;
             box-shadow: 0 2px 10px rgba(67, 56, 202, 0.35);
-            padding: 9px 0;
+            padding: 7px 0 7px 10px; display: flex; align-items: center; gap: 8px;
         }
         [data-theme="dark"] .top-marquee {
             background: linear-gradient(90deg, #1e1b4b, #4c1d95, #6d28d9, #4c1d95, #1e1b4b);
@@ -586,6 +586,7 @@
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
+        .marquee-track-container { flex: 1; overflow: hidden; position: relative; mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); }
         .marquee-track {
             display: flex; align-items: center; white-space: nowrap;
             animation: marqueeScroll 18s linear infinite;
@@ -604,6 +605,11 @@
         .marquee-item i { font-size: 0.8rem; }
         .marquee-item:hover, .marquee-item:active { background: rgba(255,255,255,0.18); }
         .marquee-sep { color: rgba(255,255,255,0.5); margin: 0 8px; font-size: 0.7rem; }
+        .banner-buttons { display: flex; gap: 6px; padding-right: 10px; flex-shrink: 0; }
+        .banner-btn { background: rgba(255, 255, 255, 0.15); color: white; border: 1px solid rgba(255, 255, 255, 0.3); padding: 5px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s; backdrop-filter: blur(5px); display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+        .banner-btn:hover { background: rgba(255, 255, 255, 0.3); transform: scale(1.05); }
+        .banner-btn:active { transform: scale(0.95); }
+        @media (max-width: 480px) { .banner-btn .hide-mobile { display: none; } }
 
         /* ===== STATS COUNTER ===== */
         .stats-card { text-align: center; padding: 26px 20px; position: relative; overflow: hidden; }
@@ -930,23 +936,33 @@
 <body>
 
     <div id="topMarquee" class="top-marquee">
-        <div class="marquee-track">
-            <span class="marquee-item" onclick="scrollToSection('suggestionSection')">
-                ✨ New Update: Spiderman, Iron Man & Avengers Themes added! ✨
-            </span>
-            <span class="marquee-sep">✦</span>
-            <span class="marquee-item" onclick="scrollToSection('supportSection')">
-                ✨ New Update: Spiderman, Iron Man & Avengers Themes added! ✨
-            </span>
-            <span class="marquee-sep">✦</span>
-            <span class="marquee-item" onclick="scrollToSection('suggestionSection')">
-                ✨ New Update: Spiderman, Iron Man & Avengers Themes added! ✨
-            </span>
-            <span class="marquee-sep">✦</span>
-            <span class="marquee-item" onclick="scrollToSection('supportSection')">
-                ✨ New Update: Spiderman, Iron Man & Avengers Themes added! ✨
-            </span>
-            <span class="marquee-sep">✦</span>
+        <div class="marquee-track-container">
+            <div class="marquee-track">
+                <span class="marquee-item" onclick="scrollToSection('suggestionSection')">
+                    ✨ New Update: Spiderman, Iron Man & Avengers Themes added! ✨
+                </span>
+                <span class="marquee-sep">✦</span>
+                <span class="marquee-item" onclick="scrollToSection('supportSection')">
+                    ✨ New Update: Spiderman, Iron Man & Avengers Themes added! ✨
+                </span>
+                <span class="marquee-sep">✦</span>
+                <span class="marquee-item" onclick="scrollToSection('suggestionSection')">
+                    ✨ New Update: Spiderman, Iron Man & Avengers Themes added! ✨
+                </span>
+                <span class="marquee-sep">✦</span>
+                <span class="marquee-item" onclick="scrollToSection('supportSection')">
+                    ✨ New Update: Spiderman, Iron Man & Avengers Themes added! ✨
+                </span>
+                <span class="marquee-sep">✦</span>
+            </div>
+        </div>
+        <div class="banner-buttons">
+            <button class="banner-btn" onclick="scrollToSection('suggestionSection')" title="Suggestion">
+                <i class="fas fa-lightbulb"></i> <span class="hide-mobile">Suggest</span>
+            </button>
+            <button class="banner-btn" onclick="scrollToSection('supportSection')" title="Payment/Support">
+                <i class="fas fa-coffee"></i> <span class="hide-mobile">Support</span>
+            </button>
         </div>
     </div>
 
