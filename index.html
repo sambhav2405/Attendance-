@@ -86,8 +86,12 @@
             background: linear-gradient(-45deg, #0b0f1a, #131c2e, #17233a, #0d1220, #101828);
         }
 
-        /* ===== SPIDERMAN THEME 🕷️ (Night Mode Optimized) ===== */
-        [data-theme="spiderman"] {
+        /* ===== SPIDERMAN THEME 🕷️ ===== */
+        [data-theme^="spiderman"] .glass-card { box-shadow: 0 10px 40px rgba(220,38,38,0.2); }
+        [data-theme^="spiderman"] .btn-main { background: linear-gradient(135deg, #dc2626, #2563eb); color: white; }
+        [data-theme^="spiderman"] .version-badge { background: #2563eb; color: white; }
+        
+        [data-theme="spiderman-dark"] {
             --glass-bg: rgba(20, 0, 0, 0.85);
             --glass-border: rgba(220, 38, 38, 0.4);
             --text-main: #f87171;
@@ -104,37 +108,63 @@
             --result-bg: rgba(0, 0, 0, 0.9);
             --theme-color: #dc2626;
         }
-        [data-theme="spiderman"] body {
-            background: 
-                radial-gradient(circle at 50% 50%, rgba(220, 38, 38, 0.05) 0%, transparent 60%),
-                repeating-radial-gradient(
-                    circle at 50% 50%, 
-                    transparent 0, 
-                    transparent 40px, 
-                    rgba(220, 38, 38, 0.1) 41px, 
-                    rgba(220, 38, 38, 0.1) 42px
-                ),
-                repeating-conic-gradient(
-                    from 0deg at 50% 50%, 
-                    rgba(220, 38, 38, 0.1) 0deg 1deg, 
-                    transparent 2deg 14deg,
-                    rgba(220, 38, 38, 0.1) 15deg
-                ),
-                linear-gradient(-45deg, #050505, #111827);
+        [data-theme="spiderman-dark"] body {
+            background: radial-gradient(circle at 50% 50%, rgba(220, 38, 38, 0.05) 0%, transparent 60%), repeating-radial-gradient(circle at 50% 50%, transparent 0, transparent 40px, rgba(220, 38, 38, 0.1) 41px, rgba(220, 38, 38, 0.1) 42px), repeating-conic-gradient(from 0deg at 50% 50%, rgba(220, 38, 38, 0.1) 0deg 1deg, transparent 2deg 14deg, rgba(220, 38, 38, 0.1) 15deg), linear-gradient(-45deg, #050505, #111827);
             animation: none;
         }
-        [data-theme="spiderman"] .glass-card { box-shadow: 0 10px 40px rgba(220,38,38,0.2); }
-        [data-theme="spiderman"] .btn-main { background: linear-gradient(135deg, #dc2626, #2563eb); color: white; }
-        [data-theme="spiderman"] .version-badge { background: #2563eb; color: white; }
+
+        [data-theme="spiderman-light"] {
+            --glass-bg: rgba(255, 240, 240, 0.95);
+            --glass-border: rgba(220, 38, 38, 0.4);
+            --text-main: #b91c1c;
+            --text-light: #4b5563;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(37, 99, 235, 0.4);
+            --input-bg: rgba(255, 255, 255, 0.9);
+            --stat-bg: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(37, 99, 235, 0.1));
+            --skeleton-base: #fee2e2;
+            --skeleton-shine: rgba(220, 38, 38, 0.15);
+            --toggle-bg: #fee2e2;
+            --toggle-text: #b91c1c;
+            --hr-color: rgba(37, 99, 235, 0.3);
+            --result-bg: rgba(255, 255, 255, 0.9);
+            --theme-color: #dc2626;
+        }
+        [data-theme="spiderman-light"] body {
+            background: radial-gradient(circle at 50% 50%, rgba(220, 38, 38, 0.05) 0%, transparent 60%), repeating-radial-gradient(circle at 50% 50%, transparent 0, transparent 40px, rgba(220, 38, 38, 0.05) 41px, rgba(220, 38, 38, 0.05) 42px), repeating-conic-gradient(from 0deg at 50% 50%, rgba(220, 38, 38, 0.05) 0deg 1deg, transparent 2deg 14deg, rgba(220, 38, 38, 0.05) 15deg), linear-gradient(-45deg, #fef2f2, #eff6ff);
+            animation: none;
+        }
 
         /* Crawling Spiders */
         .little-spider {
             position: fixed; z-index: 9999; font-size: 1.5rem; cursor: crosshair;
             transition: top 0.8s ease-out, left 0.8s ease-out, transform 0.2s;
         }
+        /* Hanging Spiders */
+        .hanging-spider {
+            position: fixed; top: 0; width: 1.5px; background: rgba(150,150,150,0.6); z-index: 9998;
+            animation: spiderSwing 4s infinite ease-in-out alternate; transform-origin: top center;
+        }
+        .hanging-spider::after {
+            content: '🕷️'; font-size: 1.5rem; position: absolute; bottom: -20px; left: -12px;
+        }
+        @keyframes spiderSwing { 0% { transform: rotate(-5deg); } 100% { transform: rotate(5deg); } }
 
         /* ===== IRON MAN THEME 🤖 ===== */
-        [data-theme="ironman"] {
+        [data-theme^="ironman"] .glass-card { 
+            box-shadow: 0 0 20px rgba(34, 211, 238, 0.15), inset 0 0 10px rgba(251, 191, 36, 0.05); 
+            border: 1px solid rgba(251, 191, 36, 0.4); position: relative;
+        }
+        [data-theme^="ironman"] h1 {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+        }
+        [data-theme^="ironman"] .btn-main { background: linear-gradient(135deg, #b91c1c, #991b1b); color: #fbbf24; box-shadow: 0 0 15px rgba(220, 38, 38, 0.4); border: 1px solid #fbbf24; }
+        [data-theme^="ironman"] .version-badge { background: #22d3ee; color: #000; box-shadow: 0 0 10px #22d3ee; }
+        [data-theme^="ironman"] #arc-reactor { display: block; }
+
+        [data-theme="ironman-dark"] {
             --glass-bg: rgba(20, 5, 5, 0.85); 
             --glass-border: rgba(251, 191, 36, 0.4);
             --text-main: #22d3ee;
@@ -151,23 +181,34 @@
             --result-bg: rgba(0, 0, 0, 0.9);
             --theme-color: #fbbf24;
         }
-        [data-theme="ironman"] body {
+        [data-theme="ironman-dark"] body {
             background: linear-gradient(135deg, #2b0000, #450000, #1a0000);
             background-size: 200% 200%;
             animation: gradientBG 15s ease infinite;
         }
-        [data-theme="ironman"] .glass-card { 
-            box-shadow: 0 0 20px rgba(34, 211, 238, 0.15), inset 0 0 10px rgba(251, 191, 36, 0.05); 
-            border: 1px solid rgba(251, 191, 36, 0.4);
-            position: relative;
+
+        [data-theme="ironman-light"] {
+            --glass-bg: rgba(255, 250, 240, 0.95);
+            --glass-border: rgba(251, 191, 36, 0.6);
+            --text-main: #b91c1c;
+            --text-light: #b45309;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(251, 191, 36, 0.6);
+            --input-bg: rgba(255, 255, 255, 0.9);
+            --stat-bg: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(251, 191, 36, 0.15));
+            --skeleton-base: #fef3c7;
+            --skeleton-shine: rgba(251, 191, 36, 0.25);
+            --toggle-bg: #fef3c7;
+            --toggle-text: #b91c1c;
+            --hr-color: rgba(251, 191, 36, 0.5);
+            --result-bg: rgba(255, 255, 255, 0.9);
+            --theme-color: #dc2626;
         }
-        [data-theme="ironman"] h1 {
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+        [data-theme="ironman-light"] body {
+            background: linear-gradient(135deg, #fef2f2, #fffbeb);
+            background-size: 200% 200%;
+            animation: gradientBG 15s ease infinite;
         }
-        [data-theme="ironman"] .btn-main { background: linear-gradient(135deg, #b91c1c, #991b1b); color: #fbbf24; box-shadow: 0 0 15px rgba(220, 38, 38, 0.4); border: 1px solid #fbbf24; }
-        [data-theme="ironman"] .version-badge { background: #22d3ee; color: #000; box-shadow: 0 0 10px #22d3ee; }
 
         #arc-reactor {
             display: none; position: fixed; bottom: 30px; right: 30px; z-index: 9998;
@@ -177,7 +218,6 @@
             border: 4px solid #94a3b8; cursor: pointer;
             animation: reactorPulse 2s infinite alternate;
         }
-        [data-theme="ironman"] #arc-reactor { display: block; }
         @keyframes reactorPulse { 0% { box-shadow: 0 0 15px #22d3ee, inset 0 0 10px #fff; transform: scale(1); } 100% { box-shadow: 0 0 35px #67e8f9, inset 0 0 20px #fff; transform: scale(1.05); } }
         
         #repulsor-flash {
@@ -186,7 +226,17 @@
         }
 
         /* ===== AVENGERS THEME 🛡️ ===== */
-        [data-theme="avengers"] {
+        [data-theme^="avengers"] .glass-card { box-shadow: 0 10px 40px rgba(139, 92, 246, 0.15); }
+        [data-theme^="avengers"] h1 {
+            background: linear-gradient(135deg, #c4b5fd, #8b5cf6);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+        }
+        [data-theme^="avengers"] .btn-main { background: linear-gradient(135deg, #4c1d95, #2e1065); color: #ddd6fe; box-shadow: 0 0 15px rgba(139, 92, 246, 0.4); border: 1px solid #8b5cf6; }
+        [data-theme^="avengers"] .version-badge { background: #8b5cf6; color: white; }
+        [data-theme^="avengers"] #cosmic-particles { display: block; }
+
+        [data-theme="avengers-dark"] {
             --glass-bg: rgba(15, 10, 25, 0.85); 
             --glass-border: rgba(139, 92, 246, 0.4);
             --text-main: #ddd6fe;
@@ -203,25 +253,37 @@
             --result-bg: rgba(0, 0, 0, 0.9);
             --theme-color: #8b5cf6;
         }
-        [data-theme="avengers"] body {
+        [data-theme="avengers-dark"] body {
             background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
             animation: none;
         }
-        [data-theme="avengers"] .glass-card { 
-            box-shadow: 0 10px 40px rgba(139, 92, 246, 0.15); 
+
+        [data-theme="avengers-light"] {
+            --glass-bg: rgba(250, 245, 255, 0.95);
+            --glass-border: rgba(139, 92, 246, 0.4);
+            --text-main: #4c1d95;
+            --text-light: #6d28d9;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(139, 92, 246, 0.4);
+            --input-bg: rgba(255, 255, 255, 0.9);
+            --stat-bg: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(139, 92, 246, 0.1));
+            --skeleton-base: #f3e8ff;
+            --skeleton-shine: rgba(139, 92, 246, 0.15);
+            --toggle-bg: #f3e8ff;
+            --toggle-text: #4c1d95;
+            --hr-color: rgba(139, 92, 246, 0.3);
+            --result-bg: rgba(255, 255, 255, 0.9);
+            --theme-color: #8b5cf6;
         }
-        [data-theme="avengers"] h1 {
-            background: linear-gradient(135deg, #c4b5fd, #8b5cf6);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+        [data-theme="avengers-light"] body {
+            background: linear-gradient(135deg, #f5f3ff, #eef2ff);
+            animation: none;
         }
-        [data-theme="avengers"] .btn-main { background: linear-gradient(135deg, #4c1d95, #2e1065); color: #ddd6fe; box-shadow: 0 0 15px rgba(139, 92, 246, 0.4); border: 1px solid #8b5cf6; }
-        [data-theme="avengers"] .version-badge { background: #8b5cf6; color: white; }
+        [data-theme="avengers-light"] .particle { background: #8b5cf6 !important; box-shadow: 0 0 10px #8b5cf6 !important; }
 
         #cosmic-particles {
             display: none; position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden;
         }
-        [data-theme="avengers"] #cosmic-particles { display: block; }
         .particle {
             position: absolute; width: 4px; height: 4px; background: #fff; border-radius: 50%;
             animation: floatParticle 10s infinite linear;
@@ -1879,9 +1941,9 @@ const CUSTOM_THEME_KEY = 'custom_theme_v1';
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     document.documentElement.setAttribute('data-theme', saved);
     applyCustomThemeIfSaved();
-    if (saved === 'spiderman') setTimeout(initSpiderFeatures, 500);
-    else if (saved === 'ironman') setTimeout(initIronManFeatures, 500);
-    else if (saved === 'avengers') setTimeout(initAvengersFeatures, 500);
+    if (saved.startsWith('spiderman')) setTimeout(initSpiderFeatures, 500);
+    else if (saved.startsWith('ironman')) setTimeout(initIronManFeatures, 500);
+    else if (saved.startsWith('avengers')) setTimeout(initAvengersFeatures, 500);
 })();
 
 function applyCustomThemeIfSaved() {
@@ -1979,7 +2041,7 @@ function resetThemeStudio() {
     
     // Also reset special theme
     const current = document.documentElement.getAttribute('data-theme');
-    if (['spiderman', 'ironman', 'avengers'].includes(current)) {
+    if (current.startsWith('spiderman') || current.startsWith('ironman') || current.startsWith('avengers')) {
         const next = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', next);
         localStorage.setItem('theme', next);
@@ -1997,8 +2059,12 @@ function applySpecialTheme(name) {
     localStorage.removeItem(CUSTOM_THEME_KEY);
     clearCustomThemeVars();
     
-    document.documentElement.setAttribute('data-theme', name);
-    localStorage.setItem('theme', name);
+    const current = document.documentElement.getAttribute('data-theme');
+    const isLight = current.includes('light') || current === 'light';
+    const fullName = name + (isLight ? '-light' : '-dark');
+    
+    document.documentElement.setAttribute('data-theme', fullName);
+    localStorage.setItem('theme', fullName);
     
     removeAllSpecialFeatures();
     
@@ -2027,11 +2093,21 @@ function removeAllSpecialFeatures() {
 function initSpiderFeatures() {
     if (spidermanInterval) clearInterval(spidermanInterval);
     for(let i=0; i<4; i++) spawnLittleSpider();
+    spawnHangingSpider(15);
+    spawnHangingSpider(85);
     spidermanInterval = setInterval(spawnLittleSpider, 5000);
+}
+function spawnHangingSpider(leftPercent) {
+    const s = document.createElement('div');
+    s.className = 'hanging-spider';
+    s.style.left = leftPercent + 'vw';
+    s.style.height = (Math.random() * 20 + 20) + 'vh';
+    document.body.appendChild(s);
 }
 function removeSpiderFeatures() {
     if (spidermanInterval) clearInterval(spidermanInterval);
     document.querySelectorAll('.little-spider').forEach(s => s.remove());
+    document.querySelectorAll('.hanging-spider').forEach(s => s.remove());
 }
 function spawnLittleSpider() {
     if (document.querySelectorAll('.little-spider').length > 8) return;
@@ -2127,11 +2203,15 @@ function toggleDarkMode() {
     const current = html.getAttribute('data-theme');
     
     let next;
-    if (['spiderman', 'ironman', 'avengers'].includes(current)) {
-        next = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'light' : 'dark';
-        removeAllSpecialFeatures();
+    if (current.startsWith('spiderman')) {
+        next = current === 'spiderman-dark' ? 'spiderman-light' : 'spiderman-dark';
+    } else if (current.startsWith('ironman')) {
+        next = current === 'ironman-dark' ? 'ironman-light' : 'ironman-dark';
+    } else if (current.startsWith('avengers')) {
+        next = current === 'avengers-dark' ? 'avengers-light' : 'avengers-dark';
     } else {
         next = current === 'dark' ? 'light' : 'dark';
+        removeAllSpecialFeatures();
     }
     
     html.setAttribute('data-theme', next);
@@ -2141,7 +2221,7 @@ function toggleDarkMode() {
     clearCustomThemeVars();
     
     haptic(30);
-    showToast(next === 'dark' ? '🌙 Dark Mode On' : '☀️ Light Mode On', 'info');
+    showToast(next.includes('dark') ? '🌙 Dark Mode On' : '☀️ Light Mode On', 'info');
 
     if (g_chart) {
         setTimeout(() => renderChart(g_chart.config.type === 'bar' ? 'bar' : 'doughnut'), 100);
