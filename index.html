@@ -86,95 +86,151 @@
             background: linear-gradient(-45deg, #0b0f1a, #131c2e, #17233a, #0d1220, #101828);
         }
 
-        /* ===== SPIDERMAN THEME 🕷️ ===== */
+        /* ===== SPIDERMAN THEME 🕷️ (Night Mode Optimized) ===== */
         [data-theme="spiderman"] {
-            --glass-bg: rgba(220, 38, 38, 0.08); /* slight red tint */
-            --glass-border: rgba(220, 38, 38, 0.3);
-            --text-main: #1f2937;
-            --text-light: #4b5563;
-            --card-bg: rgba(255, 255, 255, 0.95);
-            --card-border: rgba(37, 99, 235, 0.3); /* blue border */
-            --input-bg: rgba(255, 255, 255, 0.9);
-            --stat-bg: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(220,38,38,0.05));
-            --skeleton-base: #e5e7eb;
-            --skeleton-shine: rgba(220, 38, 38, 0.1);
-            --toggle-bg: #f8fafc;
-            --toggle-text: #1e293b;
-            --hr-color: rgba(37, 99, 235, 0.2);
-            --result-bg: rgba(255, 255, 255, 0.9);
-            --theme-color: #dc2626; /* Spiderman Red */
+            --glass-bg: rgba(20, 0, 0, 0.85);
+            --glass-border: rgba(220, 38, 38, 0.4);
+            --text-main: #f87171;
+            --text-light: #9ca3af;
+            --card-bg: rgba(10, 10, 15, 0.95);
+            --card-border: rgba(37, 99, 235, 0.4);
+            --input-bg: rgba(0, 0, 0, 0.8);
+            --stat-bg: linear-gradient(135deg, rgba(20,0,0,0.9), rgba(37, 99, 235, 0.05));
+            --skeleton-base: rgba(40,20,20,0.8);
+            --skeleton-shine: rgba(220, 38, 38, 0.15);
+            --toggle-bg: rgba(20,0,0,0.8);
+            --toggle-text: #f87171;
+            --hr-color: rgba(37, 99, 235, 0.3);
+            --result-bg: rgba(0, 0, 0, 0.9);
+            --theme-color: #dc2626;
         }
         [data-theme="spiderman"] body {
             background: 
-                radial-gradient(circle at 100% 0%, rgba(220, 38, 38, 0.2) 0%, transparent 40%),
-                radial-gradient(circle at 0% 100%, rgba(37, 99, 235, 0.2) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(220, 38, 38, 0.05) 0%, transparent 60%),
                 repeating-radial-gradient(
-                    circle at 50% -20%, 
+                    circle at 50% 50%, 
                     transparent 0, 
                     transparent 40px, 
-                    rgba(220, 38, 38, 0.05) 41px, 
-                    rgba(220, 38, 38, 0.05) 42px
+                    rgba(220, 38, 38, 0.1) 41px, 
+                    rgba(220, 38, 38, 0.1) 42px
                 ),
                 repeating-conic-gradient(
-                    from 0deg at 50% -20%, 
-                    rgba(220, 38, 38, 0.05) 0deg 1deg, 
+                    from 0deg at 50% 50%, 
+                    rgba(220, 38, 38, 0.1) 0deg 1deg, 
                     transparent 2deg 14deg,
-                    rgba(220, 38, 38, 0.05) 15deg
+                    rgba(220, 38, 38, 0.1) 15deg
                 ),
-                linear-gradient(-45deg, #f8fafc, #e2e8f0);
+                linear-gradient(-45deg, #050505, #111827);
             animation: none;
         }
-        [data-theme="spiderman"] .glass-card { box-shadow: 0 10px 40px rgba(220,38,38,0.15); }
-        [data-theme="spiderman"] .btn-main { background: linear-gradient(135deg, #dc2626, #2563eb); }
-        [data-theme="spiderman"] .version-badge { background: #2563eb; }
+        [data-theme="spiderman"] .glass-card { box-shadow: 0 10px 40px rgba(220,38,38,0.2); }
+        [data-theme="spiderman"] .btn-main { background: linear-gradient(135deg, #dc2626, #2563eb); color: white; }
+        [data-theme="spiderman"] .version-badge { background: #2563eb; color: white; }
 
-        /* Interactive Spider CSS */
-        #spider-container {
-            display: none; position: fixed; top: -100px; left: 15%; z-index: 10000;
-            width: 2px; height: 150px; background: rgba(100,100,100,0.5);
-            cursor: pointer; transform-origin: top center; transition: top 0.5s cubic-bezier(0.34,1.56,0.64,1);
+        /* Crawling Spiders */
+        .little-spider {
+            position: fixed; z-index: 9999; font-size: 1.5rem; cursor: crosshair;
+            transition: top 0.8s ease-out, left 0.8s ease-out, transform 0.2s;
         }
-        [data-theme="spiderman"] #spider-container { display: flex; flex-direction: column; align-items: center; }
-        .spider-emoji {
-            font-size: 2rem; position: absolute; bottom: -20px;
-            animation: spiderSwing 4s ease-in-out infinite alternate; transform-origin: top center;
-        }
-        @keyframes spiderSwing { 0% { transform: rotate(-5deg); } 100% { transform: rotate(5deg); } }
 
-
-        /* ===== DHURANDER THEME 👑 ===== */
-        [data-theme="dhurander"] {
-            --glass-bg: rgba(10, 10, 10, 0.85); 
-            --glass-border: rgba(251, 191, 36, 0.3); /* Gold border */
-            --text-main: #fef08a; /* Soft yellow/gold text */
-            --text-light: #a1a1aa;
-            --card-bg: rgba(15, 15, 15, 0.9);
-            --card-border: rgba(251, 191, 36, 0.2);
+        /* ===== IRON MAN THEME 🤖 ===== */
+        [data-theme="ironman"] {
+            --glass-bg: rgba(20, 5, 5, 0.85); 
+            --glass-border: rgba(251, 191, 36, 0.4);
+            --text-main: #22d3ee;
+            --text-light: #fbbf24;
+            --card-bg: rgba(15, 5, 5, 0.95);
+            --card-border: rgba(34, 211, 238, 0.3);
             --input-bg: rgba(0, 0, 0, 0.8);
-            --stat-bg: linear-gradient(135deg, rgba(20,20,20,0.9), rgba(251, 191, 36, 0.05));
-            --skeleton-base: rgba(40,40,40,0.8);
+            --stat-bg: linear-gradient(135deg, rgba(20,5,5,0.9), rgba(34, 211, 238, 0.05));
+            --skeleton-base: rgba(40,20,20,0.8);
             --skeleton-shine: rgba(251, 191, 36, 0.15);
-            --toggle-bg: rgba(20,20,20,0.8);
-            --toggle-text: #fbbf24;
-            --hr-color: rgba(251, 191, 36, 0.2);
+            --toggle-bg: rgba(30,10,10,0.8);
+            --toggle-text: #22d3ee;
+            --hr-color: rgba(34, 211, 238, 0.3);
             --result-bg: rgba(0, 0, 0, 0.9);
-            --theme-color: #fbbf24; /* Gold */
+            --theme-color: #fbbf24;
         }
-        [data-theme="dhurander"] body {
-            background: linear-gradient(135deg, #000000, #111111, #0a0a0a);
+        [data-theme="ironman"] body {
+            background: linear-gradient(135deg, #2b0000, #450000, #1a0000);
             background-size: 200% 200%;
             animation: gradientBG 15s ease infinite;
         }
-        [data-theme="dhurander"] .glass-card { 
-            box-shadow: 0 10px 40px rgba(251, 191, 36, 0.1); 
+        [data-theme="ironman"] .glass-card { 
+            box-shadow: 0 0 20px rgba(34, 211, 238, 0.15), inset 0 0 10px rgba(251, 191, 36, 0.05); 
             border: 1px solid rgba(251, 191, 36, 0.4);
+            position: relative;
         }
-        [data-theme="dhurander"] h1 {
+        [data-theme="ironman"] h1 {
             background: linear-gradient(135deg, #fbbf24, #f59e0b);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
         }
-        [data-theme="dhurander"] .btn-main { background: linear-gradient(135deg, #d97706, #b45309); color: white; box-shadow: 0 8px 20px rgba(217, 119, 6, 0.3); }
-        [data-theme="dhurander"] .version-badge { background: #b45309; color: white; }
+        [data-theme="ironman"] .btn-main { background: linear-gradient(135deg, #b91c1c, #991b1b); color: #fbbf24; box-shadow: 0 0 15px rgba(220, 38, 38, 0.4); border: 1px solid #fbbf24; }
+        [data-theme="ironman"] .version-badge { background: #22d3ee; color: #000; box-shadow: 0 0 10px #22d3ee; }
+
+        #arc-reactor {
+            display: none; position: fixed; bottom: 30px; right: 30px; z-index: 9998;
+            width: 60px; height: 60px; border-radius: 50%;
+            background: radial-gradient(circle, #fff, #22d3ee 40%, #0891b2 80%, #164e63);
+            box-shadow: 0 0 20px #22d3ee, inset 0 0 10px #fff;
+            border: 4px solid #94a3b8; cursor: pointer;
+            animation: reactorPulse 2s infinite alternate;
+        }
+        [data-theme="ironman"] #arc-reactor { display: block; }
+        @keyframes reactorPulse { 0% { box-shadow: 0 0 15px #22d3ee, inset 0 0 10px #fff; transform: scale(1); } 100% { box-shadow: 0 0 35px #67e8f9, inset 0 0 20px #fff; transform: scale(1.05); } }
+        
+        #repulsor-flash {
+            position: fixed; inset: 0; background: #22d3ee; z-index: 10000; opacity: 0; pointer-events: none;
+            transition: opacity 0.2s ease-out;
+        }
+
+        /* ===== AVENGERS THEME 🛡️ ===== */
+        [data-theme="avengers"] {
+            --glass-bg: rgba(15, 10, 25, 0.85); 
+            --glass-border: rgba(139, 92, 246, 0.4);
+            --text-main: #ddd6fe;
+            --text-light: #a78bfa;
+            --card-bg: rgba(10, 5, 20, 0.95);
+            --card-border: rgba(139, 92, 246, 0.3);
+            --input-bg: rgba(0, 0, 0, 0.8);
+            --stat-bg: linear-gradient(135deg, rgba(15,10,25,0.9), rgba(139, 92, 246, 0.05));
+            --skeleton-base: rgba(30,20,40,0.8);
+            --skeleton-shine: rgba(139, 92, 246, 0.15);
+            --toggle-bg: rgba(20,10,30,0.8);
+            --toggle-text: #c4b5fd;
+            --hr-color: rgba(139, 92, 246, 0.3);
+            --result-bg: rgba(0, 0, 0, 0.9);
+            --theme-color: #8b5cf6;
+        }
+        [data-theme="avengers"] body {
+            background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+            animation: none;
+        }
+        [data-theme="avengers"] .glass-card { 
+            box-shadow: 0 10px 40px rgba(139, 92, 246, 0.15); 
+        }
+        [data-theme="avengers"] h1 {
+            background: linear-gradient(135deg, #c4b5fd, #8b5cf6);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+        }
+        [data-theme="avengers"] .btn-main { background: linear-gradient(135deg, #4c1d95, #2e1065); color: #ddd6fe; box-shadow: 0 0 15px rgba(139, 92, 246, 0.4); border: 1px solid #8b5cf6; }
+        [data-theme="avengers"] .version-badge { background: #8b5cf6; color: white; }
+
+        #cosmic-particles {
+            display: none; position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden;
+        }
+        [data-theme="avengers"] #cosmic-particles { display: block; }
+        .particle {
+            position: absolute; width: 4px; height: 4px; background: #fff; border-radius: 50%;
+            animation: floatParticle 10s infinite linear;
+        }
+        @keyframes floatParticle {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(-100px) scale(1.5); opacity: 0; }
+        }
 
 
         @keyframes gradientBG {
@@ -814,19 +870,19 @@
     <div id="topMarquee" class="top-marquee">
         <div class="marquee-track">
             <span class="marquee-item" onclick="scrollToSection('suggestionSection')">
-                <i class="fas fa-lightbulb"></i> Have an idea? Give us a suggestion
+                ✨ New Update: Spiderman, Iron Man & Avengers Themes added! ✨
             </span>
             <span class="marquee-sep">✦</span>
             <span class="marquee-item" onclick="scrollToSection('supportSection')">
-                <i class="fas fa-heart"></i> Check out Developer Support
+                ✨ New Update: Spiderman, Iron Man & Avengers Themes added! ✨
             </span>
             <span class="marquee-sep">✦</span>
             <span class="marquee-item" onclick="scrollToSection('suggestionSection')">
-                <i class="fas fa-lightbulb"></i> Have an idea? Give us a suggestion
+                ✨ New Update: Spiderman, Iron Man & Avengers Themes added! ✨
             </span>
             <span class="marquee-sep">✦</span>
             <span class="marquee-item" onclick="scrollToSection('supportSection')">
-                <i class="fas fa-heart"></i> Check out Developer Support
+                ✨ New Update: Spiderman, Iron Man & Avengers Themes added! ✨
             </span>
             <span class="marquee-sep">✦</span>
         </div>
@@ -1823,7 +1879,9 @@ const CUSTOM_THEME_KEY = 'custom_theme_v1';
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     document.documentElement.setAttribute('data-theme', saved);
     applyCustomThemeIfSaved();
-    if (saved === 'spiderman') initSpider();
+    if (saved === 'spiderman') setTimeout(initSpiderFeatures, 500);
+    else if (saved === 'ironman') setTimeout(initIronManFeatures, 500);
+    else if (saved === 'avengers') setTimeout(initAvengersFeatures, 500);
 })();
 
 function applyCustomThemeIfSaved() {
@@ -1921,16 +1979,19 @@ function resetThemeStudio() {
     
     // Also reset special theme
     const current = document.documentElement.getAttribute('data-theme');
-    if (current === 'spiderman' || current === 'dhurander') {
+    if (['spiderman', 'ironman', 'avengers'].includes(current)) {
         const next = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', next);
         localStorage.setItem('theme', next);
-        removeSpider();
+        removeAllSpecialFeatures();
     }
     
     closeThemeStudio();
     showToast('↩️ Back to default theme', 'info');
 }
+
+// ===== SPECIAL THEME FEATURES =====
+let spidermanInterval;
 
 function applySpecialTheme(name) {
     localStorage.removeItem(CUSTOM_THEME_KEY);
@@ -1939,49 +2000,146 @@ function applySpecialTheme(name) {
     document.documentElement.setAttribute('data-theme', name);
     localStorage.setItem('theme', name);
     
+    removeAllSpecialFeatures();
+    
     if (name === 'spiderman') {
-        initSpider();
-        showToast('🕷️ With great power...', 'success');
-    } else if (name === 'dhurander') {
-        removeSpider();
-        showToast('👑 Welcome, Dhurander!', 'success');
+        initSpiderFeatures();
+        showToast('🕷️ Spidey Senses Tingling...', 'success');
+    } else if (name === 'ironman') {
+        initIronManFeatures();
+        showToast('🤖 JARVIS Online.', 'success');
+    } else if (name === 'avengers') {
+        initAvengersFeatures();
+        showToast('🛡️ Avengers Assemble!', 'success');
     }
     
     closeThemeStudio();
     haptic(30);
 }
 
-// ===== SPIDER MINI GAME =====
-function initSpider() {
-    let spider = document.getElementById('spider-container');
-    if (!spider) {
-        spider = document.createElement('div');
-        spider.id = 'spider-container';
-        spider.onclick = pullSpider;
-        spider.innerHTML = '<div class="spider-emoji">🕷️</div>';
-        document.body.appendChild(spider);
+function removeAllSpecialFeatures() {
+    removeSpiderFeatures();
+    removeIronManFeatures();
+    removeAvengersFeatures();
+}
+
+// -- Spiderman --
+function initSpiderFeatures() {
+    if (spidermanInterval) clearInterval(spidermanInterval);
+    for(let i=0; i<4; i++) spawnLittleSpider();
+    spidermanInterval = setInterval(spawnLittleSpider, 5000);
+}
+function removeSpiderFeatures() {
+    if (spidermanInterval) clearInterval(spidermanInterval);
+    document.querySelectorAll('.little-spider').forEach(s => s.remove());
+}
+function spawnLittleSpider() {
+    if (document.querySelectorAll('.little-spider').length > 8) return;
+    const spider = document.createElement('div');
+    spider.className = 'little-spider';
+    spider.innerText = '🕷️';
+    
+    const startEdge = Math.floor(Math.random() * 4);
+    if(startEdge === 0) { spider.style.top = '-50px'; spider.style.left = Math.random()*100 + 'vw'; }
+    if(startEdge === 1) { spider.style.bottom = '-50px'; spider.style.left = Math.random()*100 + 'vw'; }
+    if(startEdge === 2) { spider.style.left = '-50px'; spider.style.top = Math.random()*100 + 'vh'; }
+    if(startEdge === 3) { spider.style.right = '-50px'; spider.style.top = Math.random()*100 + 'vh'; }
+    
+    document.body.appendChild(spider);
+    
+    setTimeout(() => {
+        spider.style.top = (Math.random() * 80 + 10) + 'vh';
+        spider.style.left = (Math.random() * 80 + 10) + 'vw';
+        spider.style.transform = `rotate(${Math.random() * 360}deg)`;
+    }, 100);
+    
+    spider.onmouseenter = scurrySpider;
+    spider.onclick = scurrySpider;
+    spider.ontouchstart = scurrySpider;
+}
+function scurrySpider(e) {
+    const spider = e.target;
+    haptic(10);
+    spider.style.top = (Math.random() > 0.5 ? '-100px' : '120vh');
+    spider.style.left = (Math.random() > 0.5 ? '-100px' : '120vw');
+    setTimeout(() => spider.remove(), 800);
+}
+
+// -- Iron Man --
+function initIronManFeatures() {
+    let reactor = document.getElementById('arc-reactor');
+    if (!reactor) {
+        reactor = document.createElement('div');
+        reactor.id = 'arc-reactor';
+        reactor.onclick = repulsorBlast;
+        document.body.appendChild(reactor);
+    }
+    let flash = document.getElementById('repulsor-flash');
+    if (!flash) {
+        flash = document.createElement('div');
+        flash.id = 'repulsor-flash';
+        document.body.appendChild(flash);
     }
 }
-function removeSpider() {
-    const spider = document.getElementById('spider-container');
-    if (spider) spider.remove();
+function removeIronManFeatures() {
+    const r = document.getElementById('arc-reactor');
+    if(r) r.remove();
+    const f = document.getElementById('repulsor-flash');
+    if(f) f.remove();
 }
-function pullSpider() {
-    const spider = document.getElementById('spider-container');
-    if (!spider) return;
-    haptic(40);
-    spider.style.top = '20px';
-    setTimeout(() => {
-        spider.style.top = '-100px';
-    }, 1000);
+function repulsorBlast() {
+    haptic([30, 50, 100]);
+    const flash = document.getElementById('repulsor-flash');
+    if(flash) {
+        flash.style.opacity = '0.8';
+        setTimeout(() => flash.style.opacity = '0', 200);
+    }
+}
+
+// -- Avengers --
+function initAvengersFeatures() {
+    let container = document.getElementById('cosmic-particles');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'cosmic-particles';
+        document.body.appendChild(container);
+        
+        const colors = ['#8b5cf6', '#fbbf24', '#dc2626', '#3b82f6', '#10b981', '#ffffff'];
+        for(let i=0; i<30; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.animationDelay = (Math.random() * 10) + 's';
+            p.style.animationDuration = (Math.random() * 5 + 5) + 's';
+            p.style.background = colors[Math.floor(Math.random() * colors.length)];
+            p.style.boxShadow = `0 0 10px ${p.style.background}`;
+            container.appendChild(p);
+        }
+    }
+}
+function removeAvengersFeatures() {
+    const c = document.getElementById('cosmic-particles');
+    if(c) c.remove();
 }
 
 function toggleDarkMode() {
     const html = document.documentElement;
     const current = html.getAttribute('data-theme');
-    const next = current === 'dark' ? 'light' : 'dark';
+    
+    let next;
+    if (['spiderman', 'ironman', 'avengers'].includes(current)) {
+        next = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'light' : 'dark';
+        removeAllSpecialFeatures();
+    } else {
+        next = current === 'dark' ? 'light' : 'dark';
+    }
+    
     html.setAttribute('data-theme', next);
     localStorage.setItem('theme', next);
+    
+    localStorage.removeItem(CUSTOM_THEME_KEY);
+    clearCustomThemeVars();
+    
     haptic(30);
     showToast(next === 'dark' ? '🌙 Dark Mode On' : '☀️ Light Mode On', 'info');
 
@@ -2710,10 +2868,12 @@ function shareResult() {
                 </div>
                 
                 <p class="ts-hint" style="margin-top: 15px;">Or try our special themes:</p>
-                <div class="ts-presets" style="gap: 12px; margin-top: 5px;">
-                    <button class="ts-btn" style="flex:1; background: linear-gradient(135deg, #dc2626, #2563eb); color: white; border: none; padding: 10px; border-radius: 12px; cursor: pointer; font-weight: bold;" onclick="applySpecialTheme('spiderman')">🕷️ Spiderman</button>
-                    <button class="ts-btn" style="flex:1; background: linear-gradient(135deg, #111, #444); color: #fbbf24; border: 2px solid #fbbf24; padding: 10px; border-radius: 12px; cursor: pointer; font-weight: bold;" onclick="applySpecialTheme('dhurander')">👑 Dhurander</button>
+                <div class="ts-presets" style="gap: 8px; margin-top: 5px;">
+                    <button class="ts-btn" style="flex:1; background: linear-gradient(135deg, #dc2626, #2563eb); color: white; border: none; padding: 10px 5px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="applySpecialTheme('spiderman')">🕷️ Spidey</button>
+                    <button class="ts-btn" style="flex:1; background: linear-gradient(135deg, #b91c1c, #f59e0b); color: white; border: 2px solid #fbbf24; padding: 10px 5px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="applySpecialTheme('ironman')">🤖 Iron Man</button>
+                    <button class="ts-btn" style="flex:1; background: linear-gradient(135deg, #4c1d95, #1e1b4b); color: #c4b5fd; border: 2px solid #8b5cf6; padding: 10px 5px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="applySpecialTheme('avengers')">🛡️ Avengers</button>
                 </div>
+                <p class="ts-hint" style="margin-top: 15px; text-align: center; color: var(--theme-color); font-weight: bold;">If you want a new theme, send me your suggestion! <i class="fas fa-lightbulb"></i></p>
             </div>
 
             <div class="ts-actions">
