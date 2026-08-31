@@ -1285,6 +1285,39 @@
         </div>
     </div>
 
+    <!-- ===== STUDENT DEALS SECTION ===== -->
+    <div class="glass-card" id="dealsSection" style="padding: 25px; margin-bottom: 25px;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:15px;">
+            <div style="background: linear-gradient(135deg, #f59e0b, #d97706); width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; color:white; font-size:1.2rem; box-shadow:0 4px 10px rgba(245,158,11,0.3);">
+                <i class="fas fa-shopping-bag"></i>
+            </div>
+            <div>
+                <h3 style="margin:0; font-size:1.1rem; color:var(--text-main);">Student Deals</h3>
+                <p style="margin:0; font-size:0.8rem; color:var(--text-light); font-weight:600;">Powered by Amazon</p>
+            </div>
+        </div>
+        
+        <div style="display:flex; gap:8px; margin-bottom:15px;">
+            <input type="text" id="amazonSearchInput" placeholder="Search laptops, books, gadgets..." style="flex:1; padding:12px 15px; border-radius:12px; border:2px solid var(--card-border); background:var(--input-bg); color:var(--text-main); font-family:inherit; outline:none;" onkeydown="if(event.key === 'Enter') searchAmazon()">
+            <button onclick="searchAmazon()" style="background:var(--theme-color); color:white; border:none; border-radius:12px; padding:0 20px; font-weight:700; cursor:pointer; box-shadow:0 4px 10px rgba(79,70,229,0.3); transition:transform 0.2s;">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+        
+        <div style="display:flex; gap:10px; overflow-x:auto; padding-bottom:5px; scrollbar-width:none;" class="hide-scroll">
+            <button onclick="openAmazonCategory('laptop for college students')" style="white-space:nowrap; background:var(--card-bg); border:1px solid var(--card-border); padding:8px 15px; border-radius:50px; font-size:0.85rem; font-weight:600; color:var(--text-main); cursor:pointer; display:flex; align-items:center; gap:6px;">
+                💻 Laptops
+            </button>
+            <button onclick="openAmazonCategory('engineering books')" style="white-space:nowrap; background:var(--card-bg); border:1px solid var(--card-border); padding:8px 15px; border-radius:50px; font-size:0.85rem; font-weight:600; color:var(--text-main); cursor:pointer; display:flex; align-items:center; gap:6px;">
+                📚 Books
+            </button>
+            <button onclick="openAmazonCategory('study lamp')" style="white-space:nowrap; background:var(--card-bg); border:1px solid var(--card-border); padding:8px 15px; border-radius:50px; font-size:0.85rem; font-weight:600; color:var(--text-main); cursor:pointer; display:flex; align-items:center; gap:6px;">
+                💡 Gadgets
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== SUPPORT SECTION ===== -->
     <div class="glass-card" id="supportSection" style="text-align: center; padding: 25px;">
         <p style="margin: 0; font-weight: 800; font-size: 1.1rem; color:var(--text-main);">Enjoying the Safe Bunks?</p>
         <p style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 20px; font-weight:600;">Support the Developer ☕</p>
@@ -1293,17 +1326,18 @@
             <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=jainsambhav877@oksbi&pn=Sambhav&cu=INR"
                  alt="Scan to Pay" width="150" height="150" style="border-radius: 8px;">
         </div>
+        <p style="font-size:0.8rem; color:var(--text-light); margin-top:10px;">Scan QR with any UPI App</p>
 
-        <br><br>
-        <a href="upi://pay?pa=jainsambhav877@oksbi&pn=Sambhav&cu=INR"
-           style="background:linear-gradient(135deg, #2563EB, #1d4ed8); color:white; padding:12px 30px; border-radius:50px; text-decoration:none; font-size:1rem; font-weight:700; display:inline-block; box-shadow: 0 6px 15px rgba(37,99,235,0.4); transition: transform 0.3s;">
-            Pay via UPI App <i class="fas fa-arrow-right" style="margin-left:5px; font-size:0.8rem;"></i>
-        </a>
-        <p style="margin-top:14px;">
-            <a href="upi://pay?pa=jainsambhav877@oksbi&pn=Sambhav&cu=INR" style="font-size:0.8rem; font-weight:700; color:var(--theme-color); text-decoration:underline;">
-                Click here to pay <i class="fas fa-arrow-up-right-from-square" style="font-size:0.7rem;"></i>
-            </a>
-        </p>
+        <div style="margin-top:20px; background:var(--card-bg); border:2px dashed var(--card-border); padding:15px; border-radius:12px; display:flex; flex-direction:column; gap:10px; align-items:center;">
+            <p style="margin:0; font-size:0.85rem; font-weight:700; color:var(--text-main);">Or Pay via UPI ID</p>
+            <div style="background:var(--input-bg); padding:10px 15px; border-radius:8px; font-family:monospace; font-size:0.95rem; font-weight:bold; color:var(--theme-color); letter-spacing:0.5px; width:100%; max-width:250px;">
+                jainsambhav877@oksbi
+            </div>
+            <button onclick="copyUPI()" style="background:linear-gradient(135deg, #10b981, #059669); color:white; border:none; padding:10px 25px; border-radius:50px; font-weight:700; cursor:pointer; font-size:0.9rem; box-shadow:0 4px 12px rgba(16,185,129,0.3); transition:transform 0.2s; display:flex; align-items:center; gap:8px;">
+                <i class="fas fa-copy"></i> Copy UPI ID
+            </button>
+            <p style="margin:0; font-size:0.75rem; color:var(--text-light);">Copy & paste in GPay/PhonePe.<br>100% direct, no bank limits!</p>
+        </div>
     </div>
 
     <div class="glass-card suggestion-card" id="suggestionSection">
@@ -1346,6 +1380,27 @@
     </div>
 
 <script>
+// ===== STUDENT DEALS & SUPPORT (AMAZON & UPI) =====
+function searchAmazon() {
+    const query = document.getElementById('amazonSearchInput').value.trim();
+    if (!query) return;
+    const url = `https://www.amazon.in/s?k=${encodeURIComponent(query)}&tag=academicpro-21`;
+    window.open(url, '_blank');
+}
+
+function openAmazonCategory(category) {
+    const url = `https://www.amazon.in/s?k=${encodeURIComponent(category)}&tag=academicpro-21`;
+    window.open(url, '_blank');
+}
+
+function copyUPI() {
+    navigator.clipboard.writeText("jainsambhav877@oksbi").then(() => {
+        showToast("✅ UPI ID Copied! Paste in GPay/PhonePe", "success");
+    }).catch(err => {
+        showToast("❌ Failed to copy", "error");
+    });
+}
+
 // ===== LIVE VISITOR / STUDENT COUNTER =====
 // Backed by our own netlify/functions/visit-count.js (Netlify Blobs), keyed
 // by a stable per-device id kept in localStorage. The server only counts
