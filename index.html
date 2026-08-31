@@ -11,7 +11,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Academic Pro v7</title>
+    <title>Academic Pro v8</title>
     <meta name="theme-color" content="#4f46e5">
 
     <link rel="icon" type="image/jpeg" href="unnamed.jpg">
@@ -85,6 +85,97 @@
         [data-theme="dark"] body {
             background: linear-gradient(-45deg, #0b0f1a, #131c2e, #17233a, #0d1220, #101828);
         }
+
+        /* ===== SPIDERMAN THEME 🕷️ ===== */
+        [data-theme="spiderman"] {
+            --glass-bg: rgba(220, 38, 38, 0.08); /* slight red tint */
+            --glass-border: rgba(220, 38, 38, 0.3);
+            --text-main: #1f2937;
+            --text-light: #4b5563;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(37, 99, 235, 0.3); /* blue border */
+            --input-bg: rgba(255, 255, 255, 0.9);
+            --stat-bg: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(220,38,38,0.05));
+            --skeleton-base: #e5e7eb;
+            --skeleton-shine: rgba(220, 38, 38, 0.1);
+            --toggle-bg: #f8fafc;
+            --toggle-text: #1e293b;
+            --hr-color: rgba(37, 99, 235, 0.2);
+            --result-bg: rgba(255, 255, 255, 0.9);
+            --theme-color: #dc2626; /* Spiderman Red */
+        }
+        [data-theme="spiderman"] body {
+            background: 
+                radial-gradient(circle at 100% 0%, rgba(220, 38, 38, 0.2) 0%, transparent 40%),
+                radial-gradient(circle at 0% 100%, rgba(37, 99, 235, 0.2) 0%, transparent 40%),
+                repeating-radial-gradient(
+                    circle at 50% -20%, 
+                    transparent 0, 
+                    transparent 40px, 
+                    rgba(220, 38, 38, 0.05) 41px, 
+                    rgba(220, 38, 38, 0.05) 42px
+                ),
+                repeating-conic-gradient(
+                    from 0deg at 50% -20%, 
+                    rgba(220, 38, 38, 0.05) 0deg 1deg, 
+                    transparent 2deg 14deg,
+                    rgba(220, 38, 38, 0.05) 15deg
+                ),
+                linear-gradient(-45deg, #f8fafc, #e2e8f0);
+            animation: none;
+        }
+        [data-theme="spiderman"] .glass-card { box-shadow: 0 10px 40px rgba(220,38,38,0.15); }
+        [data-theme="spiderman"] .btn-main { background: linear-gradient(135deg, #dc2626, #2563eb); }
+        [data-theme="spiderman"] .version-badge { background: #2563eb; }
+
+        /* Interactive Spider CSS */
+        #spider-container {
+            display: none; position: fixed; top: -100px; left: 15%; z-index: 10000;
+            width: 2px; height: 150px; background: rgba(100,100,100,0.5);
+            cursor: pointer; transform-origin: top center; transition: top 0.5s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        [data-theme="spiderman"] #spider-container { display: flex; flex-direction: column; align-items: center; }
+        .spider-emoji {
+            font-size: 2rem; position: absolute; bottom: -20px;
+            animation: spiderSwing 4s ease-in-out infinite alternate; transform-origin: top center;
+        }
+        @keyframes spiderSwing { 0% { transform: rotate(-5deg); } 100% { transform: rotate(5deg); } }
+
+
+        /* ===== DHURANDER THEME 👑 ===== */
+        [data-theme="dhurander"] {
+            --glass-bg: rgba(10, 10, 10, 0.85); 
+            --glass-border: rgba(251, 191, 36, 0.3); /* Gold border */
+            --text-main: #fef08a; /* Soft yellow/gold text */
+            --text-light: #a1a1aa;
+            --card-bg: rgba(15, 15, 15, 0.9);
+            --card-border: rgba(251, 191, 36, 0.2);
+            --input-bg: rgba(0, 0, 0, 0.8);
+            --stat-bg: linear-gradient(135deg, rgba(20,20,20,0.9), rgba(251, 191, 36, 0.05));
+            --skeleton-base: rgba(40,40,40,0.8);
+            --skeleton-shine: rgba(251, 191, 36, 0.15);
+            --toggle-bg: rgba(20,20,20,0.8);
+            --toggle-text: #fbbf24;
+            --hr-color: rgba(251, 191, 36, 0.2);
+            --result-bg: rgba(0, 0, 0, 0.9);
+            --theme-color: #fbbf24; /* Gold */
+        }
+        [data-theme="dhurander"] body {
+            background: linear-gradient(135deg, #000000, #111111, #0a0a0a);
+            background-size: 200% 200%;
+            animation: gradientBG 15s ease infinite;
+        }
+        [data-theme="dhurander"] .glass-card { 
+            box-shadow: 0 10px 40px rgba(251, 191, 36, 0.1); 
+            border: 1px solid rgba(251, 191, 36, 0.4);
+        }
+        [data-theme="dhurander"] h1 {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        [data-theme="dhurander"] .btn-main { background: linear-gradient(135deg, #d97706, #b45309); color: white; box-shadow: 0 8px 20px rgba(217, 119, 6, 0.3); }
+        [data-theme="dhurander"] .version-badge { background: #b45309; color: white; }
+
 
         @keyframes gradientBG {
             0% { background-position: 0% 50%; }
@@ -753,7 +844,7 @@
 
         
         <div class="header-row">
-            <h1>Academic Pro <span class="version-badge">v7</span></h1>
+            <h1>Academic Pro <span class="version-badge">v8</span></h1>
             <div class="header-actions">
                 <div class="notif-wrap">
                     <button class="customize-btn" id="notifBtn" onclick="toggleNotifPanel()" title="Notifications">
@@ -1732,6 +1823,7 @@ const CUSTOM_THEME_KEY = 'custom_theme_v1';
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
     document.documentElement.setAttribute('data-theme', saved);
     applyCustomThemeIfSaved();
+    if (saved === 'spiderman') initSpider();
 })();
 
 function applyCustomThemeIfSaved() {
@@ -1762,7 +1854,8 @@ function openThemeStudio() {
     const saved = localStorage.getItem(CUSTOM_THEME_KEY);
     let t;
     try { t = saved ? JSON.parse(saved) : null; } catch { t = null; }
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const isDark = currentTheme === 'dark' || currentTheme === 'dhurander';
     const accentDefault = getComputedStyle(document.documentElement).getPropertyValue('--theme-color').trim() || (isDark ? '#7c9eff' : '#4f46e5');
     const cardDefault = isDark ? '#181e2e' : '#ffffff';
     const textDefault = isDark ? '#eef2f7' : '#1f2937';
@@ -1825,8 +1918,62 @@ function saveThemeStudio() {
 function resetThemeStudio() {
     localStorage.removeItem(CUSTOM_THEME_KEY);
     clearCustomThemeVars();
+    
+    // Also reset special theme
+    const current = document.documentElement.getAttribute('data-theme');
+    if (current === 'spiderman' || current === 'dhurander') {
+        const next = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+        removeSpider();
+    }
+    
     closeThemeStudio();
     showToast('↩️ Back to default theme', 'info');
+}
+
+function applySpecialTheme(name) {
+    localStorage.removeItem(CUSTOM_THEME_KEY);
+    clearCustomThemeVars();
+    
+    document.documentElement.setAttribute('data-theme', name);
+    localStorage.setItem('theme', name);
+    
+    if (name === 'spiderman') {
+        initSpider();
+        showToast('🕷️ With great power...', 'success');
+    } else if (name === 'dhurander') {
+        removeSpider();
+        showToast('👑 Welcome, Dhurander!', 'success');
+    }
+    
+    closeThemeStudio();
+    haptic(30);
+}
+
+// ===== SPIDER MINI GAME =====
+function initSpider() {
+    let spider = document.getElementById('spider-container');
+    if (!spider) {
+        spider = document.createElement('div');
+        spider.id = 'spider-container';
+        spider.onclick = pullSpider;
+        spider.innerHTML = '<div class="spider-emoji">🕷️</div>';
+        document.body.appendChild(spider);
+    }
+}
+function removeSpider() {
+    const spider = document.getElementById('spider-container');
+    if (spider) spider.remove();
+}
+function pullSpider() {
+    const spider = document.getElementById('spider-container');
+    if (!spider) return;
+    haptic(40);
+    spider.style.top = '20px';
+    setTimeout(() => {
+        spider.style.top = '-100px';
+    }, 1000);
 }
 
 function toggleDarkMode() {
@@ -1924,7 +2071,7 @@ function showToast(message, type = 'success', duration = 3000) {
 
 // ===== ON LOAD =====
 window.addEventListener('load', () => {
-    const saved = localStorage.getItem('academic_data_v7');
+    const saved = localStorage.getItem('academic_data_v8') || localStorage.getItem('academic_data_v7');
     if (saved) {
         document.getElementById('inputData').value = saved;
     }
@@ -1961,6 +2108,7 @@ function resetApp() {
     document.getElementById('skeleton-loader').style.display = 'none';
     document.getElementById('inputSection').style.display = 'block';
     document.getElementById('inputData').value = '';
+    localStorage.removeItem('academic_data_v8');
     localStorage.removeItem('academic_data_v7');
 
     ['futureInput','bunkInput','targetInput','odInput','mixAttend','mixBunk'].forEach(id => {
@@ -2026,7 +2174,7 @@ function processReport() {
             return;
         }
 
-        localStorage.setItem('academic_data_v7', text);
+        localStorage.setItem('academic_data_v8', text);
         g_percent = ((g_present / g_total) * 100).toFixed(2);
 
         document.getElementById('skeleton-loader').style.display = 'none';
@@ -2559,6 +2707,12 @@ function shareResult() {
                     <span class="ts-preset-swatch" style="background:linear-gradient(135deg,#059669,#f0fdf4)" onclick="applyPreset('#059669','#ffffff','#064e3b')" title="Emerald"></span>
                     <span class="ts-preset-swatch" style="background:linear-gradient(135deg,#db2777,#1a0e14)" onclick="applyPreset('#f472b6','#1f0f18','#fce7f3')" title="Rose Night"></span>
                     <span class="ts-preset-swatch" style="background:linear-gradient(135deg,#d97706,#fffbeb)" onclick="applyPreset('#d97706','#ffffff','#451a03')" title="Amber"></span>
+                </div>
+                
+                <p class="ts-hint" style="margin-top: 15px;">Or try our special themes:</p>
+                <div class="ts-presets" style="gap: 12px; margin-top: 5px;">
+                    <button class="ts-btn" style="flex:1; background: linear-gradient(135deg, #dc2626, #2563eb); color: white; border: none; padding: 10px; border-radius: 12px; cursor: pointer; font-weight: bold;" onclick="applySpecialTheme('spiderman')">🕷️ Spiderman</button>
+                    <button class="ts-btn" style="flex:1; background: linear-gradient(135deg, #111, #444); color: #fbbf24; border: 2px solid #fbbf24; padding: 10px; border-radius: 12px; cursor: pointer; font-weight: bold;" onclick="applySpecialTheme('dhurander')">👑 Dhurander</button>
                 </div>
             </div>
 
