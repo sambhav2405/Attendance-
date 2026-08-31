@@ -252,7 +252,7 @@
             width: 100%; max-width: 480px; overflow: hidden;
             box-shadow: 0 -10px 40px rgba(0,0,0,0.35);
             animation: slideUpSheet 0.3s cubic-bezier(0.34,1.56,0.64,1);
-            max-height: 85vh; display: flex; flex-direction: column;
+            max-height: 90vh; display: flex; flex-direction: column;
         }
         @keyframes slideUpSheet {
             from { transform: translateY(100%); opacity: 0; }
@@ -262,7 +262,12 @@
             width: 40px; height: 4px; background: var(--card-border); border-radius: 4px;
             margin: 10px auto 0; flex-shrink: 0;
         }
-        .notif-modal-body-wrap { overflow-y: auto; flex: 1; padding: 8px; }
+        .notif-modal-body-wrap {
+            overflow-y: auto; flex: 1; padding: 8px;
+            /* Prevents last item from being hidden behind phone's bottom nav bar */
+            padding-bottom: calc(16px + env(safe-area-inset-bottom, 12px));
+            -webkit-overflow-scrolling: touch;
+        }
 
         .notif-panel-head {
             display: flex; justify-content: space-between; align-items: center; padding: 14px 16px;
@@ -276,9 +281,19 @@
             padding: 10px 12px; border-radius: 12px; margin-bottom: 6px; background: var(--toggle-bg);
             border-left: 3px solid var(--theme-color);
         }
-        .notif-item:last-child { margin-bottom: 0; }
+        .notif-item:last-child { margin-bottom: 4px; }
         .notif-item-you { font-size: 0.72rem; color: var(--text-light); margin-bottom: 4px; }
         .notif-item-reply { font-size: 0.85rem; color: var(--text-main); font-weight: 600; line-height: 1.4; }
+        .notif-item-latest {
+            border-left-color: #10b981;
+            background: rgba(16,185,129,0.08);
+        }
+        .notif-item-latest::after {
+            content: 'NEW';
+            float: right; font-size: 0.6rem; font-weight: 800; color: #10b981;
+            background: rgba(16,185,129,0.15); padding: 2px 6px; border-radius: 6px;
+            margin-top: 2px;
+        }
         .notif-enable-btn {
             width: 100%; padding: 12px; margin-bottom: 8px; border-radius: 12px; border: none; cursor: pointer;
             background: linear-gradient(135deg, var(--theme-color), #3b82f6); color: #fff; font-weight: 700;
@@ -1383,19 +1398,25 @@ async function renderNotifPanel() {
             <i class="fas fa-bell"></i> Enable push notifications
         </button>`;
 
+    // Latest first (reverse), but show oldest at bottom
     const replied = getMySuggestions().filter(i => i.reply).slice().reverse();
     const listHtml = !replied.length
         ? '<div class="notif-empty">No replies yet. Send a suggestion and the developer\'s reply will show up here.</div>'
-        : replied.map(item => `
-            <div class="notif-item">
-                <div class="notif-item-you">You: "${escapeHtml(item.text)}"</div>
+        : replied.map((item, idx) => {
+            const youRow = item.text
+                ? `<div class="notif-item-you">You: "${escapeHtml(item.text)}"</div>`
+                : '';
+            const isLatest = idx === 0;
+            return `
+            <div class="notif-item${isLatest ? ' notif-item-latest' : ''}">
+                ${youRow}
                 <div class="notif-item-reply">${escapeHtml(item.reply)}</div>
-            </div>
-        `).join('');
+            </div>`;
+        }).join('');
 
     const html = enableRow + listHtml;
     // Render into whichever container is active (desktop or mobile modal)
-    const body   = document.getElementById('notifPanelBody');
+    const body    = document.getElementById('notifPanelBody');
     const bodyMob = document.getElementById('notifPanelBodyMobile');
     if (body)    body.innerHTML    = html;
     if (bodyMob) bodyMob.innerHTML = html;
