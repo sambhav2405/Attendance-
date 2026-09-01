@@ -89,69 +89,136 @@
             background: linear-gradient(-45deg, #0b0f1a, #131c2e, #17233a, #0d1220, #101828);
         }
 
-        /* ===== SPIDERMAN THEME 🕷️ ===== */
-        [data-theme^="spiderman"] .glass-card { box-shadow: 0 10px 40px rgba(220,38,38,0.2); }
-        [data-theme^="spiderman"] .btn-main { background: linear-gradient(135deg, #dc2626, #2563eb); color: white; }
+        /* ===== SPIDERMAN THEME 🕷️ (v2 — Sketchfab 3D + Web Effects) ===== */
+        [data-theme^="spiderman"] .glass-card {
+            box-shadow: 0 10px 40px rgba(220,38,38,0.15), 0 0 0 1px rgba(220,38,38,0.1);
+        }
+        [data-theme^="spiderman"] .btn-main {
+            background: linear-gradient(135deg, #dc2626, #7f1d1d);
+            color: white;
+            box-shadow: 0 4px 15px rgba(220,38,38,0.4);
+        }
         [data-theme^="spiderman"] .version-badge { background: #2563eb; color: white; }
-        
+
         [data-theme="spiderman-dark"] {
-            --glass-bg: rgba(20, 0, 0, 0.85);
-            --glass-border: rgba(220, 38, 38, 0.4);
-            --text-main: #f87171;
+            --glass-bg: rgba(15, 5, 10, 0.88);
+            --glass-border: rgba(220, 38, 38, 0.35);
+            --text-main: #fca5a5;
             --text-light: #9ca3af;
-            --card-bg: rgba(10, 10, 15, 0.95);
-            --card-border: rgba(37, 99, 235, 0.4);
-            --input-bg: rgba(0, 0, 0, 0.8);
-            --stat-bg: linear-gradient(135deg, rgba(20,0,0,0.9), rgba(37, 99, 235, 0.05));
+            --card-bg: rgba(10, 5, 10, 0.92);
+            --card-border: rgba(37, 99, 235, 0.25);
+            --input-bg: rgba(0, 0, 0, 0.75);
+            --stat-bg: linear-gradient(135deg, rgba(20,0,0,0.9), rgba(37,99,235,0.05));
             --skeleton-base: rgba(40,20,20,0.8);
-            --skeleton-shine: rgba(220, 38, 38, 0.15);
+            --skeleton-shine: rgba(220,38,38,0.15);
             --toggle-bg: rgba(20,0,0,0.8);
-            --toggle-text: #f87171;
-            --hr-color: rgba(37, 99, 235, 0.3);
-            --result-bg: rgba(0, 0, 0, 0.9);
-            --theme-color: #dc2626;
+            --toggle-text: #fca5a5;
+            --hr-color: rgba(220,38,38,0.2);
+            --result-bg: rgba(0,0,0,0.9);
+            --theme-color: #ef4444;
         }
         [data-theme="spiderman-dark"] body {
-            background: radial-gradient(circle at 50% 50%, rgba(220, 38, 38, 0.05) 0%, transparent 60%), repeating-radial-gradient(circle at 50% 50%, transparent 0, transparent 40px, rgba(220, 38, 38, 0.1) 41px, rgba(220, 38, 38, 0.1) 42px), repeating-conic-gradient(from 0deg at 50% 50%, rgba(220, 38, 38, 0.1) 0deg 1deg, transparent 2deg 14deg, rgba(220, 38, 38, 0.1) 15deg), linear-gradient(-45deg, #050505, #111827);
+            background:
+                radial-gradient(ellipse at 20% 80%, rgba(220,38,38,0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(37,99,235,0.06) 0%, transparent 50%),
+                linear-gradient(180deg, #0a0010 0%, #110020 50%, #0a0010 100%);
             animation: none;
         }
 
         [data-theme="spiderman-light"] {
-            --glass-bg: rgba(255, 240, 240, 0.95);
-            --glass-border: rgba(220, 38, 38, 0.4);
-            --text-main: #b91c1c;
-            --text-light: #4b5563;
+            --glass-bg: rgba(255, 245, 245, 0.95);
+            --glass-border: rgba(220, 38, 38, 0.3);
+            --text-main: #991b1b;
+            --text-light: #6b7280;
             --card-bg: rgba(255, 255, 255, 0.95);
-            --card-border: rgba(37, 99, 235, 0.4);
+            --card-border: rgba(37, 99, 235, 0.25);
             --input-bg: rgba(255, 255, 255, 0.9);
-            --stat-bg: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(37, 99, 235, 0.1));
-            --skeleton-base: #fee2e2;
-            --skeleton-shine: rgba(220, 38, 38, 0.15);
+            --stat-bg: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(220,38,38,0.05));
+            --skeleton-base: #fecaca;
+            --skeleton-shine: rgba(220,38,38,0.1);
             --toggle-bg: #fee2e2;
-            --toggle-text: #b91c1c;
-            --hr-color: rgba(37, 99, 235, 0.3);
-            --result-bg: rgba(255, 255, 255, 0.9);
+            --toggle-text: #991b1b;
+            --hr-color: rgba(220,38,38,0.2);
+            --result-bg: rgba(255,255,255,0.9);
             --theme-color: #dc2626;
         }
         [data-theme="spiderman-light"] body {
-            background: radial-gradient(circle at 50% 50%, rgba(220, 38, 38, 0.05) 0%, transparent 60%), repeating-radial-gradient(circle at 50% 50%, transparent 0, transparent 40px, rgba(220, 38, 38, 0.05) 41px, rgba(220, 38, 38, 0.05) 42px), repeating-conic-gradient(from 0deg at 50% 50%, rgba(220, 38, 38, 0.05) 0deg 1deg, transparent 2deg 14deg, rgba(220, 38, 38, 0.05) 15deg), linear-gradient(-45deg, #fef2f2, #eff6ff);
+            background:
+                radial-gradient(ellipse at 20% 80%, rgba(220,38,38,0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(37,99,235,0.04) 0%, transparent 50%),
+                linear-gradient(180deg, #fff5f5 0%, #eff6ff 50%, #fff5f5 100%);
             animation: none;
         }
 
-        /* Crawling Spiders */
-        .little-spider {
-            position: fixed; z-index: 9999; font-size: 1.5rem; cursor: crosshair;
-            transition: top 0.8s ease-out, left 0.8s ease-out, transform 0.2s;
+        /* === 3D Model Container === */
+        #spidey3dContainer {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            width: 160px;
+            height: 200px;
+            z-index: 9990;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(220,38,38,0.4), 0 0 0 2px rgba(220,38,38,0.3);
+            opacity: 0;
+            transform: translateY(40px) scale(0.8);
+            transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.175,0.885,0.32,1.275);
+            pointer-events: auto;
         }
-        /* Hanging Spiders */
+        #spidey3dContainer.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        #spidey3dContainer iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 16px;
+        }
+        @media (max-width: 480px) {
+            #spidey3dContainer { width: 120px; height: 160px; bottom: 8px; right: 8px; }
+        }
+
+        /* === Animated Web Corners === */
+        .web-corner {
+            position: fixed;
+            z-index: 9980;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+        .web-corner.visible { opacity: 1; }
+        .web-corner svg { width: 100%; height: 100%; }
+        .web-corner.top-left { top: 0; left: 0; width: 140px; height: 140px; }
+        .web-corner.top-right { top: 0; right: 0; width: 140px; height: 140px; transform: scaleX(-1); }
+        .web-corner svg path {
+            stroke: rgba(220, 38, 38, 0.25);
+            fill: none;
+            stroke-width: 1;
+            stroke-dasharray: 300;
+            stroke-dashoffset: 300;
+            animation: drawWeb 2s ease forwards;
+        }
+        .web-corner svg path:nth-child(2) { animation-delay: 0.2s; stroke: rgba(37,99,235,0.15); }
+        .web-corner svg path:nth-child(3) { animation-delay: 0.4s; }
+        .web-corner svg path:nth-child(4) { animation-delay: 0.6s; stroke: rgba(37,99,235,0.15); }
+        .web-corner svg path:nth-child(5) { animation-delay: 0.8s; }
+        @keyframes drawWeb {
+            to { stroke-dashoffset: 0; }
+        }
+
+        /* Hanging Spider (kept but refined) */
         .hanging-spider {
-            position: fixed; top: 0; width: 1.5px; background: rgba(150,150,150,0.6); z-index: 9998;
-            animation: spiderSwing 4s infinite ease-in-out alternate; transform-origin: top center;
+            position: fixed; top: 0; width: 1px; z-index: 9988;
+            background: linear-gradient(to bottom, rgba(180,180,180,0.6), rgba(180,180,180,0.1));
+            animation: spiderSwing 5s infinite ease-in-out alternate; transform-origin: top center;
         }
         .hanging-spider::after {
-            content: '🕷️'; font-size: 1.5rem; position: absolute; bottom: -20px; left: -12px;
+            content: '🕷️'; font-size: 1.2rem; position: absolute; bottom: -18px; left: -10px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
         }
-        @keyframes spiderSwing { 0% { transform: rotate(-5deg); } 100% { transform: rotate(5deg); } }
+        @keyframes spiderSwing { 0% { transform: rotate(-4deg); } 100% { transform: rotate(4deg); } }
 
         /* ===== IRON MAN THEME 🤖 ===== */
         [data-theme^="ironman"] .glass-card { 
@@ -2306,56 +2373,59 @@ function removeAllSpecialFeatures() {
     removeAvengersFeatures();
 }
 
-// -- Spiderman --
+// -- Spiderman (v2 — Sketchfab 3D + Web Corners) --
 function initSpiderFeatures() {
-    if (spidermanInterval) clearInterval(spidermanInterval);
-    for(let i=0; i<4; i++) spawnLittleSpider();
-    spawnHangingSpider(15);
-    spawnHangingSpider(85);
-    spidermanInterval = setInterval(spawnLittleSpider, 5000);
+    // 1. Inject 3D Model (Sketchfab embed — lightweight, streams from their CDN)
+    if (!document.getElementById('spidey3dContainer')) {
+        const container = document.createElement('div');
+        container.id = 'spidey3dContainer';
+        container.innerHTML = `<iframe title="Spider-Man 3D" allow="autoplay; fullscreen" src="https://sketchfab.com/models/ff9df30377094808ba9df7c82cb09cda/embed?autostart=1&ui_infos=0&ui_controls=0&ui_stop=0&ui_watermark=0&ui_watermark_link=0&ui_ar=0&ui_help=0&ui_settings=0&ui_vr=0&ui_fullscreen=0&ui_annotations=0&transparent=1&camera=0"></iframe>`;
+        document.body.appendChild(container);
+        setTimeout(() => container.classList.add('visible'), 300);
+    }
+
+    // 2. Inject Web Corner SVGs
+    const webSvg = `<svg viewBox="0 0 140 140">
+        <path d="M0,0 Q70,20 140,0"/>
+        <path d="M0,0 Q50,50 140,30"/>
+        <path d="M0,0 Q30,60 100,100"/>
+        <path d="M0,0 Q20,70 50,140"/>
+        <path d="M0,0 Q10,50 0,140"/>
+    </svg>`;
+    
+    if (!document.querySelector('.web-corner.top-left')) {
+        const topLeft = document.createElement('div');
+        topLeft.className = 'web-corner top-left';
+        topLeft.innerHTML = webSvg;
+        document.body.appendChild(topLeft);
+        setTimeout(() => topLeft.classList.add('visible'), 200);
+    }
+    if (!document.querySelector('.web-corner.top-right')) {
+        const topRight = document.createElement('div');
+        topRight.className = 'web-corner top-right';
+        topRight.innerHTML = webSvg;
+        document.body.appendChild(topRight);
+        setTimeout(() => topRight.classList.add('visible'), 500);
+    }
+
+    // 3. Hanging spiders
+    spawnHangingSpider(12);
+    spawnHangingSpider(88);
 }
+
 function spawnHangingSpider(leftPercent) {
     const s = document.createElement('div');
     s.className = 'hanging-spider';
     s.style.left = leftPercent + 'vw';
-    s.style.height = (Math.random() * 20 + 20) + 'vh';
+    s.style.height = (Math.random() * 15 + 18) + 'vh';
     document.body.appendChild(s);
 }
+
 function removeSpiderFeatures() {
-    if (spidermanInterval) clearInterval(spidermanInterval);
-    document.querySelectorAll('.little-spider').forEach(s => s.remove());
+    const model = document.getElementById('spidey3dContainer');
+    if (model) { model.classList.remove('visible'); setTimeout(() => model.remove(), 600); }
+    document.querySelectorAll('.web-corner').forEach(w => { w.classList.remove('visible'); setTimeout(() => w.remove(), 800); });
     document.querySelectorAll('.hanging-spider').forEach(s => s.remove());
-}
-function spawnLittleSpider() {
-    if (document.querySelectorAll('.little-spider').length > 8) return;
-    const spider = document.createElement('div');
-    spider.className = 'little-spider';
-    spider.innerText = '🕷️';
-    
-    const startEdge = Math.floor(Math.random() * 4);
-    if(startEdge === 0) { spider.style.top = '-50px'; spider.style.left = Math.random()*100 + 'vw'; }
-    if(startEdge === 1) { spider.style.bottom = '-50px'; spider.style.left = Math.random()*100 + 'vw'; }
-    if(startEdge === 2) { spider.style.left = '-50px'; spider.style.top = Math.random()*100 + 'vh'; }
-    if(startEdge === 3) { spider.style.right = '-50px'; spider.style.top = Math.random()*100 + 'vh'; }
-    
-    document.body.appendChild(spider);
-    
-    setTimeout(() => {
-        spider.style.top = (Math.random() * 80 + 10) + 'vh';
-        spider.style.left = (Math.random() * 80 + 10) + 'vw';
-        spider.style.transform = `rotate(${Math.random() * 360}deg)`;
-    }, 100);
-    
-    spider.onmouseenter = scurrySpider;
-    spider.onclick = scurrySpider;
-    spider.ontouchstart = scurrySpider;
-}
-function scurrySpider(e) {
-    const spider = e.target;
-    haptic(10);
-    spider.style.top = (Math.random() > 0.5 ? '-100px' : '120vh');
-    spider.style.left = (Math.random() > 0.5 ? '-100px' : '120vw');
-    setTimeout(() => spider.remove(), 800);
 }
 
 // -- Iron Man --
