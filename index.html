@@ -1522,27 +1522,6 @@ async function fetchRemoteConfig() {
 }
 
 // Call on load
-fetchRemoteConfig(); {
-                document.getElementById('popupTitle').innerText = globalConfig.popup.title || 'Student Special Deals!';
-                document.getElementById('popupEmoji').innerText = globalConfig.popup.emoji || '🎁';
-                document.getElementById('popupSubtitle').innerText = globalConfig.popup.subtitle || 'What are you looking for today?';
-                
-                const btnContainer = document.getElementById('popupBtnContainer');
-                if(globalConfig.popup.buttons && btnContainer) {
-                    btnContainer.innerHTML = globalConfig.popup.buttons.map(b => 
-                        `<button onclick="openVisualCategory('${b.keyword.replace(/\\s/g,'_')}', '${b.keyword}'); closeOfferPopup();" style="background:linear-gradient(135deg, ${b.color1}, ${b.color2}); color:white; border:none; padding:12px; border-radius:12px; font-weight:700; cursor:pointer; font-size:1rem; box-shadow:0 4px 10px rgba(0,0,0,0.2);">
-                            ${b.text}
-                        </button>`
-                    ).join('');
-                }
-            }
-        }
-    } catch(e) {
-        console.log("Using local fallback config");
-    }
-}
-
-// Call on load
 fetchRemoteConfig();
 
 function showOfferPopup() {
