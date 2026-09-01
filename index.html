@@ -150,75 +150,10 @@
             animation: none;
         }
 
-        /* === 3D Model Container === */
-        #spidey3dContainer {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            width: 160px;
-            height: 200px;
-            z-index: 9990;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 8px 32px rgba(220,38,38,0.4), 0 0 0 2px rgba(220,38,38,0.3);
-            opacity: 0;
-            transform: translateY(40px) scale(0.8);
-            transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.175,0.885,0.32,1.275);
-            pointer-events: auto;
-        }
-        #spidey3dContainer.visible {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-        #spidey3dContainer iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            border-radius: 16px;
-        }
-        @media (max-width: 480px) {
-            #spidey3dContainer { width: 120px; height: 160px; bottom: 8px; right: 8px; }
-        }
+        /* === 3D Model Container (Removed) === */
+        /* === Animated Web Corners (Removed) === */
+        /* Hanging Spider (Removed) === */
 
-        /* === Animated Web Corners === */
-        .web-corner {
-            position: fixed;
-            z-index: 9980;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.8s ease;
-        }
-        .web-corner.visible { opacity: 1; }
-        .web-corner svg { width: 100%; height: 100%; }
-        .web-corner.top-left { top: 0; left: 0; width: 140px; height: 140px; }
-        .web-corner.top-right { top: 0; right: 0; width: 140px; height: 140px; transform: scaleX(-1); }
-        .web-corner svg path {
-            stroke: rgba(220, 38, 38, 0.25);
-            fill: none;
-            stroke-width: 1;
-            stroke-dasharray: 300;
-            stroke-dashoffset: 300;
-            animation: drawWeb 2s ease forwards;
-        }
-        .web-corner svg path:nth-child(2) { animation-delay: 0.2s; stroke: rgba(37,99,235,0.15); }
-        .web-corner svg path:nth-child(3) { animation-delay: 0.4s; }
-        .web-corner svg path:nth-child(4) { animation-delay: 0.6s; stroke: rgba(37,99,235,0.15); }
-        .web-corner svg path:nth-child(5) { animation-delay: 0.8s; }
-        @keyframes drawWeb {
-            to { stroke-dashoffset: 0; }
-        }
-
-        /* Hanging Spider (kept but refined) */
-        .hanging-spider {
-            position: fixed; top: 0; width: 1px; z-index: 9988;
-            background: linear-gradient(to bottom, rgba(180,180,180,0.6), rgba(180,180,180,0.1));
-            animation: spiderSwing 5s infinite ease-in-out alternate; transform-origin: top center;
-        }
-        .hanging-spider::after {
-            content: '🕷️'; font-size: 1.2rem; position: absolute; bottom: -18px; left: -10px;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-        }
-        @keyframes spiderSwing { 0% { transform: rotate(-4deg); } 100% { transform: rotate(4deg); } }
 
         /* ===== IRON MAN THEME 🤖 ===== */
         [data-theme^="ironman"] .glass-card { 
@@ -1509,11 +1444,11 @@
         <div style="background:var(--card-bg); border:1px solid var(--card-border); padding:25px; border-radius:20px; text-align:center; max-width:90%; width:350px; position:relative; transform:scale(0.8); transition:transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
             <button onclick="closeOfferPopup()" style="position:absolute; top:10px; right:15px; background:none; border:none; color:var(--text-light); font-size:1.5rem; cursor:pointer;">&times;</button>
             
-            <div style="font-size:3rem; margin-bottom:10px;">🎁</div>
-            <h2 style="margin:0 0 10px 0; color:var(--text-main); font-size:1.3rem;">Student Special Deals!</h2>
-            <p style="margin:0 0 20px 0; color:var(--text-light); font-size:0.9rem;">What are you looking for today?</p>
+            <div id="popupEmoji" style="font-size:3rem; margin-bottom:10px;">🎁</div>
+            <h2 id="popupTitle" style="margin:0 0 10px 0; color:var(--text-main); font-size:1.3rem;">Student Special Deals!</h2>
+            <p id="popupSubtitle" style="margin:0 0 20px 0; color:var(--text-light); font-size:0.9rem;">What are you looking for today?</p>
             
-            <div style="display:flex; flex-direction:column; gap:10px;">
+            <div id="popupBtnContainer" style="display:flex; flex-direction:column; gap:10px;">
                 <button onclick="openVisualCategory('dress_under_600', 'beautiful dresses for women under 600'); closeOfferPopup();" style="background:linear-gradient(135deg, #ec4899, #be185d); color:white; border:none; padding:12px; border-radius:12px; font-weight:700; cursor:pointer; font-size:1rem; box-shadow:0 4px 10px rgba(236, 72, 153, 0.3);">
                     👗 Dresses Under ₹600
                 </button>
@@ -1526,7 +1461,9 @@
 
 <script>
 // ===== STUDENT DEALS & SUPPORT (AMAZON & UPI) =====
-const amazonCategories = [
+const GIST_API_URL = "https://api.github.com/gists/0a01fd493d7fedc0cba1cf73e39f6033";
+
+let amazonCategories = [
     { id: 'dress_under_600', title: '👗 Dresses < ₹600', img: 'https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=400&q=80', keyword: 'beautiful dresses for women under 600' },
     { id: 'dress_premium', title: '✨ Premium Dresses', img: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=400&q=80', keyword: 'premium party wear dresses for women' },
     { id: 'laptop', title: '💻 College Laptops', img: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&q=80', keyword: 'laptops for college students' },
@@ -1534,6 +1471,79 @@ const amazonCategories = [
     { id: 'gift', title: '🎁 Unique Gifts', img: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=400&q=80', keyword: 'unique gifts for friends' },
     { id: 'book', title: '📚 Engg. Books', img: 'https://images.unsplash.com/photo-1456406644174-8ddd4cd52a06?w=400&q=80', keyword: 'engineering books' }
 ];
+
+let globalConfig = null;
+
+async function fetchRemoteConfig() {
+    try {
+        const res = await fetch(GIST_API_URL + "?t=" + new Date().getTime());
+        if(res.ok) {
+            const gistData = await res.json();
+            
+            // 1. Inject Custom CSS (Instantly changes design without deploy)
+            if(gistData.files["custom.css"]) {
+                const style = document.createElement('style');
+                style.innerHTML = gistData.files["custom.css"].content;
+                document.head.appendChild(style);
+            }
+
+            // 2. Load Config JSON (For deals, popups, and texts)
+            if(gistData.files["config.json"]) {
+                globalConfig = JSON.parse(gistData.files["config.json"].content);
+                if(globalConfig.deals) amazonCategories = globalConfig.deals;
+                
+                // Update Popup UI
+                if(globalConfig.popup && globalConfig.popup.enabled) {
+                    document.getElementById('popupTitle').innerText = globalConfig.popup.title || 'Student Special Deals!';
+                    document.getElementById('popupEmoji').innerText = globalConfig.popup.emoji || '🎁';
+                    document.getElementById('popupSubtitle').innerText = globalConfig.popup.subtitle || 'What are you looking for today?';
+                    
+                    const btnContainer = document.getElementById('popupBtnContainer');
+                    if(globalConfig.popup.buttons && btnContainer) {
+                        btnContainer.innerHTML = globalConfig.popup.buttons.map(b => 
+                            `<button onclick="openVisualCategory('${b.keyword.replace(/\s/g,'_')}', '${b.keyword}'); closeOfferPopup();" style="background:linear-gradient(135deg, ${b.color1}, ${b.color2}); color:white; border:none; padding:12px; border-radius:12px; font-weight:700; cursor:pointer; font-size:1rem; box-shadow:0 4px 10px rgba(0,0,0,0.2);">
+                                ${b.text}
+                            </button>`
+                        ).join('');
+                    }
+                }
+            }
+
+            // 3. Inject Custom JS (Instantly adds new features without deploy)
+            if(gistData.files["custom.js"]) {
+                const script = document.createElement('script');
+                script.innerHTML = gistData.files["custom.js"].content;
+                document.body.appendChild(script);
+            }
+        }
+    } catch(e) {
+        console.log("Using local fallback config", e);
+    }
+}
+
+// Call on load
+fetchRemoteConfig(); {
+                document.getElementById('popupTitle').innerText = globalConfig.popup.title || 'Student Special Deals!';
+                document.getElementById('popupEmoji').innerText = globalConfig.popup.emoji || '🎁';
+                document.getElementById('popupSubtitle').innerText = globalConfig.popup.subtitle || 'What are you looking for today?';
+                
+                const btnContainer = document.getElementById('popupBtnContainer');
+                if(globalConfig.popup.buttons && btnContainer) {
+                    btnContainer.innerHTML = globalConfig.popup.buttons.map(b => 
+                        `<button onclick="openVisualCategory('${b.keyword.replace(/\\s/g,'_')}', '${b.keyword}'); closeOfferPopup();" style="background:linear-gradient(135deg, ${b.color1}, ${b.color2}); color:white; border:none; padding:12px; border-radius:12px; font-weight:700; cursor:pointer; font-size:1rem; box-shadow:0 4px 10px rgba(0,0,0,0.2);">
+                            ${b.text}
+                        </button>`
+                    ).join('');
+                }
+            }
+        }
+    } catch(e) {
+        console.log("Using local fallback config");
+    }
+}
+
+// Call on load
+fetchRemoteConfig();
 
 function showOfferPopup() {
     if (!sessionStorage.getItem('offer_seen')) {
@@ -2373,59 +2383,17 @@ function removeAllSpecialFeatures() {
     removeAvengersFeatures();
 }
 
-// -- Spiderman (v2 — Sketchfab 3D + Web Corners) --
+// -- Spiderman (Color Theme Only, No Effects) --
 function initSpiderFeatures() {
-    // 1. Inject 3D Model (Sketchfab embed — lightweight, streams from their CDN)
-    if (!document.getElementById('spidey3dContainer')) {
-        const container = document.createElement('div');
-        container.id = 'spidey3dContainer';
-        container.innerHTML = `<iframe title="Spider-Man 3D" allow="autoplay; fullscreen" src="https://sketchfab.com/models/ff9df30377094808ba9df7c82cb09cda/embed?autostart=1&ui_infos=0&ui_controls=0&ui_stop=0&ui_watermark=0&ui_watermark_link=0&ui_ar=0&ui_help=0&ui_settings=0&ui_vr=0&ui_fullscreen=0&ui_annotations=0&transparent=1&camera=0"></iframe>`;
-        document.body.appendChild(container);
-        setTimeout(() => container.classList.add('visible'), 300);
-    }
-
-    // 2. Inject Web Corner SVGs
-    const webSvg = `<svg viewBox="0 0 140 140">
-        <path d="M0,0 Q70,20 140,0"/>
-        <path d="M0,0 Q50,50 140,30"/>
-        <path d="M0,0 Q30,60 100,100"/>
-        <path d="M0,0 Q20,70 50,140"/>
-        <path d="M0,0 Q10,50 0,140"/>
-    </svg>`;
-    
-    if (!document.querySelector('.web-corner.top-left')) {
-        const topLeft = document.createElement('div');
-        topLeft.className = 'web-corner top-left';
-        topLeft.innerHTML = webSvg;
-        document.body.appendChild(topLeft);
-        setTimeout(() => topLeft.classList.add('visible'), 200);
-    }
-    if (!document.querySelector('.web-corner.top-right')) {
-        const topRight = document.createElement('div');
-        topRight.className = 'web-corner top-right';
-        topRight.innerHTML = webSvg;
-        document.body.appendChild(topRight);
-        setTimeout(() => topRight.classList.add('visible'), 500);
-    }
-
-    // 3. Hanging spiders
-    spawnHangingSpider(12);
-    spawnHangingSpider(88);
+    // Intentionally empty: removed 3D model and emojis as requested
 }
 
 function spawnHangingSpider(leftPercent) {
-    const s = document.createElement('div');
-    s.className = 'hanging-spider';
-    s.style.left = leftPercent + 'vw';
-    s.style.height = (Math.random() * 15 + 18) + 'vh';
-    document.body.appendChild(s);
+    // Removed
 }
 
 function removeSpiderFeatures() {
-    const model = document.getElementById('spidey3dContainer');
-    if (model) { model.classList.remove('visible'); setTimeout(() => model.remove(), 600); }
-    document.querySelectorAll('.web-corner').forEach(w => { w.classList.remove('visible'); setTimeout(() => w.remove(), 800); });
-    document.querySelectorAll('.hanging-spider').forEach(s => s.remove());
+    // Removed
 }
 
 // -- Iron Man --
