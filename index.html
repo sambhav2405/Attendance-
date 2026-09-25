@@ -837,12 +837,14 @@
         .btn-tool-green { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
         .btn-tool-pink { background: #fdf2f8; color: #db2777; border: 1px solid #fbcfe8; }
         .btn-tool-purple { background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+        .btn-tool-cyan { background: #ecfeff; color: #0891b2; border: 1px solid #a5f3fc; }
 
         [data-theme="dark"] .btn-tool-blue { background: rgba(37, 99, 235, 0.15); color: #60a5fa; border: 1px solid rgba(37, 99, 235, 0.3); }
         [data-theme="dark"] .btn-tool-yellow { background: rgba(217, 119, 6, 0.15); color: #fbbf24; border: 1px solid rgba(217, 119, 6, 0.3); }
         [data-theme="dark"] .btn-tool-green { background: rgba(5, 150, 105, 0.15); color: #34d399; border: 1px solid rgba(5, 150, 105, 0.3); }
         [data-theme="dark"] .btn-tool-pink { background: rgba(219, 39, 119, 0.15); color: #f472b6; border: 1px solid rgba(219, 39, 119, 0.3); }
         [data-theme="dark"] .btn-tool-purple { background: rgba(124, 58, 237, 0.15); color: #c4b5fd; border: 1px solid rgba(124, 58, 237, 0.3); }
+        [data-theme="dark"] .btn-tool-cyan { background: rgba(8, 145, 178, 0.15); color: #22d3ee; border: 1px solid rgba(8, 145, 178, 0.3); }
 
         .result-text { font-size: 0.9rem; color: var(--text-light); margin-bottom: 15px; margin-left: 2px; font-weight: 600; }
         
@@ -1266,6 +1268,23 @@
                                 <button class="btn-action btn-tool-purple" onclick="calcMix()">Calc 🧮</button>
                             </div>
                             <div id="mixResult" class="result-text"></div>
+                        </div>
+
+                        <div class="tool-group full-width-tool">
+                            <div class="tool-header" style="color: #0891b2;">
+                                <i class="fas fa-layer-group"></i> Mix Mode 2.0 (Attend + Bunk + OD)
+                                <button class="info-btn" onclick="toggleInfo('infoMix2')"><i class="fas fa-info-circle"></i></button>
+                            </div>
+                            <div id="infoMix2" class="info-text">
+                                <b>हिंदी:</b> तीनों एक साथ जोड़ें: कितनी क्लास Attend करेंगे, कितनी Bunk करेंगे और कितनी OD मिलेगी — फाइनल % चेक करें।
+                            </div>
+                            <div class="tool-row">
+                                <input type="number" id="mix2Attend" placeholder="Attend" style="width: 33%;">
+                                <input type="number" id="mix2Bunk" placeholder="Bunk" style="width: 33%;">
+                                <input type="number" id="mix2OD" placeholder="OD" style="width: 33%;">
+                            </div>
+                            <button class="btn-action btn-tool-cyan" style="width:100%; margin-bottom:8px;" onclick="calcMix2()">Calc 🧮</button>
+                            <div id="mix2Result" class="result-text"></div>
                         </div>
 
                     </div>
@@ -2583,10 +2602,10 @@ function resetApp() {
     localStorage.removeItem('academic_data_v8');
     localStorage.removeItem('academic_data_v7');
 
-    ['futureInput','bunkInput','targetInput','odInput','mixAttend','mixBunk'].forEach(id => {
+    ['futureInput','bunkInput','targetInput','odInput','mixAttend','mixBunk','mix2Attend','mix2Bunk','mix2OD'].forEach(id => {
         document.getElementById(id).value = '';
     });
-    ['futureResult','bunkResult','targetResult','odResult','mixResult'].forEach(id => {
+    ['futureResult','bunkResult','targetResult','odResult','mixResult','mix2Result'].forEach(id => {
         document.getElementById(id).innerText = '';
     });
     document.querySelectorAll('.info-text').forEach(i => i.style.display = 'none');
@@ -3051,6 +3070,23 @@ function calcMix() {
         : `<span style="color:#dc2626; font-weight:800;">(${diff.toFixed(2)}%)</span>`;
     document.getElementById('mixResult').innerHTML = `Final %: <b>${newPercent.toFixed(2)}%</b> ${diffStr}`;
     showToast(`🧮 Mix Result: ${newPercent.toFixed(1)}%`, newPercent >= 75 ? 'success' : 'warning');
+}
+
+function calcMix2() {
+    const att = parseInt(document.getElementById('mix2Attend').value) || 0;
+    const bnk = parseInt(document.getElementById('mix2Bunk').value) || 0;
+    const od = parseInt(document.getElementById('mix2OD').value) || 0;
+    if (att === 0 && bnk === 0 && od === 0) { showToast('Enter at least one value!', 'warning'); return; }
+    haptic(40);
+    const newPresent = g_present + att + od;
+    const newTotal = g_total + att + bnk;
+    const newPercent = (newPresent / newTotal) * 100;
+    const diff = newPercent - parseFloat(g_percent);
+    const diffStr = diff >= 0
+        ? `<span style="color:var(--theme-color); font-weight:800;">(+${diff.toFixed(2)}%)</span>`
+        : `<span style="color:#dc2626; font-weight:800;">(${diff.toFixed(2)}%)</span>`;
+    document.getElementById('mix2Result').innerHTML = `Final %: <b>${newPercent.toFixed(2)}%</b> ${diffStr}`;
+    showToast(`🧮 Mix 2.0 Result: ${newPercent.toFixed(1)}%`, newPercent >= 75 ? 'success' : 'warning');
 }
 
 // ===== DATE PREDICTION =====
