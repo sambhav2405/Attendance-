@@ -19,14 +19,28 @@
     <h1>🏎️💥 Desi Kart Battle 3D</h1>
     <p class="sub">Racing + Item Battle — dosto ke saath ek hi WiFi pe!</p>
     <input id="nameInput" type="text" placeholder="Apna naam likho" maxlength="14">
-    <button id="joinBtn">Join Race 🚦</button>
-    <div id="playerList" class="player-list"></div>
-    <button id="startBtn" class="hidden">Start Race 🏁</button>
+
+    <div id="roomChoice" class="room-actions">
+      <button id="createRoomBtn">🏗️ Naya Room Banao</button>
+      <div class="or-sep">— ya —</div>
+      <div class="join-row">
+        <input id="codeInput" type="text" placeholder="ROOM CODE" maxlength="4">
+        <button id="joinRoomBtn">🔑 Join</button>
+      </div>
+    </div>
+
+    <div id="roomInfo" class="hidden">
+      <p class="room-code-label">Room Code — dosto ko bhejo:</p>
+      <div id="roomCodeDisplay" class="room-code-big"></div>
+      <div id="playerList" class="player-list"></div>
+      <button id="startBtn" class="hidden">Start Race 🏁</button>
+    </div>
+
     <p id="lobbyMsg" class="msg"></p>
     <div class="hint">
-      <b>Controls:</b> Arrow Keys / WASD to drive &nbsp;•&nbsp; <b>E</b> / Enter = use item<br>
-      🚀 Boost &nbsp;•&nbsp; 💣 Ladoo Bomb (hits karts ahead) &nbsp;•&nbsp; 🫖 Chai Spill (drop hazard behind)<br>
-      Track se bahar/lake me gire to wapas checkpoint pe respawn hoge!
+      <b>Controls:</b> Arrow Keys / WASD chalao &nbsp;•&nbsp; <b>Space</b> = Gun 🔫 &nbsp;•&nbsp; <b>E</b>/Enter = item use<br>
+      🚀 Boost &nbsp;•&nbsp; 💣 Ladoo Bomb &nbsp;•&nbsp; 🫖 Chai Spill &nbsp;•&nbsp; ⚡ Boost Pads track pe<br>
+      Colourful wall se takrane pe bounce hoge, lake me gire to respawn!
     </div>
   </div>
 
@@ -52,6 +66,7 @@
         <div class="tbtn" data-key="left">◀</div><div class="tbtn" data-key="down">▼</div><div class="tbtn" data-key="right">▶</div>
       </div>
       <div class="actions">
+        <div class="tbtn fire-btn" id="fireTouch">🔫</div>
         <div class="tbtn use-btn" id="useItemTouch">🎯</div>
       </div>
     </div>

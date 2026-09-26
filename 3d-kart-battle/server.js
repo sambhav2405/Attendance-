@@ -12,11 +12,11 @@ app.get('/vendor/three.module.js', (req, res) => {
     res.sendFile(path.join(__dirname, 'node_modules', 'three', 'build', 'three.module.js'));
 });
 
-// ===== Track definition (elliptical ring track on the X/Z ground plane) =====
+// ===== Track definition (big elliptical ring track on the X/Z ground plane) =====
 const TRACK = {
     cx: 0, cz: 0,
-    rxOuter: 46, rzOuter: 32,
-    rxInner: 23, rzInner: 16,
+    rxOuter: 70, rzOuter: 50,
+    rxInner: 34, rzInner: 24,
     checkpoints: 8
 };
 const rxMid = (TRACK.rxOuter + TRACK.rxInner) / 2;
@@ -27,46 +27,47 @@ const DT = 1 / TICK_RATE;
 const LAPS_TO_WIN = 3;
 
 const CAR = {
-    maxSpeed: 30,
+    maxSpeed: 34,
     itemBoostMult: 1.7,
     itemBoostDuration: 1.6,
-    accel: 24,
-    brake: 34,
-    friction: 14,
-    offTrackFriction: 46,
-    turnSpeed: 2.5,
-    bounceRadius: 2.4
+    padBoostMult: 1.45,
+    padBoostDuration: 1.3,
+    accel: 26,
+    brake: 36,
+    friction: 15,
+    offTrackFriction: 42,
+    turnSpeed: 2.3,
+    bounceRadius: 2.4,
+    wallBounceMult: 0.32,
+    obstacleRadius: 2.3,
+    obstacleStunMs: 500
 };
 
 const ITEM_TYPES = ['boost', 'shell', 'oil'];
-const ITEM_BOX_COUNT = 4;
+const ITEM_BOX_COUNT = 5;
 const ITEM_PICKUP_RADIUS = 3.2;
 const ITEM_BOX_RESPAWN_MS = 4000;
 
-const SHELL_SPEED = 46;
+const SHELL_SPEED = 48;
 const SHELL_HIT_RADIUS = 2.4;
 const SHELL_MAX_LIFE_MS = 3000;
+const BULLET_SPEED = 60;
+const BULLET_HIT_RADIUS = 1.7;
+const BULLET_MAX_LIFE_MS = 900;
+const BULLET_STUN_MS = 450;
+const GUN_COOLDOWN_MS = 260;
+
 const HAZARD_RADIUS = 2.4;
 const HAZARD_LIFE_MS = 9000;
 const STUN_MS = 1500;
 const FALL_STUN_MS = 700;
+const STUN_IMMUNITY_MS = 700; // brief immunity after a stun ends, so point-blank fire can't lock a kart forever
 
 const COLORS = ['#ef4444', '#3b82f6', '#22c55e', '#f59e0b', '#a855f7', '#06b6d4', '#ec4899', '#eab308'];
+const ROOM_CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
-let players = {};
-let raceState = 'lobby'; // lobby | countdown | racing | finished
-let countdownValue = 0;
-let raceStartTime = 0;
-let finishOrder = [];
-let countdownInterval = null;
-let projectiles = [];
-let hazards = [];
-let nextEntityId = 1;
-
-// ===== Track math helpers =====
-function checkpointAngle(index) {
-    return (index / TRACK.checkpoints) * Math.PI * 2 - Math.PI / 2;
-}
+// ===== Track math helpers (shared by every room) =====
+function checkpointAngle(index) { return (index / TRACK.checkpoints) * Math.PI * 2 - Math.PI / 2; }
 function checkpointWaypoint(index) {
     const a = checkpointAngle(index);
     return {
@@ -75,11 +76,7 @@ function checkpointWaypoint(index) {
         heading: Math.atan2(rzMid * Math.cos(a), -rxMid * Math.sin(a))
     };
 }
-function angleOnTrack(x, z) {
-    const nx = (x - TRACK.cx) / rxMid;
-    const nz = (z - TRACK.cz) / rzMid;
-    return Math.atan2(nz, nx);
-}
+function angleOnTrack(x, z) { return Math.atan2((z - TRACK.cz) / rzMid, (x - TRACK.cx) / rxMid); }
 function checkpointIndexForAngle(a) {
     let shifted = a + Math.PI / 2;
     if (shifted < 0) shifted += Math.PI * 2;
@@ -93,7 +90,7 @@ function innerNorm(x, z) {
     const dx = (x - TRACK.cx) / TRACK.rxInner, dz = (z - TRACK.cz) / TRACK.rzInner;
     return Math.sqrt(dx * dx + dz * dz);
 }
-function isOnTrack(x, z) { return outerNorm(x, z) <= 1 && innerNorm(x, z) >= 1; }
+function isOnTrack(x, z) { return outerNorm(x, z) <= 1.001 && innerNorm(x, z) >= 1; }
 
 function startPositions(n) {
     const startZ = TRACK.cz - rzMid;
@@ -110,30 +107,64 @@ function makeItemBoxes() {
     const boxes = [];
     for (let i = 0; i < ITEM_BOX_COUNT; i++) {
         const a = (i / ITEM_BOX_COUNT) * Math.PI * 2 + Math.PI / ITEM_BOX_COUNT;
-        boxes.push({
-            id: i,
-            x: TRACK.cx + rxMid * Math.cos(a),
-            z: TRACK.cz + rzMid * Math.sin(a),
-            available: true,
-            respawnAt: 0
-        });
+        boxes.push({ id: i, x: TRACK.cx + rxMid * Math.cos(a), z: TRACK.cz + rzMid * Math.sin(a), available: true, respawnAt: 0 });
     }
     return boxes;
 }
-let itemBoxes = makeItemBoxes();
 
-function broadcastLobby() {
-    io.emit('lobby', {
-        players: Object.fromEntries(Object.entries(players).map(([id, p]) => [id, { name: p.name, color: p.color }]))
+// Static obstacles (colourful drums) - scattered between the inner and outer track edge to force weaving.
+const OBSTACLES = [0.35, 1.15, 2.05, 3.05, 3.95, 4.95].map((angle, i) => {
+    const t = (i % 2 === 0) ? 0.35 : 0.65; // 0 = near inner edge, 1 = near outer edge
+    const rx = TRACK.rxInner + (TRACK.rxOuter - TRACK.rxInner) * t;
+    const rz = TRACK.rzInner + (TRACK.rzOuter - TRACK.rzInner) * t;
+    return { id: i, x: TRACK.cx + rx * Math.cos(angle), z: TRACK.cz + rz * Math.sin(angle), radius: CAR.obstacleRadius };
+});
+
+const BOOST_PADS = [0.9, 2.6, 4.2, 5.6].map((angle, i) => ({
+    id: i,
+    x: TRACK.cx + rxMid * Math.cos(angle),
+    z: TRACK.cz + rzMid * Math.sin(angle),
+    radius: 3.4
+}));
+
+function generateRoomCode() {
+    let code;
+    do {
+        code = Array.from({ length: 4 }, () => ROOM_CODE_CHARS[Math.floor(Math.random() * ROOM_CODE_CHARS.length)]).join('');
+    } while (rooms.has(code));
+    return code;
+}
+
+function createRoomState() {
+    return {
+        players: {},
+        raceState: 'lobby', // lobby | countdown | racing | finished
+        countdownValue: 0,
+        raceStartTime: 0,
+        finishOrder: [],
+        projectiles: [],
+        hazards: [],
+        itemBoxes: makeItemBoxes(),
+        countdownInterval: null,
+        nextEntityId: 1
+    };
+}
+
+const rooms = new Map(); // code -> room state
+
+function broadcastLobby(code, room) {
+    io.to(code).emit('lobby', {
+        code,
+        players: Object.fromEntries(Object.entries(room.players).map(([id, p]) => [id, { name: p.name, color: p.color }]))
     });
 }
 
-function resetRace() {
-    if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
-    const ids = Object.keys(players);
+function resetRace(room) {
+    if (room.countdownInterval) { clearInterval(room.countdownInterval); room.countdownInterval = null; }
+    const ids = Object.keys(room.players);
     const positions = startPositions(ids.length);
     ids.forEach((id, i) => {
-        const p = players[id];
+        const p = room.players[id];
         p.x = positions[i].x; p.z = positions[i].z; p.y = 0;
         p.angle = 0; p.speed = 0;
         p.lap = 0; p.nextCheckpoint = 1;
@@ -141,25 +172,28 @@ function resetRace() {
         p.heldItem = null;
         p.boostTimer = 0;
         p.stunUntil = 0;
+        p.stunImmuneUntil = 0;
         p.fellAt = 0;
-        p.input = { up: false, down: false, left: false, right: false };
+        p.lastGunFireAt = 0;
+        p.input = { up: false, down: false, left: false, right: false, fire: false };
     });
-    projectiles = [];
-    hazards = [];
-    itemBoxes = makeItemBoxes();
-    finishOrder = [];
-    raceState = 'lobby';
+    room.projectiles = [];
+    room.hazards = [];
+    room.itemBoxes = makeItemBoxes();
+    room.finishOrder = [];
+    room.raceState = 'lobby';
 }
 
-function tick() {
+function tickRoom(code, room) {
     const now = Date.now();
-    const ids = Object.keys(players);
+    const ids = Object.keys(room.players);
+    if (ids.length === 0) return; // nothing to simulate / broadcast
 
-    itemBoxes.forEach(b => { if (!b.available && now >= b.respawnAt) b.available = true; });
+    room.itemBoxes.forEach(b => { if (!b.available && now >= b.respawnAt) b.available = true; });
 
-    if (raceState === 'racing') {
+    if (room.raceState === 'racing') {
         ids.forEach(id => {
-            const p = players[id];
+            const p = room.players[id];
             if (p.finished) return;
             const inp = p.input;
             const stunned = now < p.stunUntil;
@@ -167,7 +201,7 @@ function tick() {
             if (p.boostTimer > 0) p.boostTimer -= DT;
 
             const onTrack = isOnTrack(p.x, p.z);
-            const maxSpeed = CAR.maxSpeed * (p.boostTimer > 0 ? CAR.itemBoostMult : 1) * (onTrack ? 1 : 0.55);
+            const maxSpeed = CAR.maxSpeed * (p.boostTimer > 0 ? CAR.itemBoostMult : 1) * (onTrack ? 1 : 0.6);
 
             if (stunned) {
                 p.speed *= 0.9;
@@ -192,6 +226,16 @@ function tick() {
             p.x += Math.cos(p.angle) * p.speed * DT;
             p.z += Math.sin(p.angle) * p.speed * DT;
 
+            // solid colourful outer wall: clamp position back onto the boundary + bounce
+            const oNorm1 = outerNorm(p.x, p.z);
+            if (oNorm1 > 1) {
+                const nx = (p.x - TRACK.cx) / TRACK.rxOuter, nz = (p.z - TRACK.cz) / TRACK.rzOuter;
+                const scale = 1 / oNorm1;
+                p.x = TRACK.cx + nx * scale * TRACK.rxOuter;
+                p.z = TRACK.cz + nz * scale * TRACK.rzOuter;
+                p.speed *= CAR.wallBounceMult;
+            }
+
             // checkpoints / laps
             if (isOnTrack(p.x, p.z)) {
                 const cp = checkpointIndexForAngle(angleOnTrack(p.x, p.z));
@@ -201,26 +245,49 @@ function tick() {
                         p.lap += 1;
                         if (p.lap >= LAPS_TO_WIN) {
                             p.finished = true;
-                            p.finishTime = now - raceStartTime;
-                            finishOrder.push({ id, name: p.name, time: p.finishTime });
+                            p.finishTime = now - room.raceStartTime;
+                            room.finishOrder.push({ id, name: p.name, time: p.finishTime });
                         }
                     }
                 }
             }
 
-            // fell off track (too far outside, or deep into the inner lake)
-            const oNorm = outerNorm(p.x, p.z), iNorm = innerNorm(p.x, p.z);
-            if (oNorm > 1.45 || iNorm < 0.5) {
+            // fell into the inner lake (no wall there - it's a risk/reward hazard)
+            const iNorm = innerNorm(p.x, p.z);
+            if (iNorm < 0.5) {
                 const lastCp = (p.nextCheckpoint - 1 + TRACK.checkpoints) % TRACK.checkpoints;
                 const wp = checkpointWaypoint(lastCp);
                 p.x = wp.x; p.z = wp.z; p.angle = wp.heading; p.speed = 0;
                 p.stunUntil = now + FALL_STUN_MS;
+                p.stunImmuneUntil = now + FALL_STUN_MS + STUN_IMMUNITY_MS;
                 p.fellAt = now;
+            }
+
+            // obstacle drums
+            for (const ob of OBSTACLES) {
+                const dist = Math.hypot(p.x - ob.x, p.z - ob.z);
+                const minDist = ob.radius + 0.9;
+                if (dist < minDist && dist > 0) {
+                    const nx = (p.x - ob.x) / dist, nz = (p.z - ob.z) / dist;
+                    p.x = ob.x + nx * minDist; p.z = ob.z + nz * minDist;
+                    p.speed *= 0.3;
+                    if (!stunned && now >= p.stunImmuneUntil) {
+                        p.stunUntil = now + CAR.obstacleStunMs;
+                        p.stunImmuneUntil = now + CAR.obstacleStunMs + STUN_IMMUNITY_MS;
+                    }
+                }
+            }
+
+            // boost pads
+            for (const pad of BOOST_PADS) {
+                if (Math.hypot(p.x - pad.x, p.z - pad.z) < pad.radius) {
+                    p.boostTimer = Math.max(p.boostTimer, CAR.padBoostDuration);
+                }
             }
 
             // item box pickups
             if (!p.heldItem) {
-                for (const box of itemBoxes) {
+                for (const box of room.itemBoxes) {
                     if (!box.available) continue;
                     if (Math.hypot(p.x - box.x, p.z - box.z) < ITEM_PICKUP_RADIUS) {
                         p.heldItem = ITEM_TYPES[Math.floor(Math.random() * ITEM_TYPES.length)];
@@ -230,12 +297,22 @@ function tick() {
                     }
                 }
             }
+
+            // gun (hold to fire, always available, weak + short range)
+            if (inp.fire && !stunned && !p.finished && now - p.lastGunFireAt >= GUN_COOLDOWN_MS) {
+                p.lastGunFireAt = now;
+                room.projectiles.push({
+                    id: room.nextEntityId++, ownerId: id, type: 'bullet',
+                    x: p.x + Math.cos(p.angle) * 2, z: p.z + Math.sin(p.angle) * 2,
+                    dx: Math.cos(p.angle), dz: Math.sin(p.angle), spawnedAt: now
+                });
+            }
         });
 
         // kart-kart bump
         for (let i = 0; i < ids.length; i++) {
             for (let j = i + 1; j < ids.length; j++) {
-                const a = players[ids[i]], b = players[ids[j]];
+                const a = room.players[ids[i]], b = room.players[ids[j]];
                 const dx = b.x - a.x, dz = b.z - a.z;
                 const dist = Math.hypot(dx, dz);
                 const minDist = CAR.bounceRadius * 2;
@@ -249,105 +326,135 @@ function tick() {
             }
         }
 
-        // projectiles
-        projectiles = projectiles.filter(pr => {
-            if (now - pr.spawnedAt > SHELL_MAX_LIFE_MS) return false;
-            pr.x += pr.dx * SHELL_SPEED * DT;
-            pr.z += pr.dz * SHELL_SPEED * DT;
+        // projectiles (shells from items + bullets from the gun)
+        room.projectiles = room.projectiles.filter(pr => {
+            const isBullet = pr.type === 'bullet';
+            const speed = isBullet ? BULLET_SPEED : SHELL_SPEED;
+            const maxLife = isBullet ? BULLET_MAX_LIFE_MS : SHELL_MAX_LIFE_MS;
+            const hitRadius = isBullet ? BULLET_HIT_RADIUS : SHELL_HIT_RADIUS;
+            const stunMs = isBullet ? BULLET_STUN_MS : STUN_MS;
+
+            if (now - pr.spawnedAt > maxLife) return false;
+            pr.x += pr.dx * speed * DT;
+            pr.z += pr.dz * speed * DT;
             for (const id of ids) {
                 if (id === pr.ownerId) continue;
-                const target = players[id];
-                if (target.finished || now < target.stunUntil) continue;
-                if (Math.hypot(target.x - pr.x, target.z - pr.z) < SHELL_HIT_RADIUS) {
-                    target.stunUntil = now + STUN_MS;
-                    target.speed *= 0.2;
-                    return false; // projectile consumed
+                const target = room.players[id];
+                if (target.finished || now < target.stunUntil || now < target.stunImmuneUntil) continue;
+                if (Math.hypot(target.x - pr.x, target.z - pr.z) < hitRadius) {
+                    target.stunUntil = now + stunMs;
+                    target.stunImmuneUntil = now + stunMs + STUN_IMMUNITY_MS;
+                    target.speed *= 0.25;
+                    return false;
                 }
             }
-            return outerNorm(pr.x, pr.z) < 1.9; // despawn once way off the world
+            return outerNorm(pr.x, pr.z) < 1.05; // despawn on hitting the outer wall
         });
 
-        // hazards
-        hazards = hazards.filter(hz => {
+        // hazards (chai spill)
+        room.hazards = room.hazards.filter(hz => {
             if (now - hz.createdAt > HAZARD_LIFE_MS) return false;
             for (const id of ids) {
-                if (id === hz.ownerId && now - hz.createdAt < 1000) continue; // grace period for owner
-                const target = players[id];
-                if (target.finished || now < target.stunUntil) continue;
+                if (id === hz.ownerId && now - hz.createdAt < 1000) continue;
+                const target = room.players[id];
+                if (target.finished || now < target.stunUntil || now < target.stunImmuneUntil) continue;
                 if (Math.hypot(target.x - hz.x, target.z - hz.z) < HAZARD_RADIUS) {
                     target.stunUntil = now + STUN_MS * 0.8;
+                    target.stunImmuneUntil = now + STUN_MS * 0.8 + STUN_IMMUNITY_MS;
                     target.speed *= 0.2;
-                    return false; // hazard consumed
+                    return false;
                 }
             }
             return true;
         });
 
-        if (ids.length > 0 && ids.every(id => players[id].finished)) {
-            raceState = 'finished';
+        if (ids.length > 0 && ids.every(id => room.players[id].finished)) {
+            room.raceState = 'finished';
         }
     }
 
-    io.emit('state', {
-        raceState, countdownValue, lapsToWin: LAPS_TO_WIN,
+    io.to(code).emit('state', {
+        raceState: room.raceState, countdownValue: room.countdownValue, lapsToWin: LAPS_TO_WIN,
         track: TRACK,
-        itemBoxes: itemBoxes.map(b => ({ id: b.id, x: b.x, z: b.z, available: b.available })),
-        projectiles: projectiles.map(pr => ({ id: pr.id, x: pr.x, z: pr.z })),
-        hazards: hazards.map(hz => ({ id: hz.id, x: hz.x, z: hz.z })),
+        obstacles: OBSTACLES,
+        boostPads: BOOST_PADS,
+        itemBoxes: room.itemBoxes.map(b => ({ id: b.id, x: b.x, z: b.z, available: b.available })),
+        projectiles: room.projectiles.map(pr => ({ id: pr.id, x: pr.x, z: pr.z, type: pr.type || 'shell' })),
+        hazards: room.hazards.map(hz => ({ id: hz.id, x: hz.x, z: hz.z })),
         players: Object.fromEntries(ids.map(id => {
-            const p = players[id];
+            const p = room.players[id];
             return [id, {
                 name: p.name, color: p.color, x: p.x, y: p.y, z: p.z, angle: p.angle, speed: p.speed,
                 lap: p.lap, finished: p.finished, heldItem: p.heldItem,
                 boosting: p.boostTimer > 0, stunned: now < p.stunUntil, fellAt: p.fellAt
             }];
         })),
-        finishOrder
+        finishOrder: room.finishOrder
     });
 }
 
-setInterval(tick, 1000 / TICK_RATE);
+setInterval(() => { for (const [code, room] of rooms) tickRoom(code, room); }, 1000 / TICK_RATE);
+
+function addPlayerToRoom(socket, code, room, name) {
+    socket.join(code);
+    socket.data.roomCode = code;
+    room.players[socket.id] = {
+        name: String(name || 'Player').slice(0, 14) || 'Player',
+        color: COLORS[Object.keys(room.players).length % COLORS.length],
+        x: TRACK.cx, y: 0, z: TRACK.cz, angle: 0, speed: 0,
+        lap: 0, nextCheckpoint: 1, finished: false, finishTime: null,
+        heldItem: null, boostTimer: 0, stunUntil: 0, stunImmuneUntil: 0, fellAt: 0, lastGunFireAt: 0,
+        input: { up: false, down: false, left: false, right: false, fire: false }
+    };
+    resetRace(room);
+    socket.emit('roomJoined', { code });
+    broadcastLobby(code, room);
+}
 
 io.on('connection', (socket) => {
-    socket.on('join', (name) => {
-        if (raceState === 'countdown' || raceState === 'racing') {
+    socket.on('createRoom', (name) => {
+        const code = generateRoomCode();
+        const room = createRoomState();
+        rooms.set(code, room);
+        addPlayerToRoom(socket, code, room, name);
+    });
+
+    socket.on('joinRoom', (data) => {
+        const code = String((data && data.code) || '').toUpperCase().trim();
+        const room = rooms.get(code);
+        if (!room) { socket.emit('joinRejected', 'Room nahi mila! Code check karo.'); return; }
+        if (room.raceState === 'countdown' || room.raceState === 'racing') {
             socket.emit('joinRejected', 'Race chal rahi hai, agli race ka wait karo!');
             return;
         }
-        players[socket.id] = {
-            name: String(name || 'Player').slice(0, 14) || 'Player',
-            color: COLORS[Object.keys(players).length % COLORS.length],
-            x: TRACK.cx, y: 0, z: TRACK.cz, angle: 0, speed: 0,
-            lap: 0, nextCheckpoint: 1, finished: false, finishTime: null,
-            heldItem: null, boostTimer: 0, stunUntil: 0, fellAt: 0,
-            input: { up: false, down: false, left: false, right: false }
-        };
-        resetRace();
-        broadcastLobby();
+        addPlayerToRoom(socket, code, room, data && data.name);
     });
 
     socket.on('input', (inp) => {
-        const p = players[socket.id];
+        const room = rooms.get(socket.data.roomCode);
+        const p = room && room.players[socket.id];
         if (p && inp) {
-            p.input = { up: !!inp.up, down: !!inp.down, left: !!inp.left, right: !!inp.right };
+            p.input = { up: !!inp.up, down: !!inp.down, left: !!inp.left, right: !!inp.right, fire: !!inp.fire };
         }
     });
 
     socket.on('useItem', () => {
-        const p = players[socket.id];
-        if (!p || !p.heldItem || raceState !== 'racing' || p.finished) return;
+        const room = rooms.get(socket.data.roomCode);
+        if (!room) return;
+        const p = room.players[socket.id];
+        if (!p || !p.heldItem || room.raceState !== 'racing' || p.finished) return;
         const now = Date.now();
         if (p.heldItem === 'boost') {
             p.boostTimer = CAR.itemBoostDuration;
         } else if (p.heldItem === 'shell') {
-            projectiles.push({
-                id: nextEntityId++, ownerId: socket.id,
+            room.projectiles.push({
+                id: room.nextEntityId++, ownerId: socket.id, type: 'shell',
                 x: p.x + Math.cos(p.angle) * 2.6, z: p.z + Math.sin(p.angle) * 2.6,
                 dx: Math.cos(p.angle), dz: Math.sin(p.angle), spawnedAt: now
             });
         } else if (p.heldItem === 'oil') {
-            hazards.push({
-                id: nextEntityId++, ownerId: socket.id,
+            room.hazards.push({
+                id: room.nextEntityId++, ownerId: socket.id,
                 x: p.x - Math.cos(p.angle) * 3, z: p.z - Math.sin(p.angle) * 3, createdAt: now
             });
         }
@@ -355,31 +462,41 @@ io.on('connection', (socket) => {
     });
 
     socket.on('startRace', () => {
-        if (Object.keys(players).length >= 1 && raceState === 'lobby') {
-            resetRace();
-            raceState = 'countdown';
-            countdownValue = 3;
-            countdownInterval = setInterval(() => {
-                countdownValue -= 1;
-                if (countdownValue <= 0) {
-                    clearInterval(countdownInterval);
-                    countdownInterval = null;
-                    raceState = 'racing';
-                    raceStartTime = Date.now();
+        const room = rooms.get(socket.data.roomCode);
+        if (room && Object.keys(room.players).length >= 1 && room.raceState === 'lobby') {
+            resetRace(room);
+            room.raceState = 'countdown';
+            room.countdownValue = 3;
+            room.countdownInterval = setInterval(() => {
+                room.countdownValue -= 1;
+                if (room.countdownValue <= 0) {
+                    clearInterval(room.countdownInterval);
+                    room.countdownInterval = null;
+                    room.raceState = 'racing';
+                    room.raceStartTime = Date.now();
                 }
             }, 1000);
         }
     });
 
     socket.on('restart', () => {
-        resetRace();
-        broadcastLobby();
+        const room = rooms.get(socket.data.roomCode);
+        if (!room) return;
+        resetRace(room);
+        broadcastLobby(socket.data.roomCode, room);
     });
 
     socket.on('disconnect', () => {
-        delete players[socket.id];
-        if (Object.keys(players).length === 0) resetRace();
-        broadcastLobby();
+        const code = socket.data.roomCode;
+        const room = rooms.get(code);
+        if (!room) return;
+        delete room.players[socket.id];
+        if (Object.keys(room.players).length === 0) {
+            if (room.countdownInterval) clearInterval(room.countdownInterval);
+            rooms.delete(code);
+        } else {
+            broadcastLobby(code, room);
+        }
     });
 });
 
