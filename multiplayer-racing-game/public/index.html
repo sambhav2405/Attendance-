@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Turbo Dost Racing</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div id="lobby" class="screen">
+    <h1>🏎️ Turbo Dost Racing</h1>
+    <p class="sub">Dosto ke saath ek hi WiFi pe race karo!</p>
+    <input id="nameInput" type="text" placeholder="Apna naam likho" maxlength="14">
+    <button id="joinBtn">Join Race 🚦</button>
+    <div id="playerList" class="player-list"></div>
+    <button id="startBtn" class="hidden">Start Race 🏁</button>
+    <p id="lobbyMsg" class="msg"></p>
+    <p class="hint">Controls: Arrow Keys / WASD to drive, Space to Boost ⚡</p>
+  </div>
+
+  <div id="gameScreen" class="screen hidden">
+    <canvas id="gameCanvas" width="1000" height="700"></canvas>
+    <div id="hud">
+      <div id="countdown" class="hidden"></div>
+      <div id="lapInfo"></div>
+    </div>
+    <div class="touch-controls">
+      <div class="dpad">
+        <div></div><div class="tbtn" data-key="up">▲</div><div></div>
+        <div class="tbtn" data-key="left">◀</div><div class="tbtn" data-key="down">▼</div><div class="tbtn" data-key="right">▶</div>
+      </div>
+      <div class="actions">
+        <div class="tbtn boost-btn" data-key="boost">⚡</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="resultScreen" class="screen hidden">
+    <h1>🏆 Race Results</h1>
+    <ol id="resultList"></ol>
+    <button id="raceAgainBtn">Race Again 🔁</button>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
