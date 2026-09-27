@@ -50,6 +50,13 @@ const AUTO_NEXT_ROUND_MS = 10000;
 
 const JUMP_VY = 13, GRAVITY = 30, RAMP_RADIUS = 4.2, RAMP_MIN_SPEED = 8, RAMP_COOLDOWN_MS = 900;
 const TOWER_LAUNCH_SPEED = 14;
+
+// power-slide mini-turbo: hold a hard turn while at speed to charge it, let go (or
+// switch direction) to release a short boost - bigger charge = bigger tier of boost
+const DRIFT_MIN_SPEED = CAR.maxSpeed * 0.55;
+const DRIFT_TIER_MS = [650, 1300]; // charge thresholds for tier 1 / tier 2
+const DRIFT_BOOST_DURATION_S = [0, 0.5, 0.9];
+const DRIFT_BOOST_MULT = [1, 1.25, 1.55];
 const PULSE_RADIUS = 16, PULSE_STRENGTH = 22;
 
 const MEGA_BOOST_INTERVAL_MS = 25000;
@@ -351,6 +358,7 @@ function freshPlayerState(base) {
         shieldUntil: 0, growUntil: 0, shrinkUntil: 0, reverseUntil: 0, slipUntil: 0, empUntil: 0,
         pulseUntil: 0, stealthUntil: 0, ammoOverloadUntil: 0, radarUntil: 0, megaBoostUntil: 0,
         vy: 0, jumping: false, lastRampAt: 0, currentFloor: 0, pendingFloor: null,
+        driftDir: 0, driftChargeMs: 0, driftBoostUntil: 0, driftBoostTier: 0,
         ammo: GUN.maxAmmo, nextAmmoRegenAt: 0, lastGunFireAt: 0,
         input: { up: false, down: false, left: false, right: false, fire: false }
     });
@@ -506,6 +514,7 @@ function respawnBattlePlayer(room, id, map) {
     p.alive = true; p.spawnProtectedUntil = now + SPAWN_PROTECTION_MS;
     p.heldItem = null; p.stunUntil = 0; p.stunImmuneUntil = 0;
     p.currentFloor = sp.floor || 0; p.pendingFloor = null;
+    p.driftDir = 0; p.driftChargeMs = 0; p.driftBoostUntil = 0;
 }
 
 function tickRoom(code, room) {
@@ -544,7 +553,12 @@ function tickRoom(code, room) {
             let sizeMult = grown ? CAR.growScale : (shrunk ? CAR.shrinkScale : 1);
             const speedSizeFactor = shrunk ? 0.7 : 1;
             const megaBoosted = now < p.megaBoostUntil;
-            const boostMult = megaBoosted ? MEGA_BOOST_MULT : (p.boostTimer > 0 ? CAR.itemBoostMult : 1);
+            const driftBoosted = now < p.driftBoostUntil;
+            const boostMult = Math.max(
+                megaBoosted ? MEGA_BOOST_MULT : 1,
+                driftBoosted ? DRIFT_BOOST_MULT[p.driftBoostTier] : 1,
+                p.boostTimer > 0 ? CAR.itemBoostMult : 1
+            );
             const maxSpeed = CAR.maxSpeed * boostMult * (onTrack ? 1 : 0.6) * speedSizeFactor;
 
             // mid-air on a scripted tower ramp: hold a fixed launch speed so every
@@ -565,14 +579,31 @@ function tickRoom(code, room) {
             }
             p.speed = Math.max(-CAR.maxSpeed * 0.5, Math.min(maxSpeed, p.speed));
 
+            let left = false, right = false;
             if (!stunned) {
                 let turnFactor = Math.min(1, Math.abs(p.speed) / 9);
                 if (slipped) turnFactor *= 0.4;
                 const turnDir = p.speed < 0 ? -1 : 1;
-                const left = reversed ? inp.right : inp.left;
-                const right = reversed ? inp.left : inp.right;
+                left = reversed ? inp.right : inp.left;
+                right = reversed ? inp.left : inp.right;
                 if (left) p.angle -= CAR.turnSpeed * DT * turnFactor * turnDir;
                 if (right) p.angle += CAR.turnSpeed * DT * turnFactor * turnDir;
+            }
+
+            // power-slide: hold one direction hard while fast enough to charge a mini-turbo;
+            // release or switch direction (or stop qualifying) to cash it in
+            const wantDir = left && !right ? -1 : (right && !left ? 1 : 0);
+            const canDrift = !stunned && !inTowerFlight && p.speed > DRIFT_MIN_SPEED && onTrack;
+            if (canDrift && wantDir !== 0 && wantDir === p.driftDir) {
+                p.driftChargeMs += DT * 1000;
+            } else {
+                if (p.driftChargeMs >= DRIFT_TIER_MS[0]) {
+                    const tier = p.driftChargeMs >= DRIFT_TIER_MS[1] ? 2 : 1;
+                    p.driftBoostTier = tier;
+                    p.driftBoostUntil = now + DRIFT_BOOST_DURATION_S[tier] * 1000;
+                }
+                p.driftChargeMs = canDrift && wantDir !== 0 ? DT * 1000 : 0;
+                p.driftDir = wantDir;
             }
 
             p.x += Math.cos(p.angle) * p.speed * DT;
@@ -871,12 +902,14 @@ function tickRoom(code, room) {
             const p = room.players[id];
             const base = {
                 name: p.name, color: p.color, vehicle: p.vehicle, x: p.x, y: p.y, z: p.z, angle: p.angle, speed: p.speed,
-                heldItem: p.heldItem, boosting: p.boostTimer > 0 || now < p.megaBoostUntil, stunned: now < p.stunUntil, fellAt: p.fellAt,
+                heldItem: p.heldItem, boosting: p.boostTimer > 0 || now < p.megaBoostUntil || now < p.driftBoostUntil, stunned: now < p.stunUntil, fellAt: p.fellAt,
                 ammo: p.ammo, maxAmmo: GUN.maxAmmo,
                 shielded: now < p.shieldUntil, grown: now < p.growUntil, shrunk: now < p.shrinkUntil,
                 reversed: now < p.reverseUntil, slipped: now < p.slipUntil, empJammed: now < p.empUntil,
                 pulsing: now < p.pulseUntil, stealth: now < p.stealthUntil, radar: now < p.radarUntil, team: p.team || null,
-                floor: p.currentFloor || 0
+                floor: p.currentFloor || 0,
+                driftTier: p.driftChargeMs >= DRIFT_TIER_MS[1] ? 2 : (p.driftChargeMs >= DRIFT_TIER_MS[0] ? 1 : 0),
+                driftBoosted: now < p.driftBoostUntil, jumping: p.jumping
             };
             if (room.mode === 'race') return [id, { ...base, lap: p.lap, finished: p.finished }];
             return [id, { ...base, alive: p.alive, respawnAt: p.respawnAt, score: room.scores[id] || 0 }];

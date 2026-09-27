@@ -971,7 +971,10 @@ function createKart(color, name, vehicleId) {
 
     const materials = [bodyMat, darkMat, wheelMat, rimMat];
     scene.add(group);
-    return { group, body: chassis, wheels, flame, shieldBubble, nameSprite, materials, lastAngle: 0, lastFellAt: 0, lastY: 0 };
+    return {
+        group, body: chassis, wheels, flame, shieldBubble, nameSprite, materials,
+        lastAngle: 0, lastFellAt: 0, lastY: 0, wasJumping: false, squash: 1, driftSparkPhase: 0
+    };
 }
 
 function makeMysteryBoxTexture() {
@@ -1351,6 +1354,30 @@ function animate() {
             k.group.scale.x += (sizeTarget - k.group.scale.x) * Math.min(1, dt * 6);
             k.group.scale.y += (sizeTarget - k.group.scale.y) * Math.min(1, dt * 6);
             k.group.scale.z += (sizeTarget - k.group.scale.z) * Math.min(1, dt * 6);
+        }
+
+        // landing squash-and-stretch: a quick juicy dip the instant a jump ends
+        if (k.wasJumping && !t.jumping) k.squash = 0.55;
+        k.wasJumping = !!t.jumping;
+        k.squash += (1 - k.squash) * Math.min(1, dt * 10);
+        k.group.scale.y *= k.squash;
+        k.group.scale.x *= 1 + (1 - k.squash) * 0.25;
+        k.group.scale.z *= 1 + (1 - k.squash) * 0.25;
+
+        // power-slide sparks: colour ramps blue -> orange as the charge builds, flares gold on release
+        if (t.driftBoosted) {
+            k.driftSparkPhase += dt * 30;
+            if (k.driftSparkPhase > 1) {
+                k.driftSparkPhase = 0;
+                spawnBurst(k.group.position.x, (t.y || 0) + 0.3, k.group.position.z, 0xfbbf24, { count: 2, speed: 2.5, life: 0.3, size: 0.12 });
+            }
+        } else if (t.driftTier > 0) {
+            k.driftSparkPhase += dt * (t.driftTier >= 2 ? 22 : 12);
+            if (k.driftSparkPhase > 1) {
+                k.driftSparkPhase = 0;
+                const color = t.driftTier >= 2 ? 0xf97316 : 0x38bdf8;
+                spawnBurst(k.group.position.x, (t.y || 0) + 0.25, k.group.position.z, color, { count: 1, speed: 1.5, life: 0.35, size: 0.09 });
+            }
         }
 
         const stealthed = t.stealth && id !== myId;

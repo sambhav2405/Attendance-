@@ -40,8 +40,14 @@ Terminal me dikhega: `Desi Kart Battle 3D server running: http://localhost:3001`
 - Match khatam hone ke **10 second baad agla round khud shuru** ho jata hai.
 - Koi bhi player match ke beech me "Room Chhodo" dabakar exit kar sakta hai — baaki match chalta rehta hai.
 
+## Physics aur Animation
+- **Power-Slide mini-turbo**: tez speed pe ek hi taraf continuously mudo — car ke peeche neela spark aana shuru hoga, thodi der baad orange ho jayega (bada charge). Turn chhodte hi ek speed-boost milta hai — jitna bada charge, utna bada boost. Yahi asli kart-racing games ka "drift boost" hai.
+- **Landing squash** — ramp/platform se jump ke baad zameen pe wapas aate hi car halka sa squash-and-stretch karti hai, real physics jaisa "juicy" feel ke liye.
+- Body turn ke hisaab se thoda bank/lean karti hai, aur hawa me thoda nose-tilt bhi hota hai.
+- Kart-vs-kart collision, gun/bomb hits, gravity-pulse aur EMP sab ab **floor-aware** hain — sirf usi floor pe kaam karte hain jahan attacker/target dono khade hain, taaki multi-floor battle bilkul fair rahe.
+
 ## Controls
-- **Arrow Keys / WASD** — chalao / mudo
+- **Arrow Keys / WASD** — chalao / mudo (ek taraf der tak mudo speed pe to Power-Slide charge hoga)
 - **Space** (hold) — Gun — ab **limited ammo** (15 rounds, dheere-dheere regenerate hoti hai)
 - **E / Enter** — held power-up use karo
 
@@ -76,6 +82,11 @@ Har ~25 second me kisi boost-pad ke paas ek chamakta hua orange **Mega Booster**
 - **Mega Booster** — fixed interval pe spawn hone wala super-speed power-up
 - **Enemy Radar minimap reveal** — stealth players bhi dikhte hain jab radar active ho
 - **Team Battle mode** — Red vs Blue, auto-balanced teams, no friendly fire, combined team score
+- **Bade fighting platforms** — Colosseum + Sky Tower dono ke upar-wale floors ab poore proper stage jitne bade, apne obstacles/items/boost pad ke saath
+- **Har attack ka apna impact-animation** — explosions, ice-shatter, sparks, splash, EMP ring, warp-flash
+- **Glowing lava dead-zones** aur premium-look platforms (trim-ring, lamp-posts, multiple support pillars)
+- **Power-Slide mini-turbo** (drift boost) — asli kart-racing physics feel
+- **Floor-aware combat** — cross-floor gun/collision bugs fix, taaki multi-floor battle fair rahe
 
 ## Hosting — important, please read
 
