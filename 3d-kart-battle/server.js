@@ -139,6 +139,14 @@ const ARENA_RAMPS = [Math.PI / 2, Math.PI * 1.5].map((angle, i) => {
     const z = ARENA_BOUNDS.cz + ARENA_BOUNDS.rzOuter * 0.4 * Math.sin(angle);
     return { id: i, x, z, heading: angle + Math.PI };
 });
+// a fighting platform hovering directly above the lava pit - jump up to it via the
+// arena's ramps, and jumping/falling off its edge above the pit drops you straight into the lava
+const ARENA_PLATFORMS = [
+    { id: 0, y: 0, cx: ARENA_BOUNDS.cx, cz: ARENA_BOUNDS.cz, radius: ARENA_BOUNDS.rxOuter },
+    { id: 1, y: 7, cx: ARENA_BOUNDS.cx, cz: ARENA_BOUNDS.cz, radius: 11 }
+];
+const ARENA_TOWER_RAMPS = ARENA_RAMPS.map(r => ({ ...r, fromFloor: 0, toFloor: 1, power: 22 }));
+const ARENA_PLATFORM_ITEMS = [{ floor: 1, x: 5, z: 0 }, { floor: 1, x: -5, z: 0 }];
 
 // ===== Sky Tower: a 3-storey battle arena. Every floor is a concentric circle
 // centred on the same point, connected by launch ramps that persistently move a
@@ -194,8 +202,8 @@ const MAPS = {
         id: 'colosseum', name: 'Colosseum', mode: 'battle',
         bounds: ARENA_BOUNDS, mid: null, checkpoints: 0,
         theme: { ground: 0x92400e, wallColors: [0x7c3aed, 0xfacc15], sky: 0x1e1b4b, mountain: 0x4c1d95, decor: 'stands', hazard: 0x1a0505 },
-        obstacles: ARENA_OBSTACLES, boostPads: ARENA_BOOST_PADS, itemBoxPositions: ARENA_ITEM_POSITIONS,
-        spawnPoints: ARENA_SPAWN_POINTS, ramps: ARENA_RAMPS
+        obstacles: ARENA_OBSTACLES, boostPads: ARENA_BOOST_PADS, itemBoxPositions: ARENA_ITEM_POSITIONS.concat(ARENA_PLATFORM_ITEMS),
+        spawnPoints: ARENA_SPAWN_POINTS, ramps: [], platforms: ARENA_PLATFORMS, towerRamps: ARENA_TOWER_RAMPS
     },
     skytower: {
         id: 'skytower', name: 'Sky Tower', mode: 'battle',

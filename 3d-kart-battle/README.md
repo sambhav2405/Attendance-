@@ -26,8 +26,9 @@ Terminal me dikhega: `Desi Kart Battle 3D server running: http://localhost:3001`
 - 3 laps, jo pehle poore kare wo jeete. Track pe jump-ramps hain — tez speed pe unse hawa me udo!
 
 ### Battle Arena
-- 2 maps: **Colosseum** — dark dramatic arena, grandstands, beech me khatarnak death-pit. Ya **Sky Tower** — 3 manzil (floors) wala tower, har floor ramp/slide se juda hua, upar jaate jaate arena chhota aur intense hota jaata hai.
+- 2 maps: **Colosseum** — dark dramatic arena jiske beech me ab asli **glowing lava pit** hai (girne pe seedha "Defeated"), aur uske upar ek **floating fighting platform** hai jahan do ramp se jump karke upar bhi lad sakte ho — platform ke kinare se lava ke upar hi gir gaye to seedha lava me splash! Ya **Sky Tower** — 3 manzil (floors) wala pura tower, har floor ramp/slide se juda hua, upar jaate jaate arena chhota aur intense hota jaata hai.
 - Kisi ko maaro to point milta hai, wo **5 second me respawn** hota hai (thodi der ke liye "spawn protection" bhi milti hai).
+- **Har attack ka apna animation/impact effect hai** — bomb/rocket explosion, freeze ray ka ice-shatter, gun/shrink/reverse ray ka spark, oil/ice trail ka splash, EMP blast ka expanding ring, gravity pulse ka pull-ring, aur teleport dash ka warp-flash — sabke liye alag particle burst, sirf khud ke liye nahi, arena ke sabhi players ke liye dikhta hai.
 - **2 win conditions**: Time Attack (3 min, sabse zyada points wala jeete) ya First to 10 Points.
 - **Team Battle**: Room banate waqt "Team Battle (Red vs Blue)" chuno — players khud-ba-khud dono team me balance ho jaate hain, apni team ko maar nahi sakte (no friendly fire), aur team ka combined score jeetta hai.
 - **Quick Match rooms me kabhi bhi naya player drop-in kar sakta hai** — match beech me chal raha ho tab bhi, jab tak jagah hai.

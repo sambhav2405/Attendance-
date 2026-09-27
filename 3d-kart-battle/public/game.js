@@ -281,6 +281,8 @@ socket.on('state', (state) => {
     prevCountdown = state.countdownValue;
     prevRaceState = state.raceState;
 
+    if (state.raceState === 'racing') updateAttackAnimations(state);
+
     if (newPlayer) {
         if (prevPlayer && !prevPlayer.heldItem && newPlayer.heldItem) sfx.pickup();
         if (prevPlayer && !prevPlayer.boosting && newPlayer.boosting) sfx.boost();
@@ -520,11 +522,23 @@ function buildWorld(state) {
     ring.scale.set(b.rxOuter, b.rzOuter, 1);
     scene.add(ring);
 
-    const hazard = new THREE.Mesh(new THREE.CircleGeometry(1, 56), new THREE.MeshStandardMaterial({ color: th.hazard }));
+    const isLavaZone = state.mode === 'battle';
+    const hazardMat = isLavaZone
+        ? new THREE.MeshStandardMaterial({ map: lavaTexture, emissiveMap: lavaTexture, emissive: 0xf97316, emissiveIntensity: 1.1 })
+        : new THREE.MeshStandardMaterial({ color: th.hazard });
+    const hazard = new THREE.Mesh(new THREE.CircleGeometry(1, 56), hazardMat);
     hazard.rotation.x = -Math.PI / 2;
     hazard.position.y = 0.001;
     hazard.scale.set(b.rxInner, b.rzInner, 1);
     scene.add(hazard);
+    lavaMesh = isLavaZone ? hazard : null;
+    if (isLavaZone) {
+        lavaLight = new THREE.PointLight(0xf97316, 2, 34, 2);
+        lavaLight.position.set(b.cx, 3, b.cz);
+        scene.add(lavaLight);
+    } else {
+        lavaLight = null;
+    }
 
     if (state.mode === 'race') {
         const startZ = b.cz - (b.rzOuter + b.rzInner) / 2;
@@ -953,6 +967,30 @@ function makeMysteryBoxTexture() {
     return new THREE.CanvasTexture(c);
 }
 const mysteryBoxTexture = makeMysteryBoxTexture();
+
+function makeLavaTexture() {
+    const c = document.createElement('canvas');
+    c.width = 256; c.height = 256;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#3f0d0d';
+    ctx.fillRect(0, 0, 256, 256);
+    for (let i = 0; i < 46; i++) {
+        const x = Math.random() * 256, y = Math.random() * 256, r = 8 + Math.random() * 32;
+        const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
+        grad.addColorStop(0, 'rgba(254,240,138,0.95)');
+        grad.addColorStop(0.45, 'rgba(249,115,22,0.75)');
+        grad.addColorStop(1, 'rgba(249,115,22,0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    }
+    const tex = new THREE.CanvasTexture(c);
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    return tex;
+}
+const lavaTexture = makeLavaTexture();
+let lavaMesh = null;
+let lavaLight = null;
+let emberTimer = 0;
 function makeMysteryBoxMesh() {
     const mat = new THREE.MeshStandardMaterial({ map: mysteryBoxTexture, emissive: 0x92400e, emissiveIntensity: 0.35 });
     const mesh = new THREE.Mesh(new THREE.BoxGeometry(1.3, 1.3, 1.3), mat);
@@ -976,6 +1014,115 @@ function spawnSmash(x, z) {
         scene.add(m);
         smashBits.push(m);
     }
+}
+
+// ===== Attack / impact animations =====
+function spawnBurst(x, y, z, color, opts = {}) {
+    const count = opts.count || 12;
+    const speed = opts.speed || 5;
+    const life = opts.life || 0.5;
+    const size = opts.size || 0.2;
+    const shape = opts.shape === 'box' ? new THREE.BoxGeometry(size, size, size) : new THREE.SphereGeometry(size, 6, 5);
+    for (let i = 0; i < count; i++) {
+        const m = new THREE.Mesh(shape, new THREE.MeshBasicMaterial({ color }));
+        m.position.set(x, y, z);
+        const ang = Math.random() * Math.PI * 2;
+        const spread = speed * (0.4 + Math.random() * 0.7);
+        m.userData.vel = new THREE.Vector3(Math.cos(ang) * spread, Math.random() * speed * 0.9 + speed * 0.3, Math.sin(ang) * spread);
+        m.userData.life = life * (0.7 + Math.random() * 0.6);
+        scene.add(m);
+        smashBits.push(m);
+    }
+}
+
+let ringPulses = [];
+function spawnRingPulse(x, y, z, color, maxRadius = 10, life = 0.6) {
+    const ring = new THREE.Mesh(new THREE.RingGeometry(0.15, 0.5, 40), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.85, side: THREE.DoubleSide }));
+    ring.rotation.x = -Math.PI / 2;
+    ring.position.set(x, y + 0.06, z);
+    ring.userData.life = life;
+    ring.userData.maxLife = life;
+    ring.userData.maxRadius = maxRadius;
+    scene.add(ring);
+    ringPulses.push(ring);
+}
+function updateRingPulses(dt) {
+    ringPulses = ringPulses.filter(r => {
+        r.userData.life -= dt;
+        if (r.userData.life <= 0) { scene.remove(r); return false; }
+        const t = 1 - r.userData.life / r.userData.maxLife;
+        const radius = 0.3 + t * r.userData.maxRadius;
+        r.scale.set(radius, radius, radius);
+        r.material.opacity = 0.85 * (1 - t);
+        return true;
+    });
+}
+
+const PROJECTILE_COLORS = {
+    __gun: 0xfde047, homingRocket: 0xf97316, shrinkRay: 0x22c55e,
+    reverseRay: 0xa855f7, freezeRay: 0x60a5fa, bomb: 0xdc2626
+};
+function projectileColor(itemId) { return PROJECTILE_COLORS[itemId] || 0xdc2626; }
+
+function spawnImpactEffect(itemId, x, y, z) {
+    const color = projectileColor(itemId);
+    if (itemId === 'bomb' || itemId === 'homingRocket') {
+        spawnBurst(x, y, z, color, { count: 22, speed: 8, life: 0.55, size: 0.28 });
+        spawnBurst(x, y, z, 0xfacc15, { count: 10, speed: 5, life: 0.4, size: 0.16 });
+        spawnRingPulse(x, y, z, color, 6, 0.45);
+    } else if (itemId === 'freezeRay') {
+        spawnBurst(x, y, z, 0xe0f2fe, { count: 16, speed: 4.5, life: 0.5, size: 0.18, shape: 'box' });
+        spawnRingPulse(x, y, z, 0x93c5fd, 3.5, 0.4);
+    } else if (itemId === 'shrinkRay' || itemId === 'reverseRay') {
+        spawnBurst(x, y, z, color, { count: 12, speed: 4, life: 0.4, size: 0.16 });
+    } else if (itemId === '__gun') {
+        spawnBurst(x, y, z, color, { count: 6, speed: 3.5, life: 0.25, size: 0.1 });
+    } else {
+        spawnBurst(x, y, z, color, { count: 10, speed: 4, life: 0.4 });
+    }
+}
+function spawnHazardEffect(itemId, x, z) {
+    if (itemId === 'iceTrail') {
+        spawnBurst(x, 0.3, z, 0x93c5fd, { count: 10, speed: 2.5, life: 0.5, size: 0.14 });
+    } else if (itemId === 'oil') {
+        spawnBurst(x, 0.3, z, 0x1c1917, { count: 10, speed: 2, life: 0.5, size: 0.2 });
+    }
+}
+
+// Per-player debuff/cast animations (bomb/gun impacts are handled via projectile
+// removal above; this covers self/aoe effects and status transitions like stun,
+// shrink, EMP, gravity pulse and teleport that don't have a travelling projectile)
+const prevAnimFlags = new Map();
+function updateAttackAnimations(state) {
+    const seen = new Set();
+    Object.entries(state.players).forEach(([id, p]) => {
+        seen.add(id);
+        const prev = prevAnimFlags.get(id);
+        if (prev) {
+            const y = (p.y || 0) + 0.7;
+            if (!prev.stunned && p.stunned) spawnBurst(p.x, y, p.z, 0xf87171, { count: 8, speed: 3, life: 0.35 });
+            if (!prev.shrunk && p.shrunk) spawnBurst(p.x, y, p.z, 0x22c55e, { count: 10, speed: 3.5, life: 0.4 });
+            if (!prev.grown && p.grown) spawnBurst(p.x, y, p.z, 0xf97316, { count: 12, speed: 4.5, life: 0.45 });
+            if (!prev.reversed && p.reversed) spawnBurst(p.x, y, p.z, 0xa855f7, { count: 10, speed: 3.5, life: 0.4 });
+            if (!prev.slipped && p.slipped) spawnBurst(p.x, 0.25, p.z, 0x93c5fd, { count: 10, speed: 2.5, life: 0.5 });
+            if (!prev.pulsing && p.pulsing) spawnRingPulse(p.x, p.y || 0, p.z, 0x818cf8, 16, 0.8);
+            if (prev.heldItem === 'empBlast' && p.heldItem !== 'empBlast' && p.alive !== false) {
+                spawnRingPulse(p.x, p.y || 0, p.z, 0xfef9c3, 13, 0.6);
+            }
+            if (p.alive !== false && prev.alive !== false && prev.fellAt === p.fellAt) {
+                const d = Math.hypot(p.x - prev.x, p.z - prev.z);
+                if (d > 8) {
+                    spawnRingPulse(prev.x, prev.y || 0, prev.z, 0xd946ef, 4, 0.4);
+                    spawnRingPulse(p.x, p.y || 0, p.z, 0xd946ef, 4, 0.4);
+                }
+            }
+        }
+        prevAnimFlags.set(id, {
+            stunned: p.stunned, shrunk: p.shrunk, grown: p.grown, reversed: p.reversed, slipped: p.slipped,
+            pulsing: p.pulsing, heldItem: p.heldItem, alive: p.alive, fellAt: p.fellAt, x: p.x, y: p.y, z: p.z
+        });
+    });
+    for (const id of prevAnimFlags.keys()) { if (!seen.has(id)) prevAnimFlags.delete(id); }
 }
 
 function syncScene(state) {
@@ -1016,14 +1163,21 @@ function syncScene(state) {
         let m = projectileMeshes.get(pr.id);
         if (!m) {
             const isGun = pr.itemId === '__gun';
-            const color = isGun ? 0xfde047 : (pr.itemId === 'homingRocket' ? 0xf97316 : (pr.itemId === 'shrinkRay' ? 0x22c55e : (pr.itemId === 'reverseRay' ? 0xa855f7 : (pr.itemId === 'freezeRay' ? 0x60a5fa : 0xdc2626))));
+            const color = projectileColor(pr.itemId);
             m = new THREE.Mesh(new THREE.SphereGeometry(isGun ? 0.22 : 0.4, 10, 8), new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.4 }));
+            m.userData.itemId = pr.itemId;
             scene.add(m);
             projectileMeshes.set(pr.id, m);
         }
         m.position.set(pr.x, 0.6, pr.z);
     });
-    for (const [id, m] of projectileMeshes) { if (!seenProj.has(id)) { scene.remove(m); projectileMeshes.delete(id); } }
+    for (const [id, m] of projectileMeshes) {
+        if (!seenProj.has(id)) {
+            spawnImpactEffect(m.userData.itemId, m.position.x, m.position.y, m.position.z);
+            scene.remove(m);
+            projectileMeshes.delete(id);
+        }
+    }
 
     const seenHz = new Set();
     (state.hazards || []).forEach(hz => {
@@ -1032,12 +1186,19 @@ function syncScene(state) {
         if (!m) {
             const color = hz.itemId === 'iceTrail' ? 0x93c5fd : 0x92400e;
             m = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.1, 0.06, 20), new THREE.MeshStandardMaterial({ color }));
+            m.userData.itemId = hz.itemId;
             scene.add(m);
             hazardMeshes.set(hz.id, m);
         }
         m.position.set(hz.x, 0.03, hz.z);
     });
-    for (const [id, m] of hazardMeshes) { if (!seenHz.has(id)) { scene.remove(m); hazardMeshes.delete(id); } }
+    for (const [id, m] of hazardMeshes) {
+        if (!seenHz.has(id)) {
+            spawnHazardEffect(m.userData.itemId, m.position.x, m.position.z);
+            scene.remove(m);
+            hazardMeshes.delete(id);
+        }
+    }
 
     if (state.megaBoost) {
         if (!megaBoostMesh) megaBoostMesh = makeMegaBoostMesh();
@@ -1182,6 +1343,19 @@ function animate() {
     boostPadMeshes.forEach((m, i) => { m.material.opacity = 0.75 + Math.sin(time * 4 + i) * 0.2; });
     if (megaBoostMesh && megaBoostMesh.visible) { megaBoostMesh.rotation.y += dt * 2; megaBoostMesh.position.y = (megaBoostMesh.userData.baseY || 0) + Math.sin(time * 3) * 0.3; }
 
+    if (lavaMesh) {
+        lavaMesh.material.map.offset.set(Math.sin(time * 0.1) * 0.08, Math.cos(time * 0.08) * 0.08);
+        if (lavaLight) lavaLight.intensity = 1.7 + Math.sin(time * 6) * 0.5;
+        emberTimer += dt;
+        if (emberTimer > 0.15 && mapBounds) {
+            emberTimer = 0;
+            const a = Math.random() * Math.PI * 2, rr = Math.random();
+            const ex = mapBounds.cx + Math.cos(a) * mapBounds.rxInner * rr;
+            const ez = mapBounds.cz + Math.sin(a) * mapBounds.rzInner * rr;
+            spawnBurst(ex, 0.1, ez, 0xfbbf24, { count: 1, speed: 1.2, life: 1.1, size: 0.12 });
+        }
+    }
+
     const me = karts.get(myId);
     if (me && me.group.visible) {
         const dist = 10, height = 5.4;
@@ -1200,6 +1374,7 @@ function animate() {
 
     confetti = updateParticles(confetti, dt, 9.8);
     smashBits = updateParticles(smashBits, dt, 9.8);
+    updateRingPulses(dt);
     drawMinimap();
     renderer.render(scene, camera);
 }
