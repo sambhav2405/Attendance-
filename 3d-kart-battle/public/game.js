@@ -2,8 +2,27 @@ import * as THREE from 'three';
 
 const socket = io();
 
+const ITEM_META = {
+    boost: { name: 'Nitro Boost', icon: 'rocket', desc: 'Turant speed burst kuch second ke liye.', cls: 'buff' },
+    shield: { name: 'Shield', icon: 'shield', desc: 'Agla hit bilkul asar nahi karega.', cls: 'buff' },
+    bomb: { name: 'Bomb Shell', icon: 'bomb', desc: 'Seedha aage fire hota hai, lagne par knock-out.', cls: 'lethal' },
+    oil: { name: 'Oil Slick', icon: 'drop', desc: 'Peeche giraya jaata hai, koi ispe se guzre to spin-out.', cls: 'lethal' },
+    freezeRay: { name: 'Freeze Ray', icon: 'snow', desc: 'Tez, chhoti range - lagne par turant knock-out.', cls: 'lethal' },
+    homingRocket: { name: 'Homing Rocket', icon: 'missile', desc: 'Sabse paas wale opponent ko khud track karta hai.', cls: 'lethal' },
+    megaRam: { name: 'Mega Ram', icon: 'expand', desc: 'Kuch der bada + takkar zyada zoardaar.', cls: 'buff' },
+    shrinkRay: { name: 'Shrink Ray', icon: 'compress', desc: 'Opponent ko chhota + slow kar deta hai.', cls: 'debuff' },
+    reverseRay: { name: 'Reverse Ray', icon: 'swap', desc: 'Opponent ke steering controls ulte ho jaate hain.', cls: 'debuff' },
+    iceTrail: { name: 'Ice Trail', icon: 'snow', desc: 'Peeche fisalan - steering kamzor ho jaati hai.', cls: 'debuff' },
+    empBlast: { name: 'EMP Blast', icon: 'burst', desc: 'Aas-paas sabke gun/item kuch der band ho jaate hain.', cls: 'debuff' },
+    gravityPulse: { name: 'Gravity Pulse', icon: 'orbit', desc: 'Paas ke opponents ko apni taraf khinchta hai.', cls: 'buff' },
+    teleportDash: { name: 'Teleport Dash', icon: 'portal', desc: 'Turant aage ki taraf chhalaang.', cls: 'buff' },
+    ammoOverload: { name: 'Ammo Overload', icon: 'ammo', desc: 'Gun ammo full + kuch der double-fire speed.', cls: 'buff' },
+    phantomCloak: { name: 'Phantom Cloak', icon: 'ghost', desc: 'Kuch der dusron ko dhundhlaa dikhoge.', cls: 'buff' }
+};
+
 // ===== DOM refs =====
 const lobbyScreen = document.getElementById('lobby');
+const manualScreen = document.getElementById('manualScreen');
 const gameScreen = document.getElementById('gameScreen');
 const resultScreen = document.getElementById('resultScreen');
 const nameInput = document.getElementById('nameInput');
@@ -17,36 +36,40 @@ const quickMatchBtn = document.getElementById('quickMatchBtn');
 const createRoomBtn = document.getElementById('createRoomBtn');
 const codeInput = document.getElementById('codeInput');
 const joinRoomBtn = document.getElementById('joinRoomBtn');
+const manualBtn = document.getElementById('manualBtn');
+const manualBackBtn = document.getElementById('manualBackBtn');
+const manualList = document.getElementById('manualList');
 const roomInfo = document.getElementById('roomInfo');
 const roomModeLabel = document.getElementById('roomModeLabel');
 const roomCodeDisplay = document.getElementById('roomCodeDisplay');
 const startBtn = document.getElementById('startBtn');
+const leaveLobbyBtn = document.getElementById('leaveLobbyBtn');
 const playerListEl = document.getElementById('playerList');
 const lobbyMsg = document.getElementById('lobbyMsg');
 const countdownEl = document.getElementById('countdown');
 const lapInfoEl = document.getElementById('lapInfo');
 const battleTimerEl = document.getElementById('battleTimer');
 const battleTargetEl = document.getElementById('battleTarget');
-const itemIconEl = document.getElementById('itemIcon');
+const ammoCountEl = document.getElementById('ammoCount');
+const itemIconSvg = document.getElementById('itemIconSvg');
 const itemHintEl = document.getElementById('itemHint');
+const statusRowEl = document.getElementById('statusRow');
 const scoreboardEl = document.getElementById('scoreboard');
 const killFeedEl = document.getElementById('killFeed');
 const respawnOverlay = document.getElementById('respawnOverlay');
 const respawnCountdown = document.getElementById('respawnCountdown');
 const hitMarkerEl = document.getElementById('hitMarker');
 const fallFlashEl = document.getElementById('fallFlash');
+const leaveMatchBtn = document.getElementById('leaveMatchBtn');
+const resultIcon = document.getElementById('resultIcon');
 const resultTitle = document.getElementById('resultTitle');
 const resultSub = document.getElementById('resultSub');
 const resultList = document.getElementById('resultList');
+const nextRoundHint = document.getElementById('nextRoundHint');
 const raceAgainBtn = document.getElementById('raceAgainBtn');
+const resultLeaveBtn = document.getElementById('resultLeaveBtn');
 const minimapCanvas = document.getElementById('minimap');
 const mmCtx = minimapCanvas.getContext('2d');
-
-const ITEM_META = {
-    boost: { icon: '🚀', label: 'Boost - E dabao!' },
-    shell: { icon: '💣', label: 'Ladoo Bomb - E dabao!' },
-    oil: { icon: '🫖', label: 'Chai Spill - E dabao!' }
-};
 
 let myId = null;
 let latestState = null;
@@ -57,9 +80,20 @@ let selectedMapBattle = 'colosseum';
 let selectedWinCondition = 'time';
 
 function showScreen(screen) {
-    [lobbyScreen, gameScreen, resultScreen].forEach(s => s.classList.add('hidden'));
+    [lobbyScreen, manualScreen, gameScreen, resultScreen].forEach(s => s.classList.add('hidden'));
     screen.classList.remove('hidden');
 }
+
+function iconSvg(name, cls) {
+    return `<svg class="icon${cls ? ' ' + cls : ''}"><use href="#i-${name}"></use></svg>`;
+}
+
+// ===== Manual / legend =====
+manualList.innerHTML = Object.values(ITEM_META).map(m =>
+    `<div class="manual-item ${m.cls}">${iconSvg(m.icon)}<div><b>${m.name}</b><span>${m.desc}</span></div></div>`
+).join('');
+manualBtn.addEventListener('click', () => showScreen(manualScreen));
+manualBackBtn.addEventListener('click', () => showScreen(lobbyScreen));
 
 // ===== Sound (WebAudio, no external files) =====
 let audioCtx = null;
@@ -82,14 +116,15 @@ const sfx = {
     boost: () => { beep(220, 0.25, 'sawtooth', 0.15); beep(440, 0.2, 'sawtooth', 0.1, 0.05); },
     hit: () => beep(90, 0.3, 'square', 0.2),
     kill: () => { beep(660, 0.1, 'square', 0.14); beep(990, 0.14, 'square', 0.12, 0.08); },
-    shoot: () => beep(660, 0.05, 'square', 0.06),
+    shoot: () => beep(660, 0.05, 'square', 0.05),
+    empty: () => beep(120, 0.08, 'square', 0.08),
     tick: () => beep(523, 0.15, 'sine', 0.15),
     go: () => beep(880, 0.35, 'sine', 0.2),
     win: () => { beep(523, 0.15, 'sine', 0.16); beep(659, 0.15, 'sine', 0.16, 0.15); beep(784, 0.15, 'sine', 0.16, 0.3); beep(1046, 0.3, 'sine', 0.18, 0.45); },
     lose: () => { beep(330, 0.25, 'sawtooth', 0.14); beep(220, 0.4, 'sawtooth', 0.14, 0.2); }
 };
 
-// ===== Setup panel: mode / map / win-condition selection =====
+// ===== Setup panel =====
 function setMode(mode) {
     currentMode = mode;
     modeRaceBtn.classList.toggle('active', mode === 'race');
@@ -140,6 +175,19 @@ codeInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') joinRoomBt
 nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') createRoomBtn.click(); });
 
 startBtn.addEventListener('click', () => socket.emit('startRace'));
+
+function backToSetup() {
+    socket.emit('leaveRoom');
+    setupPanel.classList.remove('hidden');
+    roomInfo.classList.add('hidden');
+    worldBuilt = false;
+    latestState = null;
+    showScreen(lobbyScreen);
+}
+leaveLobbyBtn.addEventListener('click', backToSetup);
+leaveMatchBtn.addEventListener('click', backToSetup);
+resultLeaveBtn.addEventListener('click', backToSetup);
+
 raceAgainBtn.addEventListener('click', () => {
     socket.emit('restart');
     setupPanel.classList.add('hidden');
@@ -153,19 +201,19 @@ socket.on('roomJoined', ({ code, mode }) => {
     setupPanel.classList.add('hidden');
     roomInfo.classList.remove('hidden');
     roomCodeDisplay.textContent = code;
-    roomModeLabel.textContent = mode === 'battle'
-        ? '⚔️ Battle Arena Room Code — dosto ko bhejo:'
-        : '🏁 Racing Room Code — dosto ko bhejo:';
+    roomModeLabel.innerHTML = mode === 'battle'
+        ? iconSvg('sword') + ' Battle Arena Room Code — dosto ko bhejo:'
+        : iconSvg('flag') + ' Racing Room Code — dosto ko bhejo:';
     lobbyMsg.textContent = '';
 });
 
 socket.on('lobby', (data) => {
     const names = Object.values(data.players);
     playerListEl.innerHTML = names.length
-        ? '<b>Players:</b> ' + names.map(p => `<span style="color:${p.color}">● ${p.name}</span>`).join('  ')
+        ? '<b>Players (' + names.length + '):</b> ' + names.map(p => `<span style="color:${p.color}">&#9679; ${p.name}</span>`).join('  ')
         : '';
     startBtn.classList.toggle('hidden', names.length < 1);
-    startBtn.textContent = data.mode === 'battle' ? 'Start Battle ⚔️' : 'Start Race 🏁';
+    startBtn.textContent = data.mode === 'battle' ? 'Start Battle' : 'Start Race';
     lobbyMsg.textContent = names.length ? 'Sab ready hone par dabao!' : '';
     showScreen(lobbyScreen);
 });
@@ -176,6 +224,7 @@ let prevCountdown = null;
 let prevRaceState = null;
 let prevMyScore = 0;
 let prevAlive = true;
+let prevAmmo = null;
 
 socket.on('state', (state) => {
     if (!worldBuilt) { buildWorld(state); worldBuilt = true; }
@@ -192,7 +241,7 @@ socket.on('state', (state) => {
         showScreen(gameScreen);
         if (state.raceState === 'countdown') {
             countdownEl.classList.remove('hidden');
-            countdownEl.textContent = state.countdownValue > 0 ? state.countdownValue : 'GO!';
+            countdownEl.textContent = state.countdownValue > 0 ? state.countdownValue : 'GO';
             if (state.countdownValue !== prevCountdown) {
                 if (state.countdownValue > 0) sfx.tick(); else sfx.go();
             }
@@ -214,6 +263,8 @@ socket.on('state', (state) => {
         if (prevPlayer && !prevPlayer.heldItem && newPlayer.heldItem) sfx.pickup();
         if (prevPlayer && !prevPlayer.boosting && newPlayer.boosting) sfx.boost();
         if (prevPlayer && prevPlayer.fellAt !== newPlayer.fellAt && newPlayer.fellAt) flashFall();
+        if (prevAmmo !== null && prevAmmo > 0 && newPlayer.ammo === 0) sfx.empty();
+        prevAmmo = newPlayer.ammo;
 
         if (isBattle) {
             if (prevPlayer && !prevPlayer.stunned && newPlayer.stunned) sfx.hit();
@@ -232,22 +283,25 @@ socket.on('state', (state) => {
         }
 
         const meta = ITEM_META[newPlayer.heldItem];
-        itemIconEl.textContent = meta ? meta.icon : '–';
-        itemHintEl.textContent = meta ? meta.label : 'no item';
+        itemIconSvg.innerHTML = `<use href="#i-${meta ? meta.icon : 'target'}"></use>`;
+        itemHintEl.textContent = meta ? meta.name : 'No item';
+        ammoCountEl.textContent = newPlayer.ammo;
+
+        renderStatusRow(newPlayer);
 
         if (!isBattle) {
             const lapsToWin = state.lapsToWin || 3;
-            lapInfoEl.textContent = newPlayer.finished ? 'Finished! ✅' : `Lap ${Math.min(newPlayer.lap + 1, lapsToWin)}/${lapsToWin}`;
+            lapInfoEl.textContent = newPlayer.finished ? 'Finished' : `Lap ${Math.min(newPlayer.lap + 1, lapsToWin)}/${lapsToWin}`;
         }
     }
 
     if (isBattle) {
         if (state.winCondition === 'time') {
             const s = Math.max(0, Math.ceil(state.timeRemainingMs / 1000));
-            battleTimerEl.textContent = `⏱️ ${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+            battleTimerEl.innerHTML = iconSvg('clock', 'icon-sm') + ` ${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
         } else {
             const my = newPlayer ? (newPlayer.score || 0) : 0;
-            battleTargetEl.textContent = `🎯 ${my}/${state.scoreTarget}`;
+            battleTargetEl.innerHTML = iconSvg('target', 'icon-sm') + ` ${my}/${state.scoreTarget}`;
         }
         renderScoreboard(state);
         renderKillFeed(state);
@@ -257,6 +311,19 @@ socket.on('state', (state) => {
     syncScene(state);
 });
 
+function renderStatusRow(p) {
+    const badges = [];
+    if (p.shielded) badges.push(['shield', false]);
+    if (p.grown) badges.push(['expand', false]);
+    if (p.shrunk) badges.push(['compress', true]);
+    if (p.reversed) badges.push(['swap', true]);
+    if (p.slipped) badges.push(['snow', true]);
+    if (p.empJammed) badges.push(['burst', true]);
+    if (p.pulsing) badges.push(['orbit', false]);
+    if (p.stealth) badges.push(['ghost', false]);
+    statusRowEl.innerHTML = badges.map(([icon, bad]) => `<div class="status-icon${bad ? ' bad' : ''}">${iconSvg(icon)}</div>`).join('');
+}
+
 function renderScoreboard(state) {
     const rows = Object.entries(state.players)
         .map(([id, p]) => ({ id, name: p.name, color: p.color, score: p.score || 0 }))
@@ -264,6 +331,7 @@ function renderScoreboard(state) {
     scoreboardEl.innerHTML = rows.map(r => `<span class="sb-entry"><span class="sb-dot" style="background:${r.color}"></span>${r.name}: ${r.score}</span>`).join('');
 }
 
+const WEAPON_ICON = { gun: 'gun', bomb: 'bomb', chai: 'drop', oil: 'drop', freezeRay: 'snow', homingRocket: 'missile', pit: 'compress' };
 let shownKillIds = new Set();
 function renderKillFeed(state) {
     (state.killFeed || []).forEach(k => {
@@ -271,8 +339,10 @@ function renderKillFeed(state) {
         shownKillIds.add(k.id);
         const div = document.createElement('div');
         div.className = 'kf-entry';
-        const weaponIcon = { gun: '🔫', bomb: '💣', chai: '🫖', pit: '🕳️' }[k.weapon] || '💥';
-        div.textContent = k.attacker ? `${k.attacker} ${weaponIcon} ${k.victim}` : `${k.victim} ${weaponIcon} gir gaya!`;
+        const icon = WEAPON_ICON[k.weapon] || 'burst';
+        div.innerHTML = k.attacker
+            ? `${k.attacker} ${iconSvg(icon)} ${k.victim}`
+            : `${k.victim} ${iconSvg('compress')} gir gaya`;
         killFeedEl.appendChild(div);
         setTimeout(() => div.remove(), 4000);
     });
@@ -281,7 +351,7 @@ function renderKillFeed(state) {
 let hitMarkerTimer = null;
 function showHitMarker() {
     hitMarkerEl.classList.add('hidden');
-    void hitMarkerEl.offsetWidth; // force reflow so the CSS animation restarts even on rapid re-kills
+    void hitMarkerEl.offsetWidth;
     hitMarkerEl.classList.remove('hidden');
     clearTimeout(hitMarkerTimer);
     hitMarkerTimer = setTimeout(() => hitMarkerEl.classList.add('hidden'), 500);
@@ -289,18 +359,22 @@ function showHitMarker() {
 
 function renderResults(state, isBattle) {
     const iWon = isBattle ? state.winnerId === myId : (state.finishOrder[0] && state.finishOrder[0].id === myId);
-    resultTitle.textContent = iWon ? '🏆 Congratulations! You Won!' : '💀 Defeated!';
+    resultTitle.textContent = iWon ? 'Congratulations! You Won' : 'Defeated';
     resultTitle.className = iWon ? 'win' : 'lose';
+    resultIcon.innerHTML = `<use href="#i-${iWon ? 'trophy' : 'skull'}"></use>`;
+    resultIcon.style.color = iWon ? '#fbbf24' : '#94a3b8';
     if (isBattle) {
         const winnerName = state.players[state.winnerId] ? state.players[state.winnerId].name : '?';
         resultSub.textContent = iWon ? 'Aap the strongest is arena me!' : `${winnerName} ne match jeeta.`;
         const rows = Object.entries(state.players).map(([id, p]) => ({ id, name: p.name, color: p.color, score: p.score || 0 }))
             .sort((a, b) => b.score - a.score);
-        resultList.innerHTML = rows.map(r => `<li><span style="color:${r.color}">● ${r.name}</span><b>${r.score} pts</b></li>`).join('');
+        resultList.innerHTML = rows.map(r => `<li><span style="color:${r.color}">&#9679; ${r.name}</span><b>${r.score} pts</b></li>`).join('');
     } else {
         resultSub.textContent = iWon ? 'Aapne race jeet li!' : 'Agli baar zaroor jeetoge!';
         resultList.innerHTML = state.finishOrder.map((f, i) => `<li><span>${i + 1}. ${f.name}</span><b>${(f.time / 1000).toFixed(2)}s</b></li>`).join('') || '<li>Koi finish nahi hua!</li>';
     }
+    const secs = Math.ceil((state.nextRoundInMs || 0) / 1000);
+    nextRoundHint.textContent = secs > 0 ? `Agla round ${secs}s me shuru hoga...` : '';
 }
 
 function flashFall() {
@@ -446,6 +520,24 @@ function buildWorld(state) {
         return m;
     });
 
+    (state.ramps || []).forEach(ramp => {
+        const g = new THREE.Group();
+        const rampMat = new THREE.MeshStandardMaterial({ color: 0xfacc15 });
+        const slab = new THREE.Mesh(new THREE.BoxGeometry(4.5, 0.5, 6), rampMat);
+        slab.rotation.x = -0.45;
+        slab.position.set(0, 1.1, 0);
+        g.add(slab);
+        for (let s = -1; s <= 1; s += 2) {
+            const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.55, 6), new THREE.MeshStandardMaterial({ color: 0x1f2937 }));
+            stripe.rotation.x = -0.45;
+            stripe.position.set(s * 1.6, 1.12, 0);
+            g.add(stripe);
+        }
+        g.position.set(ramp.x, 0, ramp.z);
+        g.rotation.y = -ramp.heading + Math.PI / 2;
+        scene.add(g);
+    });
+
     buildScenery(b, th);
 }
 
@@ -575,22 +667,48 @@ function makeNameSprite(text) {
     return sprite;
 }
 
+// pulls the top-front vertices of a box back toward the centre, turning it into a
+// forward-sloping wedge (a proper car hood/nose instead of a flat box)
+function makeWedgeGeometry(width, height, depth, slopeFraction) {
+    const geo = new THREE.BoxGeometry(width, height, depth);
+    const pos = geo.attributes.position;
+    for (let i = 0; i < pos.count; i++) {
+        const y = pos.getY(i), z = pos.getZ(i);
+        if (y > 0 && z > 0) pos.setZ(i, z * slopeFraction);
+    }
+    geo.computeVertexNormals();
+    return geo;
+}
+
 function createKart(color, name) {
     const group = new THREE.Group();
-    const bodyMat = new THREE.MeshStandardMaterial({ color, metalness: 0.25, roughness: 0.5 });
-    const darkMat = new THREE.MeshStandardMaterial({ color: 0x1f2937 });
+    const bodyMat = new THREE.MeshStandardMaterial({ color, metalness: 0.25, roughness: 0.5, transparent: true, opacity: 1 });
+    const darkMat = new THREE.MeshStandardMaterial({ color: 0x1f2937, transparent: true, opacity: 1 });
+    const glassMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, transparent: true, opacity: 0.6 });
 
-    // lower chassis (wider, flatter) + upper cockpit tier for a sleeker look
-    const chassis = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.35, 2.8), bodyMat);
-    chassis.position.y = 0.35;
+    const chassis = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.4, 2.0), bodyMat);
+    chassis.position.set(0, 0.32, -0.5);
     group.add(chassis);
-    const cockpit = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.4, 1.5), bodyMat);
-    cockpit.position.set(0, 0.72, 0.15);
-    group.add(cockpit);
 
-    const bumper = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.3, 0.3), darkMat);
-    bumper.position.set(0, 0.35, 1.5);
-    group.add(bumper);
+    const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.35, 0.9), bodyMat);
+    cabin.position.set(0, 0.62, 0.15);
+    group.add(cabin);
+
+    const hood = new THREE.Mesh(makeWedgeGeometry(1.5, 0.55, 1.5, 0.08), bodyMat);
+    hood.position.set(0, 0.35, 1.15);
+    group.add(hood);
+
+    const windshield = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.42, 0.08), glassMat);
+    windshield.position.set(0, 0.82, 0.62);
+    windshield.rotation.x = -0.55;
+    group.add(windshield);
+
+    const bumperF = new THREE.Mesh(new THREE.BoxGeometry(1.55, 0.28, 0.25), darkMat);
+    bumperF.position.set(0, 0.24, 1.82);
+    group.add(bumperF);
+    const bumperR = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.28, 0.22), darkMat);
+    bumperR.position.set(0, 0.28, -1.55);
+    group.add(bumperR);
 
     const spoilerStand = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.5, 0.12), darkMat);
     spoilerStand.position.set(0, 0.75, -1.35);
@@ -599,26 +717,25 @@ function createKart(color, name) {
     spoilerWing.position.set(0, 1.0, -1.35);
     group.add(spoilerWing);
 
-    // driver: torso + helmet with a coloured visor stripe
     const torso = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.5, 0.5), darkMat);
     torso.position.set(0, 0.95, 0.3);
     group.add(torso);
-    const helmet = new THREE.Mesh(new THREE.SphereGeometry(0.34, 14, 10), new THREE.MeshStandardMaterial({ color: 0xffe4b5 }));
+    const helmet = new THREE.Mesh(new THREE.SphereGeometry(0.34, 14, 10), new THREE.MeshStandardMaterial({ color: 0xffe4b5, transparent: true, opacity: 1 }));
     helmet.position.set(0, 1.32, 0.35);
     group.add(helmet);
-    const visor = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.14, 0.2), new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.3 }));
+    const visor = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.14, 0.2), new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.3, transparent: true, opacity: 1 }));
     visor.position.set(0, 1.34, 0.55);
     group.add(visor);
 
     const gunBarrel = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 1.1, 8), darkMat);
     gunBarrel.rotation.x = Math.PI / 2;
-    gunBarrel.position.set(0, 0.75, 1.6);
+    gunBarrel.position.set(0, 0.65, 1.9);
     group.add(gunBarrel);
 
     const wheelGeo = new THREE.CylinderGeometry(0.38, 0.38, 0.34, 14);
-    const wheelMat = new THREE.MeshStandardMaterial({ color: 0x111827 });
+    const wheelMat = new THREE.MeshStandardMaterial({ color: 0x111827, transparent: true, opacity: 1 });
     const rimGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.36, 10);
-    const rimMat = new THREE.MeshStandardMaterial({ color: 0xd1d5db, metalness: 0.6, roughness: 0.3 });
+    const rimMat = new THREE.MeshStandardMaterial({ color: 0xd1d5db, metalness: 0.6, roughness: 0.3, transparent: true, opacity: 1 });
     const wheels = [];
     [[-0.95, 0.38, 1.0], [0.95, 0.38, 1.0], [-0.95, 0.38, -1.0], [0.95, 0.38, -1.0]].forEach(([x, y, z]) => {
         const w = new THREE.Mesh(wheelGeo, wheelMat);
@@ -631,15 +748,23 @@ function createKart(color, name) {
         wheels.push(w);
     });
 
-    const flame = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.9, 8), new THREE.MeshBasicMaterial({ color: 0xff8c00 }));
+    const flame = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.9, 8), new THREE.MeshBasicMaterial({ color: 0xff8c00, transparent: true, opacity: 1 }));
     flame.rotation.x = Math.PI / 2;
-    flame.position.set(0, 0.5, -1.7);
+    flame.position.set(0, 0.4, -1.9);
     flame.scale.set(0.001, 0.001, 0.001);
     group.add(flame);
 
-    group.add(makeNameSprite(name));
+    const shieldBubble = new THREE.Mesh(new THREE.SphereGeometry(1.9, 16, 12), new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.25, wireframe: true }));
+    shieldBubble.position.y = 0.7;
+    shieldBubble.visible = false;
+    group.add(shieldBubble);
+
+    const nameSprite = makeNameSprite(name);
+    group.add(nameSprite);
+
+    const materials = [bodyMat, darkMat, wheelMat, rimMat];
     scene.add(group);
-    return { group, body: chassis, wheels, flame, lastAngle: 0, lastFellAt: 0 };
+    return { group, body: chassis, wheels, flame, shieldBubble, nameSprite, materials, lastAngle: 0, lastFellAt: 0, lastY: 0 };
 }
 
 const karts = new Map();
@@ -647,6 +772,18 @@ const itemBoxMeshes = new Map();
 const projectileMeshes = new Map();
 const hazardMeshes = new Map();
 let boostPadMeshes = [];
+let smashBits = [];
+
+function spawnSmash(x, z) {
+    for (let i = 0; i < 10; i++) {
+        const m = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.22, 0.22), new THREE.MeshBasicMaterial({ color: 0xfacc15 }));
+        m.position.set(x, 0.8, z);
+        m.userData.vel = new THREE.Vector3((Math.random() - 0.5) * 5, Math.random() * 4 + 1.5, (Math.random() - 0.5) * 5);
+        m.userData.life = 0.6;
+        scene.add(m);
+        smashBits.push(m);
+    }
+}
 
 function syncScene(state) {
     const seen = new Set();
@@ -667,8 +804,13 @@ function syncScene(state) {
         if (!m) {
             m = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.1, 1.1), new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0x554400 }));
             m.position.set(b.x, 0.8, b.z);
+            m.userData.lastSmash = 0;
             scene.add(m);
             itemBoxMeshes.set(b.id, m);
+        }
+        if (b.smashedAt && b.smashedAt !== m.userData.lastSmash) {
+            m.userData.lastSmash = b.smashedAt;
+            spawnSmash(b.x, b.z);
         }
         m.visible = b.available;
     });
@@ -679,11 +821,9 @@ function syncScene(state) {
         seenProj.add(pr.id);
         let m = projectileMeshes.get(pr.id);
         if (!m) {
-            const isBullet = pr.type === 'bullet';
-            m = new THREE.Mesh(
-                new THREE.SphereGeometry(isBullet ? 0.22 : 0.4, 10, 8),
-                new THREE.MeshStandardMaterial({ color: isBullet ? 0xfde047 : 0xdc2626, emissive: isBullet ? 0x8a6d00 : 0x550000 })
-            );
+            const isGun = pr.itemId === '__gun';
+            const color = isGun ? 0xfde047 : (pr.itemId === 'homingRocket' ? 0xf97316 : (pr.itemId === 'shrinkRay' ? 0x22c55e : (pr.itemId === 'reverseRay' ? 0xa855f7 : (pr.itemId === 'freezeRay' ? 0x60a5fa : 0xdc2626))));
+            m = new THREE.Mesh(new THREE.SphereGeometry(isGun ? 0.22 : 0.4, 10, 8), new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.4 }));
             scene.add(m);
             projectileMeshes.set(pr.id, m);
         }
@@ -696,7 +836,8 @@ function syncScene(state) {
         seenHz.add(hz.id);
         let m = hazardMeshes.get(hz.id);
         if (!m) {
-            m = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.1, 0.06, 20), new THREE.MeshStandardMaterial({ color: 0x92400e }));
+            const color = hz.itemId === 'iceTrail' ? 0x93c5fd : 0x92400e;
+            m = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.1, 0.06, 20), new THREE.MeshStandardMaterial({ color }));
             scene.add(m);
             hazardMeshes.set(hz.id, m);
         }
@@ -719,12 +860,12 @@ function spawnConfetti(state) {
         confetti.push(m);
     }
 }
-function updateConfetti(dt) {
-    confetti = confetti.filter(m => {
+function updateParticles(list, dt, gravity) {
+    return list.filter(m => {
         m.userData.life -= dt;
-        m.userData.vel.y -= 9.8 * dt;
+        m.userData.vel.y -= gravity * dt;
         m.position.addScaledVector(m.userData.vel, dt);
-        m.rotation.x += dt * 5; m.rotation.y += dt * 5;
+        m.rotation.x += dt * 6; m.rotation.y += dt * 6;
         if (m.userData.life <= 0) { scene.remove(m); return false; }
         return true;
     });
@@ -748,6 +889,7 @@ function drawMinimap() {
 
     Object.entries(latestState.players).forEach(([id, p]) => {
         if (latestState.mode === 'battle' && p.alive === false) return;
+        if (p.stealth && id !== myId) return;
         mmCtx.fillStyle = p.color;
         mmCtx.beginPath();
         mmCtx.arc(cx + p.x * s, cz + p.z * s, id === myId ? 5 : 3.5, 0, Math.PI * 2);
@@ -783,7 +925,9 @@ function animate() {
             const targetTilt = THREE.MathUtils.clamp(-angVel * 0.03, -0.35, 0.35);
             k.body.rotation.z += (targetTilt - k.body.rotation.z) * smooth;
         }
-        k.group.position.y = 0;
+        k.lastY += ((t.y || 0) - k.lastY) * (1 - Math.exp(-20 * dt));
+        k.group.position.y = k.lastY;
+        k.group.rotation.x = -Math.max(0, k.lastY) * 0.04;
 
         k.wheels.forEach(w => w.rotation.y += t.speed * dt * 0.6);
 
@@ -792,10 +936,21 @@ function animate() {
         k.flame.scale.y += (flameTarget - k.flame.scale.y) * smooth;
         k.flame.scale.z += (flameTarget - k.flame.scale.z) * smooth;
 
+        k.shieldBubble.visible = !!t.shielded;
+        if (t.shielded) k.shieldBubble.rotation.y += dt * 2;
+
+        const sizeTarget = t.grown ? 1.35 : (t.shrunk ? 0.62 : 1);
         if (t.fellAt && t.fellAt !== k.lastFellAt) { k.lastFellAt = t.fellAt; k.group.scale.set(0.3, 0.3, 0.3); }
-        k.group.scale.x += (1 - k.group.scale.x) * Math.min(1, dt * 6);
-        k.group.scale.y += (1 - k.group.scale.y) * Math.min(1, dt * 6);
-        k.group.scale.z += (1 - k.group.scale.z) * Math.min(1, dt * 6);
+        else {
+            k.group.scale.x += (sizeTarget - k.group.scale.x) * Math.min(1, dt * 6);
+            k.group.scale.y += (sizeTarget - k.group.scale.y) * Math.min(1, dt * 6);
+            k.group.scale.z += (sizeTarget - k.group.scale.z) * Math.min(1, dt * 6);
+        }
+
+        const stealthed = t.stealth && id !== myId;
+        const targetOpacity = stealthed ? 0.22 : 1;
+        k.materials.forEach(m => { m.opacity += (targetOpacity - m.opacity) * smooth; });
+        k.nameSprite.visible = !stealthed;
     }
 
     itemBoxMeshes.forEach(m => { m.rotation.y += dt * 1.6; });
@@ -810,15 +965,16 @@ function animate() {
         const camSmooth = 1 - Math.exp(-6 * dt);
         camera.position.x += (behindX - camera.position.x) * camSmooth;
         camera.position.z += (behindZ - camera.position.z) * camSmooth;
-        camera.position.y += (height - camera.position.y) * camSmooth;
+        camera.position.y += (height + me.lastY * 0.6 - camera.position.y) * camSmooth;
         camera.lookAt(
             me.group.position.x + Math.cos(me.lastAngle) * 6,
-            0.2,
+            0.2 + me.lastY * 0.5,
             me.group.position.z + Math.sin(me.lastAngle) * 6
         );
     }
 
-    updateConfetti(dt);
+    confetti = updateParticles(confetti, dt, 9.8);
+    smashBits = updateParticles(smashBits, dt, 9.8);
     drawMinimap();
     renderer.render(scene, camera);
 }

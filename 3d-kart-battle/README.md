@@ -1,60 +1,76 @@
-# 🏎️💥 Desi Kart Battle 3D
+# Desi Kart Battle 3D
 
-Ek local multiplayer **3D** kart racing + battle-arena game — dosto ke saath ek hi WiFi pe **rooms** bana kar ya **Quick Match** se turant khelo. Fully offline-capable — internet ki zaroorat sirf pehli baar `npm install` ke liye hai, uske baad sab kuch local chalta hai. Phone pe bhi smooth chalta hai.
+Ek local multiplayer **3D** kart racing + battle-arena game — dosto ke saath ek hi WiFi pe **rooms** bana kar ya **Quick Match** se turant khelo. Fully offline-capable — internet ki zaroorat sirf pehli baar `npm install` ke liye hai.
 
 ## Kaise chalayein (apne laptop pe)
 
-1. **Node.js install** hona chahiye (v16+). Check karo: `node -v`
-2. Terminal me is folder me jao:
-   ```
-   cd 3d-kart-battle
-   npm install
-   npm start
-   ```
-3. Terminal me dikhega: `Desi Kart Battle 3D server running: http://localhost:3001`
-4. Apne laptop pe browser me `http://localhost:3001` kholo (Chrome/Edge/Firefox — recent version).
+```
+cd 3d-kart-battle
+npm install
+npm start
+```
+Terminal me dikhega: `Desi Kart Battle 3D server running: http://localhost:3001` — browser me kholo.
 
 ## Dosto ke saath khelne ke liye (same WiFi)
 
 1. Apne laptop ki **LAN IP** pata karo (`ipconfig` Windows / `ifconfig` Mac-Linux).
-2. Naam daalo, **Racing 🏁** ya **Battle Arena ⚔️** chuno.
-3. Do tareeke:
-   - **⚡ Quick Match** — turant kisi bhi open match me daal deta hai (ya naya bana deta hai), koi code share karne ki zaroorat nahi.
-   - **🏗️ Naya Room Banao** — ek 4-letter code milega, dost apne phone/laptop pe `http://<aapka-LAN-IP>:3001` khol kar wahi code daal ke join karein.
-4. Sab aane ke baad "Start" dabao.
+2. Naam daalo, **Racing** ya **Battle Arena** chuno.
+3. **Quick Match** — turant kisi bhi open match me daal deta hai (koi code share karne ki zaroorat nahi), ya **Naya Room Banao** se private code milega jo dost ko bhejo.
+4. Dost `http://<aapka-LAN-IP>:3001` khol kar wahi karein.
+5. Ek room me ab tak **12 players** tak aa sakte hain.
 
 ## Game Modes
 
-### 🏁 Racing
-- **2 maps:** Classic Ring (green/trees) ya Desert Dunes (sand/cacti) — dono ka layout same hai bas dikhta bilkul alag hai.
-- 3 laps, jo pehle poore kare wo jeete.
+### Racing
+- 2 maps: **Classic Ring** (green/trees) ya **Desert Dunes** (sand/cacti).
+- 3 laps, jo pehle poore kare wo jeete. Track pe jump-ramps hain — tez speed pe unse hawa me udo!
 
-### ⚔️ Battle Arena (naya!)
-- **Map:** Colosseum — dark dramatic arena, grandstands, beech me ek khatarnak death-pit.
-- **Point system:** kisi ko gun/bomb/chai-spill se maaro to 1 point milta hai, wo player **5 second me respawn** ho jata hai.
-- **2 win conditions** (room banate waqt chuno):
-  - ⏱️ **Time Attack (3 min)** — time khatam hone pe sabse zyada points wala jeetega
-  - 🎯 **First to 10 Points** — jo pehle 10 point kare wo turant jeet jayega
-- Live scoreboard, kill-feed ("Rahul 🔫 Amit"), respawn countdown overlay, hit-marker jab tum kisi ko maaro.
+### Battle Arena
+- Map: **Colosseum** — dark dramatic arena, grandstands, beech me khatarnak death-pit.
+- Kisi ko maaro to point milta hai, wo **5 second me respawn** hota hai (thodi der ke liye "spawn protection" bhi milti hai).
+- **2 win conditions**: Time Attack (3 min, sabse zyada points wala jeete) ya First to 10 Points.
+- **Quick Match rooms me kabhi bhi naya player drop-in kar sakta hai** — match beech me chal raha ho tab bhi, jab tak jagah hai.
+- Match khatam hone ke **10 second baad agla round khud shuru** ho jata hai.
+- Koi bhi player match ke beech me "Room Chhodo" dabakar exit kar sakta hai — baaki match chalta rehta hai.
 
 ## Controls
-- **Arrow Keys** ya **WASD** — chalao / mudo
-- **Space** (hold) — 🔫 Gun (unlimited, weak, chhota cooldown)
-- **E** ya **Enter** — held item use karo (boost/bomb/oil)
-- Mobile pe on-screen D-pad + 🔫 + 🎯 buttons automatically aa jaate hain
+- **Arrow Keys / WASD** — chalao / mudo
+- **Space** (hold) — Gun — ab **limited ammo** (15 rounds, dheere-dheere regenerate hoti hai)
+- **E / Enter** — held power-up use karo
 
-## Features
-- **Naya, behtar kart model** — layered chassis, spoiler, front bumper, helmet+visor wala driver, alloy-style wheels
-- **Colourful solid walls** — physics ke saath real bounce
-- **Obstacles** — colourful traffic drums
-- **Boost pads** ⚡ — free speed boost
-- **Item boxes** — 🚀 Boost, 💣 Ladoo Bomb, 🫖 Chai Spill
-- **Gun** 🔫 — hamesha available, continuous fire
-- **Room system + Quick Match** — private code se ya random matchmaking se khelo, kai rooms parallel chal sakte hain
-- **Har mode/map ka apna theme** — alag sky, ground, walls, decorations (trees/cacti/grandstands)
-- **Jeetne/haarne ki screen** — 🏆 "Congratulations! You Won!" ya 💀 "Defeated!" + final scoreboard
-- **Fun animations** — tilt, wheel-spin, spin-out, boost flame, confetti, hit-marker, respawn overlay
-- **Minimap, sound effects, mobile-tuned graphics**
+## 15 Power-ups
+Track pe box "smash" karke random power-up milta hai. Poori list + icon "Power-up Manual" button me (lobby screen) dekh sakte ho:
 
-## Baad me "live" (internet pe) karna ho to
-Ye ek **persistent Node.js server** use karta hai (Socket.io real-time), isliye Netlify jaisi static hosting pe seedha nahi chalega. Live karne ke liye Render.com / Railway.app / Fly.io use karo — bata dena, deploy bhi kar denge.
+**Attack:** Bomb Shell, Oil Slick, Freeze Ray, Homing Rocket, Shrink Ray, Reverse Ray, Ice Trail, EMP Blast
+**Buff:** Nitro Boost, Shield, Mega Ram, Gravity Pulse, Teleport Dash, Ammo Overload, Phantom Cloak
+
+Pehle 4 attack items (Bomb/Oil/Freeze/Homing) **knock-out** karte hain (Battle me point milta hai); baaki attack items sirf annoying debuff dete hain (knock-out nahi karte) — thoda strategy add karta hai.
+
+## Kya naya hai is version me
+- **Naya car model** — sloped hood/nose, windshield, spoiler, bumpers, alloy wheels
+- **Wall-clip bug fix** — kart ab colourful wall ke andar nahi ghusta, ek chhota gap rehta hai
+- **Jump ramps** — track pe udo
+- **Room capacity 12 tak**, aur **Quick Match rooms me drop-in join** (match ke beech me bhi)
+- **Auto-next-round** (10 sec) aur **mid-match Room Chhodo** button
+- **Limited gun ammo** with regen
+- **15 unique power-ups** + in-game Manual
+- **Icons everywhere, koi emoji nahi** (custom SVG icon set)
+
+## Hosting — important, please read
+
+Maine backend Node.js + **Socket.io** (WebSockets) pe banaya hai kyunki real-time multiplayer (30 baar/second position updates) ke liye ek persistent, stateful server chahiye — sabhi players ka live game state RAM me rakhna padta hai.
+
+**Netlify par seedha nahi chalega.** Netlify sirf static files + short-lived serverless functions serve karta hai — koi bhi function har request pe naya/stateless spin hota hai, wo continuously running server nahi hai jo WebSocket connections aur live game state hold kar sake. Aapki Attendance app (jo static HTML/JS hai) Netlify ke liye bilkul sahi hai, lekin ye game usi tarah "bas set ho jaye" nahi hoga.
+
+**Cloudflare — haan, ho sakta hai, lekin free nahi "as-is":** Cloudflare Workers + **Durable Objects** real-time multiplayer WebSocket apps ke liye actually support karte hain, aur inka ek free tier bhi hai. Lekin iske liye current Node/Express/Socket.io backend ko Cloudflare Workers ke runtime ke liye **dobara likhna** padega (Socket.io library Cloudflare Workers pe nahi chalti — seedhe WebSocket API + Durable Objects use karne honge). Ye ek chhota tweak nahi hai, ek separate migration project hai.
+
+**Sabse aasan free/sasta rasta abhi ke liye:**
+- **Render.com** — free tier pe Node web service directly deploy ho jata hai, Socket.io bina kisi rewrite ke chal jayega. (Free tier thodi der inactive rehne par so jata hai, first request slow ho sakta hai.)
+- **Railway.app** — similar, thoda paid-leaning free tier.
+- **Fly.io** — free allowance ke saath persistent Node apps.
+
+**Agar chaho** to main:
+1. Isi code ko Render/Railway/Fly pe as-is deploy kar sakta hoon (sabse tez rasta, koi rewrite nahi), ya
+2. Cloudflare Workers + Durable Objects ke liye backend rewrite kar sakta hoon (zyada kaam, lekin phir Cloudflare ke generous free tier pe chalega)
+
+Bata dena kaunsa rasta chahiye, us hisaab se aage badhta hoon.

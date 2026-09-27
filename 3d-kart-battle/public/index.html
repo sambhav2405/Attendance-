@@ -15,56 +15,101 @@
 </head>
 <body>
 
+<svg style="display:none">
+<defs>
+<symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 3v18M5 4h13l-3 4 3 4H5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+<symbol id="i-sword" viewBox="0 0 24 24"><path d="M4 20l6-6M14 4l6 6-9 9-4-4 9-9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+<symbol id="i-leaf" viewBox="0 0 24 24"><path d="M4 20C4 10 10 4 20 4c0 10-6 16-16 16z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 18C10 13 13 10 18 6" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+<symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="2"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.5 4.5l2 2M17.5 17.5l2 2M19.5 4.5l-2 2M6.5 17.5l-2 2"/></g></symbol>
+<symbol id="i-pillar" viewBox="0 0 24 24"><path d="M4 21h16M5 21V9M19 21V9M3 9h18l-9-6-9 6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l4 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="0.8" fill="currentColor"/></symbol>
+<symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" fill="currentColor"/></symbol>
+<symbol id="i-build" viewBox="0 0 24 24"><path d="M3 21l7-7M14.5 3.5a3.5 3.5 0 104.95 4.95L21 7l-4-4-1.45 1.45z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 12l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M11 11l9 9M17 17l2-2M14 14l2-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="i-exit" viewBox="0 0 24 24"><path d="M9 4H5v16h4M13 12h8m0 0l-3-3m3 3l-3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-gun" viewBox="0 0 24 24"><path d="M3 14h9l2-3h6v3h-2v3h-4v2H8v-2H5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+<symbol id="i-trophy" viewBox="0 0 24 24"><path d="M7 4h10v4a5 5 0 01-10 0V4z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 6H3v2a4 4 0 004 4M19 6h2v2a4 4 0 01-4 4M10 17h4M12 13v4M8 21h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="i-skull" viewBox="0 0 24 24"><path d="M12 3a7 7 0 00-7 7c0 3 1.5 4.5 2 6v2h10v-2c0.5-1.5 2-3 2-6a7 7 0 00-7-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="9.5" cy="10.5" r="1.4" fill="currentColor"/><circle cx="14.5" cy="10.5" r="1.4" fill="currentColor"/><path d="M10 21v-2M14 21v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5a2 2 0 012-2h6v18H6a2 2 0 01-2-2V5zM12 3h6a2 2 0 012 2v14a2 2 0 01-2 2h-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+<symbol id="i-rocket" viewBox="0 0 24 24"><path d="M12 2c3 2 4.5 5.5 4 10l-4 4-4-4c-0.5-4.5 1-8 4-10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="9" r="1.6" fill="currentColor"/><path d="M9 15l-2.5 5M15 15l2.5 5M9.5 17.5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 5-3.5 7.5-7 9-3.5-1.5-7-4-7-9V6l7-3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+<symbol id="i-bomb" viewBox="0 0 24 24"><circle cx="11" cy="14" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15 9l2-3M17 6l2-1.5M16 4l1.5-1.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+<symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 2c4 5 7 8.5 7 12.5A7 7 0 015 14.5C5 10.5 8 7 12 2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+<symbol id="i-snow" viewBox="0 0 24 24"><g stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2v20M3.5 7l17 10M20.5 7l-17 10"/><path d="M12 5l-2 1.5M12 5l2 1.5M12 19l-2-1.5M12 19l2-1.5M5.2 9.5l0.3 2.4-2.2 1M18.8 9.5l-0.3 2.4 2.2 1M5.2 14.5l0.3-2.4-2.2-1M18.8 14.5l-0.3-2.4 2.2-1"/></g></symbol>
+<symbol id="i-missile" viewBox="0 0 24 24"><path d="M3 13l6-2 8-8 2 2-8 8-2 6-3-3-3 3v-4l-3-3 3-3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="17" cy="7" r="1.3" fill="currentColor"/></symbol>
+<symbol id="i-expand" viewBox="0 0 24 24"><path d="M9 3H3v6M15 3h6v6M9 21H3v-6M15 21h6v-6M3 3l6 6M21 3l-6 6M3 21l6-6M21 21l-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-compress" viewBox="0 0 24 24"><path d="M9 3v6H3M15 3v6h6M9 21v-6H3M15 21v-6h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-swap" viewBox="0 0 24 24"><path d="M4 8h13M13 4l4 4-4 4M20 16H7M11 12l-4 4 4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-burst" viewBox="0 0 24 24"><path d="M12 2l2 6h6l-5 4 2 6-5-4-5 4 2-6-5-4h6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+<symbol id="i-orbit" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.2" fill="currentColor"/><ellipse cx="12" cy="12" rx="9" ry="4" fill="none" stroke="currentColor" stroke-width="1.8" transform="rotate(20 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="4" fill="none" stroke="currentColor" stroke-width="1.8" transform="rotate(-30 12 12)"/></symbol>
+<symbol id="i-portal" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="6" ry="9" fill="none" stroke="currentColor" stroke-width="2"/><ellipse cx="12" cy="12" rx="2.5" ry="9" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+<symbol id="i-ammo" viewBox="0 0 24 24"><g stroke="currentColor" stroke-width="1.6" fill="none"><rect x="4" y="6" width="3" height="12" rx="1"/><rect x="9" y="4" width="3" height="14" rx="1"/><rect x="14" y="6" width="3" height="12" rx="1"/><rect x="19" y="8" width="2" height="10" rx="1"/></g></symbol>
+<symbol id="i-ghost" viewBox="0 0 24 24"><path d="M5 20V11a7 7 0 0114 0v9l-2.5-2-2 2-2.5-2-2.5 2-2-2-2.5 2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="9.5" cy="11" r="1.1" fill="currentColor"/><circle cx="14.5" cy="11" r="1.1" fill="currentColor"/></symbol>
+<symbol id="i-ramp" viewBox="0 0 24 24"><path d="M3 20h6l12-9v9H3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><circle cx="8" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17" cy="9" r="2.4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2.5 20c0-3.5 2.5-6 5.5-6s5.5 2.5 5.5 6M14.5 20c0-2.6 1.6-4.6 3.5-5.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="i-hourglass" viewBox="0 0 24 24"><path d="M6 3h12M6 21h12M7 3c0 5 4 6 5 8-1 2-5 3-5 8M17 3c0 5-4 6-5 8 1 2 5 3 5 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+</defs>
+</svg>
+
   <div id="lobby" class="screen">
-    <h1>🏎️💥 Desi Kart Battle 3D</h1>
+    <h1><svg class="icon icon-lg"><use href="#i-sword"/></svg> Desi Kart Battle 3D</h1>
     <p class="sub">Racing + Battle Arena — dosto ke saath ek hi WiFi pe!</p>
     <input id="nameInput" type="text" placeholder="Apna naam likho" maxlength="14">
 
     <div id="setupPanel">
       <div class="mode-tabs">
-        <button class="mode-tab active" id="modeRaceBtn" data-mode="race">🏁 Racing</button>
-        <button class="mode-tab" id="modeBattleBtn" data-mode="battle">⚔️ Battle Arena</button>
+        <button class="mode-tab active" id="modeRaceBtn" data-mode="race"><svg class="icon"><use href="#i-flag"/></svg> Racing</button>
+        <button class="mode-tab" id="modeBattleBtn" data-mode="battle"><svg class="icon"><use href="#i-sword"/></svg> Battle Arena</button>
       </div>
 
       <div id="mapChoiceRace" class="choice-row">
-        <button class="choice-btn active" data-map="classic">🌳 Classic Ring</button>
-        <button class="choice-btn" data-map="desert">🏜️ Desert Dunes</button>
+        <button class="choice-btn active" data-map="classic"><svg class="icon"><use href="#i-leaf"/></svg> Classic Ring</button>
+        <button class="choice-btn" data-map="desert"><svg class="icon"><use href="#i-sun"/></svg> Desert Dunes</button>
       </div>
 
       <div id="mapChoiceBattle" class="choice-row hidden">
-        <button class="choice-btn active" data-map="colosseum">🏛️ Colosseum</button>
+        <button class="choice-btn active" data-map="colosseum"><svg class="icon"><use href="#i-pillar"/></svg> Colosseum</button>
       </div>
 
       <div id="winConditionChoice" class="choice-row hidden">
-        <button class="choice-btn active" data-win="time">⏱️ Time Attack (3 min)</button>
-        <button class="choice-btn" data-win="score">🎯 First to 10 Points</button>
+        <button class="choice-btn active" data-win="time"><svg class="icon"><use href="#i-clock"/></svg> Time Attack (3 min)</button>
+        <button class="choice-btn" data-win="score"><svg class="icon"><use href="#i-target"/></svg> First to 10 Points</button>
       </div>
 
       <div class="action-row">
-        <button id="quickMatchBtn">⚡ Quick Match</button>
-        <button id="createRoomBtn">🏗️ Naya Room Banao</button>
+        <button id="quickMatchBtn"><svg class="icon"><use href="#i-bolt"/></svg> Quick Match</button>
+        <button id="createRoomBtn"><svg class="icon"><use href="#i-build"/></svg> Naya Room Banao</button>
       </div>
 
       <div class="or-sep">— ya room code se join karo —</div>
       <div class="join-row">
         <input id="codeInput" type="text" placeholder="ROOM CODE" maxlength="4">
-        <button id="joinRoomBtn">🔑 Join</button>
+        <button id="joinRoomBtn"><svg class="icon"><use href="#i-key"/></svg> Join</button>
       </div>
+
+      <button id="manualBtn" class="ghost-btn"><svg class="icon"><use href="#i-book"/></svg> Power-up Manual</button>
     </div>
 
     <div id="roomInfo" class="hidden">
       <p class="room-code-label" id="roomModeLabel">Room Code — dosto ko bhejo:</p>
       <div id="roomCodeDisplay" class="room-code-big"></div>
       <div id="playerList" class="player-list"></div>
-      <button id="startBtn" class="hidden">Start 🏁</button>
+      <button id="startBtn" class="hidden">Start</button>
+      <button id="leaveLobbyBtn" class="ghost-btn"><svg class="icon"><use href="#i-exit"/></svg> Room Chhodo</button>
     </div>
 
     <p id="lobbyMsg" class="msg"></p>
     <div class="hint">
-      <b>Controls:</b> Arrow Keys / WASD chalao &nbsp;•&nbsp; <b>Space</b> = Gun 🔫 &nbsp;•&nbsp; <b>E</b>/Enter = item use<br>
-      🚀 Boost &nbsp;•&nbsp; 💣 Ladoo Bomb &nbsp;•&nbsp; 🫖 Chai Spill &nbsp;•&nbsp; ⚡ Boost Pads<br>
-      Racing: 3 laps jo pehle poore kare wo jeete. Battle: kill karke points banao!
+      <b>Controls:</b> Arrow Keys / WASD chalao &nbsp;•&nbsp; <b>Space</b> = Gun (limited ammo) &nbsp;•&nbsp; <b>E</b>/Enter = item use<br>
+      Track pe <svg class="icon icon-sm"><use href="#i-ramp"/></svg> ramps se jump maaro. 15 alag power-ups milte hain box smash karke!
     </div>
+  </div>
+
+  <div id="manualScreen" class="screen hidden">
+    <h1><svg class="icon icon-lg"><use href="#i-book"/></svg> Power-up Manual</h1>
+    <div id="manualList" class="manual-list"></div>
+    <button id="manualBackBtn">Wapas</button>
   </div>
 
   <div id="gameScreen" class="screen hidden">
@@ -75,24 +120,29 @@
       <div id="countdown" class="hidden"></div>
       <div id="topHud">
         <div id="lapInfo">Lap 1/3</div>
-        <div id="battleTimer" class="hidden">⏱️ 3:00</div>
-        <div id="battleTarget" class="hidden">🎯 0/10</div>
+        <div id="battleTimer" class="hidden"><svg class="icon icon-sm"><use href="#i-clock"/></svg> 3:00</div>
+        <div id="battleTarget" class="hidden"><svg class="icon icon-sm"><use href="#i-target"/></svg> 0/10</div>
+        <div id="ammoBox"><svg class="icon icon-sm"><use href="#i-gun"/></svg><span id="ammoCount">15</span></div>
         <div id="itemBox">
-          <span id="itemIcon">–</span>
+          <svg class="icon" id="itemIconSvg"><use href="#i-target"/></svg>
           <span id="itemHint">no item</span>
         </div>
       </div>
 
+      <div id="statusRow"></div>
       <div id="scoreboard" class="hidden"></div>
       <div id="killFeed"></div>
 
       <div id="respawnOverlay" class="hidden">
-        <div class="respawn-text">💥 Defeated!</div>
+        <svg class="icon icon-xl"><use href="#i-skull"/></svg>
+        <div class="respawn-text">Defeated</div>
         <div id="respawnCountdown" class="respawn-count">5</div>
       </div>
 
-      <div id="hitMarker" class="hidden">🎯 HIT!</div>
+      <div id="hitMarker" class="hidden"><svg class="icon"><use href="#i-target"/></svg> HIT</div>
       <div id="fallFlash" class="hidden"></div>
+
+      <button id="leaveMatchBtn"><svg class="icon icon-sm"><use href="#i-exit"/></svg></button>
     </div>
 
     <div class="touch-controls">
@@ -101,17 +151,20 @@
         <div class="tbtn" data-key="left">◀</div><div class="tbtn" data-key="down">▼</div><div class="tbtn" data-key="right">▶</div>
       </div>
       <div class="actions">
-        <div class="tbtn fire-btn" id="fireTouch">🔫</div>
-        <div class="tbtn use-btn" id="useItemTouch">🎯</div>
+        <div class="tbtn fire-btn" id="fireTouch"><svg class="icon"><use href="#i-gun"/></svg></div>
+        <div class="tbtn use-btn" id="useItemTouch"><svg class="icon"><use href="#i-target"/></svg></div>
       </div>
     </div>
   </div>
 
   <div id="resultScreen" class="screen hidden">
-    <h1 id="resultTitle">🏆 Congratulations!</h1>
+    <svg class="icon icon-xl" id="resultIcon"><use href="#i-trophy"/></svg>
+    <h1 id="resultTitle">Congratulations!</h1>
     <p id="resultSub" class="sub"></p>
     <ol id="resultList"></ol>
-    <button id="raceAgainBtn">Race Again 🔁</button>
+    <p id="nextRoundHint" class="sub"></p>
+    <button id="raceAgainBtn">Play Again</button>
+    <button id="resultLeaveBtn" class="ghost-btn"><svg class="icon"><use href="#i-exit"/></svg> Room Chhodo</button>
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
