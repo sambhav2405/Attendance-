@@ -17,12 +17,35 @@
 
   <div id="lobby" class="screen">
     <h1>🏎️💥 Desi Kart Battle 3D</h1>
-    <p class="sub">Racing + Item Battle — dosto ke saath ek hi WiFi pe!</p>
+    <p class="sub">Racing + Battle Arena — dosto ke saath ek hi WiFi pe!</p>
     <input id="nameInput" type="text" placeholder="Apna naam likho" maxlength="14">
 
-    <div id="roomChoice" class="room-actions">
-      <button id="createRoomBtn">🏗️ Naya Room Banao</button>
-      <div class="or-sep">— ya —</div>
+    <div id="setupPanel">
+      <div class="mode-tabs">
+        <button class="mode-tab active" id="modeRaceBtn" data-mode="race">🏁 Racing</button>
+        <button class="mode-tab" id="modeBattleBtn" data-mode="battle">⚔️ Battle Arena</button>
+      </div>
+
+      <div id="mapChoiceRace" class="choice-row">
+        <button class="choice-btn active" data-map="classic">🌳 Classic Ring</button>
+        <button class="choice-btn" data-map="desert">🏜️ Desert Dunes</button>
+      </div>
+
+      <div id="mapChoiceBattle" class="choice-row hidden">
+        <button class="choice-btn active" data-map="colosseum">🏛️ Colosseum</button>
+      </div>
+
+      <div id="winConditionChoice" class="choice-row hidden">
+        <button class="choice-btn active" data-win="time">⏱️ Time Attack (3 min)</button>
+        <button class="choice-btn" data-win="score">🎯 First to 10 Points</button>
+      </div>
+
+      <div class="action-row">
+        <button id="quickMatchBtn">⚡ Quick Match</button>
+        <button id="createRoomBtn">🏗️ Naya Room Banao</button>
+      </div>
+
+      <div class="or-sep">— ya room code se join karo —</div>
       <div class="join-row">
         <input id="codeInput" type="text" placeholder="ROOM CODE" maxlength="4">
         <button id="joinRoomBtn">🔑 Join</button>
@@ -30,17 +53,17 @@
     </div>
 
     <div id="roomInfo" class="hidden">
-      <p class="room-code-label">Room Code — dosto ko bhejo:</p>
+      <p class="room-code-label" id="roomModeLabel">Room Code — dosto ko bhejo:</p>
       <div id="roomCodeDisplay" class="room-code-big"></div>
       <div id="playerList" class="player-list"></div>
-      <button id="startBtn" class="hidden">Start Race 🏁</button>
+      <button id="startBtn" class="hidden">Start 🏁</button>
     </div>
 
     <p id="lobbyMsg" class="msg"></p>
     <div class="hint">
       <b>Controls:</b> Arrow Keys / WASD chalao &nbsp;•&nbsp; <b>Space</b> = Gun 🔫 &nbsp;•&nbsp; <b>E</b>/Enter = item use<br>
-      🚀 Boost &nbsp;•&nbsp; 💣 Ladoo Bomb &nbsp;•&nbsp; 🫖 Chai Spill &nbsp;•&nbsp; ⚡ Boost Pads track pe<br>
-      Colourful wall se takrane pe bounce hoge, lake me gire to respawn!
+      🚀 Boost &nbsp;•&nbsp; 💣 Ladoo Bomb &nbsp;•&nbsp; 🫖 Chai Spill &nbsp;•&nbsp; ⚡ Boost Pads<br>
+      Racing: 3 laps jo pehle poore kare wo jeete. Battle: kill karke points banao!
     </div>
   </div>
 
@@ -52,11 +75,23 @@
       <div id="countdown" class="hidden"></div>
       <div id="topHud">
         <div id="lapInfo">Lap 1/3</div>
+        <div id="battleTimer" class="hidden">⏱️ 3:00</div>
+        <div id="battleTarget" class="hidden">🎯 0/10</div>
         <div id="itemBox">
           <span id="itemIcon">–</span>
           <span id="itemHint">no item</span>
         </div>
       </div>
+
+      <div id="scoreboard" class="hidden"></div>
+      <div id="killFeed"></div>
+
+      <div id="respawnOverlay" class="hidden">
+        <div class="respawn-text">💥 Defeated!</div>
+        <div id="respawnCountdown" class="respawn-count">5</div>
+      </div>
+
+      <div id="hitMarker" class="hidden">🎯 HIT!</div>
       <div id="fallFlash" class="hidden"></div>
     </div>
 
@@ -73,7 +108,8 @@
   </div>
 
   <div id="resultScreen" class="screen hidden">
-    <h1>🏆 Race Results</h1>
+    <h1 id="resultTitle">🏆 Congratulations!</h1>
+    <p id="resultSub" class="sub"></p>
     <ol id="resultList"></ol>
     <button id="raceAgainBtn">Race Again 🔁</button>
   </div>

@@ -7,20 +7,36 @@ const lobbyScreen = document.getElementById('lobby');
 const gameScreen = document.getElementById('gameScreen');
 const resultScreen = document.getElementById('resultScreen');
 const nameInput = document.getElementById('nameInput');
-const roomChoice = document.getElementById('roomChoice');
+const setupPanel = document.getElementById('setupPanel');
+const modeRaceBtn = document.getElementById('modeRaceBtn');
+const modeBattleBtn = document.getElementById('modeBattleBtn');
+const mapChoiceRace = document.getElementById('mapChoiceRace');
+const mapChoiceBattle = document.getElementById('mapChoiceBattle');
+const winConditionChoice = document.getElementById('winConditionChoice');
+const quickMatchBtn = document.getElementById('quickMatchBtn');
 const createRoomBtn = document.getElementById('createRoomBtn');
 const codeInput = document.getElementById('codeInput');
 const joinRoomBtn = document.getElementById('joinRoomBtn');
 const roomInfo = document.getElementById('roomInfo');
+const roomModeLabel = document.getElementById('roomModeLabel');
 const roomCodeDisplay = document.getElementById('roomCodeDisplay');
 const startBtn = document.getElementById('startBtn');
 const playerListEl = document.getElementById('playerList');
 const lobbyMsg = document.getElementById('lobbyMsg');
 const countdownEl = document.getElementById('countdown');
 const lapInfoEl = document.getElementById('lapInfo');
+const battleTimerEl = document.getElementById('battleTimer');
+const battleTargetEl = document.getElementById('battleTarget');
 const itemIconEl = document.getElementById('itemIcon');
 const itemHintEl = document.getElementById('itemHint');
+const scoreboardEl = document.getElementById('scoreboard');
+const killFeedEl = document.getElementById('killFeed');
+const respawnOverlay = document.getElementById('respawnOverlay');
+const respawnCountdown = document.getElementById('respawnCountdown');
+const hitMarkerEl = document.getElementById('hitMarker');
 const fallFlashEl = document.getElementById('fallFlash');
+const resultTitle = document.getElementById('resultTitle');
+const resultSub = document.getElementById('resultSub');
 const resultList = document.getElementById('resultList');
 const raceAgainBtn = document.getElementById('raceAgainBtn');
 const minimapCanvas = document.getElementById('minimap');
@@ -33,9 +49,12 @@ const ITEM_META = {
 };
 
 let myId = null;
-let myRoomCode = null;
 let latestState = null;
-let trackBuilt = false;
+let worldBuilt = false;
+let currentMode = 'race';
+let selectedMapRace = 'classic';
+let selectedMapBattle = 'colosseum';
+let selectedWinCondition = 'time';
 
 function showScreen(screen) {
     [lobbyScreen, gameScreen, resultScreen].forEach(s => s.classList.add('hidden'));
@@ -62,16 +81,54 @@ const sfx = {
     pickup: () => beep(880, 0.12, 'square', 0.12),
     boost: () => { beep(220, 0.25, 'sawtooth', 0.15); beep(440, 0.2, 'sawtooth', 0.1, 0.05); },
     hit: () => beep(90, 0.3, 'square', 0.2),
+    kill: () => { beep(660, 0.1, 'square', 0.14); beep(990, 0.14, 'square', 0.12, 0.08); },
     shoot: () => beep(660, 0.05, 'square', 0.06),
     tick: () => beep(523, 0.15, 'sine', 0.15),
     go: () => beep(880, 0.35, 'sine', 0.2),
-    finish: () => { beep(523, 0.15, 'sine', 0.15); beep(659, 0.15, 'sine', 0.15, 0.15); beep(784, 0.3, 'sine', 0.15, 0.3); }
+    win: () => { beep(523, 0.15, 'sine', 0.16); beep(659, 0.15, 'sine', 0.16, 0.15); beep(784, 0.15, 'sine', 0.16, 0.3); beep(1046, 0.3, 'sine', 0.18, 0.45); },
+    lose: () => { beep(330, 0.25, 'sawtooth', 0.14); beep(220, 0.4, 'sawtooth', 0.14, 0.2); }
 };
 
-// ===== Lobby / room / socket flow =====
+// ===== Setup panel: mode / map / win-condition selection =====
+function setMode(mode) {
+    currentMode = mode;
+    modeRaceBtn.classList.toggle('active', mode === 'race');
+    modeBattleBtn.classList.toggle('active', mode === 'battle');
+    mapChoiceRace.classList.toggle('hidden', mode !== 'race');
+    mapChoiceBattle.classList.toggle('hidden', mode !== 'battle');
+    winConditionChoice.classList.toggle('hidden', mode !== 'battle');
+}
+modeRaceBtn.addEventListener('click', () => setMode('race'));
+modeBattleBtn.addEventListener('click', () => setMode('battle'));
+
+mapChoiceRace.querySelectorAll('.choice-btn').forEach(btn => btn.addEventListener('click', () => {
+    mapChoiceRace.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedMapRace = btn.dataset.map;
+}));
+mapChoiceBattle.querySelectorAll('.choice-btn').forEach(btn => btn.addEventListener('click', () => {
+    mapChoiceBattle.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedMapBattle = btn.dataset.map;
+}));
+winConditionChoice.querySelectorAll('.choice-btn').forEach(btn => btn.addEventListener('click', () => {
+    winConditionChoice.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedWinCondition = btn.dataset.win;
+}));
+
 createRoomBtn.addEventListener('click', () => {
     ensureAudio();
-    socket.emit('createRoom', nameInput.value.trim() || 'Player');
+    socket.emit('createRoom', {
+        name: nameInput.value.trim() || 'Player',
+        mapId: currentMode === 'race' ? selectedMapRace : selectedMapBattle,
+        winCondition: selectedWinCondition
+    });
+});
+quickMatchBtn.addEventListener('click', () => {
+    ensureAudio();
+    lobbyMsg.textContent = 'Match dhoond rahe hain...';
+    socket.emit('quickMatch', { name: nameInput.value.trim() || 'Player', mode: currentMode });
 });
 joinRoomBtn.addEventListener('click', () => {
     ensureAudio();
@@ -83,15 +140,22 @@ codeInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') joinRoomBt
 nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') createRoomBtn.click(); });
 
 startBtn.addEventListener('click', () => socket.emit('startRace'));
-raceAgainBtn.addEventListener('click', () => { socket.emit('restart'); showScreen(lobbyScreen); });
+raceAgainBtn.addEventListener('click', () => {
+    socket.emit('restart');
+    setupPanel.classList.add('hidden');
+    roomInfo.classList.remove('hidden');
+    showScreen(lobbyScreen);
+});
 
 socket.on('connect', () => { myId = socket.id; });
 
-socket.on('roomJoined', ({ code }) => {
-    myRoomCode = code;
-    roomChoice.classList.add('hidden');
+socket.on('roomJoined', ({ code, mode }) => {
+    setupPanel.classList.add('hidden');
     roomInfo.classList.remove('hidden');
     roomCodeDisplay.textContent = code;
+    roomModeLabel.textContent = mode === 'battle'
+        ? '⚔️ Battle Arena Room Code — dosto ko bhejo:'
+        : '🏁 Racing Room Code — dosto ko bhejo:';
     lobbyMsg.textContent = '';
 });
 
@@ -101,7 +165,8 @@ socket.on('lobby', (data) => {
         ? '<b>Players:</b> ' + names.map(p => `<span style="color:${p.color}">● ${p.name}</span>`).join('  ')
         : '';
     startBtn.classList.toggle('hidden', names.length < 1);
-    lobbyMsg.textContent = names.length ? 'Sab ready hone par "Start Race" dabao!' : '';
+    startBtn.textContent = data.mode === 'battle' ? 'Start Battle ⚔️' : 'Start Race 🏁';
+    lobbyMsg.textContent = names.length ? 'Sab ready hone par dabao!' : '';
     showScreen(lobbyScreen);
 });
 
@@ -109,11 +174,19 @@ socket.on('joinRejected', (msg) => { lobbyMsg.textContent = msg; });
 
 let prevCountdown = null;
 let prevRaceState = null;
+let prevMyScore = 0;
+let prevAlive = true;
 
 socket.on('state', (state) => {
-    if (!trackBuilt) { buildWorld(state.track, state.obstacles, state.boostPads); trackBuilt = true; }
+    if (!worldBuilt) { buildWorld(state); worldBuilt = true; }
     const prevPlayer = latestState && myId ? latestState.players[myId] : null;
     const newPlayer = state.players[myId];
+    const isBattle = state.mode === 'battle';
+
+    lapInfoEl.classList.toggle('hidden', isBattle);
+    battleTimerEl.classList.toggle('hidden', !isBattle || state.winCondition !== 'time');
+    battleTargetEl.classList.toggle('hidden', !isBattle || state.winCondition !== 'score');
+    scoreboardEl.classList.toggle('hidden', !isBattle);
 
     if (state.raceState === 'countdown' || state.raceState === 'racing') {
         showScreen(gameScreen);
@@ -127,9 +200,12 @@ socket.on('state', (state) => {
             countdownEl.classList.add('hidden');
         }
     } else if (state.raceState === 'finished') {
-        if (prevRaceState !== 'finished') { sfx.finish(); spawnConfetti(); }
+        if (prevRaceState !== 'finished') {
+            const iWon = isBattle ? state.winnerId === myId : (state.finishOrder[0] && state.finishOrder[0].id === myId);
+            if (iWon) { sfx.win(); spawnConfetti(state); } else sfx.lose();
+        }
         showScreen(resultScreen);
-        resultList.innerHTML = state.finishOrder.map((f, i) => `<li>${i + 1}. ${f.name} — ${(f.time / 1000).toFixed(2)}s</li>`).join('') || '<li>Koi finish nahi hua!</li>';
+        renderResults(state, isBattle);
     }
     prevCountdown = state.countdownValue;
     prevRaceState = state.raceState;
@@ -137,20 +213,95 @@ socket.on('state', (state) => {
     if (newPlayer) {
         if (prevPlayer && !prevPlayer.heldItem && newPlayer.heldItem) sfx.pickup();
         if (prevPlayer && !prevPlayer.boosting && newPlayer.boosting) sfx.boost();
-        if (prevPlayer && !prevPlayer.stunned && newPlayer.stunned) sfx.hit();
         if (prevPlayer && prevPlayer.fellAt !== newPlayer.fellAt && newPlayer.fellAt) flashFall();
+
+        if (isBattle) {
+            if (prevPlayer && !prevPlayer.stunned && newPlayer.stunned) sfx.hit();
+            if (prevAlive && newPlayer.alive === false) { sfx.hit(); flashFall(); }
+            prevAlive = newPlayer.alive;
+            if (newPlayer.score > prevMyScore) { sfx.kill(); showHitMarker(); }
+            prevMyScore = newPlayer.score;
+
+            respawnOverlay.classList.toggle('hidden', newPlayer.alive !== false);
+            if (newPlayer.alive === false) {
+                const remain = Math.max(0, Math.ceil((newPlayer.respawnAt - state.now) / 1000));
+                respawnCountdown.textContent = remain;
+            }
+        } else {
+            if (prevPlayer && !prevPlayer.stunned && newPlayer.stunned) sfx.hit();
+        }
 
         const meta = ITEM_META[newPlayer.heldItem];
         itemIconEl.textContent = meta ? meta.icon : '–';
         itemHintEl.textContent = meta ? meta.label : 'no item';
 
-        const lapsToWin = state.lapsToWin || 3;
-        lapInfoEl.textContent = newPlayer.finished ? 'Finished! ✅' : `Lap ${Math.min(newPlayer.lap + 1, lapsToWin)}/${lapsToWin}`;
+        if (!isBattle) {
+            const lapsToWin = state.lapsToWin || 3;
+            lapInfoEl.textContent = newPlayer.finished ? 'Finished! ✅' : `Lap ${Math.min(newPlayer.lap + 1, lapsToWin)}/${lapsToWin}`;
+        }
+    }
+
+    if (isBattle) {
+        if (state.winCondition === 'time') {
+            const s = Math.max(0, Math.ceil(state.timeRemainingMs / 1000));
+            battleTimerEl.textContent = `⏱️ ${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+        } else {
+            const my = newPlayer ? (newPlayer.score || 0) : 0;
+            battleTargetEl.textContent = `🎯 ${my}/${state.scoreTarget}`;
+        }
+        renderScoreboard(state);
+        renderKillFeed(state);
     }
 
     latestState = state;
     syncScene(state);
 });
+
+function renderScoreboard(state) {
+    const rows = Object.entries(state.players)
+        .map(([id, p]) => ({ id, name: p.name, color: p.color, score: p.score || 0 }))
+        .sort((a, b) => b.score - a.score);
+    scoreboardEl.innerHTML = rows.map(r => `<span class="sb-entry"><span class="sb-dot" style="background:${r.color}"></span>${r.name}: ${r.score}</span>`).join('');
+}
+
+let shownKillIds = new Set();
+function renderKillFeed(state) {
+    (state.killFeed || []).forEach(k => {
+        if (shownKillIds.has(k.id)) return;
+        shownKillIds.add(k.id);
+        const div = document.createElement('div');
+        div.className = 'kf-entry';
+        const weaponIcon = { gun: '🔫', bomb: '💣', chai: '🫖', pit: '🕳️' }[k.weapon] || '💥';
+        div.textContent = k.attacker ? `${k.attacker} ${weaponIcon} ${k.victim}` : `${k.victim} ${weaponIcon} gir gaya!`;
+        killFeedEl.appendChild(div);
+        setTimeout(() => div.remove(), 4000);
+    });
+}
+
+let hitMarkerTimer = null;
+function showHitMarker() {
+    hitMarkerEl.classList.add('hidden');
+    void hitMarkerEl.offsetWidth; // force reflow so the CSS animation restarts even on rapid re-kills
+    hitMarkerEl.classList.remove('hidden');
+    clearTimeout(hitMarkerTimer);
+    hitMarkerTimer = setTimeout(() => hitMarkerEl.classList.add('hidden'), 500);
+}
+
+function renderResults(state, isBattle) {
+    const iWon = isBattle ? state.winnerId === myId : (state.finishOrder[0] && state.finishOrder[0].id === myId);
+    resultTitle.textContent = iWon ? '🏆 Congratulations! You Won!' : '💀 Defeated!';
+    resultTitle.className = iWon ? 'win' : 'lose';
+    if (isBattle) {
+        const winnerName = state.players[state.winnerId] ? state.players[state.winnerId].name : '?';
+        resultSub.textContent = iWon ? 'Aap the strongest is arena me!' : `${winnerName} ne match jeeta.`;
+        const rows = Object.entries(state.players).map(([id, p]) => ({ id, name: p.name, color: p.color, score: p.score || 0 }))
+            .sort((a, b) => b.score - a.score);
+        resultList.innerHTML = rows.map(r => `<li><span style="color:${r.color}">● ${r.name}</span><b>${r.score} pts</b></li>`).join('');
+    } else {
+        resultSub.textContent = iWon ? 'Aapne race jeet li!' : 'Agli baar zaroor jeetoge!';
+        resultList.innerHTML = state.finishOrder.map((f, i) => `<li><span>${i + 1}. ${f.name}</span><b>${(f.time / 1000).toFixed(2)}s</b></li>`).join('') || '<li>Koi finish nahi hua!</li>';
+    }
+}
 
 function flashFall() {
     fallFlashEl.classList.add('show');
@@ -205,9 +356,6 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.6 : 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x8ed3f5);
-scene.fog = new THREE.Fog(0x8ed3f5, 90, 320);
-
 const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 600);
 camera.position.set(0, 12, 20);
 
@@ -223,65 +371,60 @@ window.addEventListener('resize', () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-let track = null;
-const WALL_COLORS = [0xef4444, 0xffffff];
-const FLAG_COLORS = [0xef4444, 0xf59e0b, 0x22c55e, 0x3b82f6, 0xa855f7, 0xeab308];
+let mapBounds = null;
+let mapTheme = null;
 
-function ellipsePoint(rx, rz, angle) {
-    return { x: track.cx + rx * Math.cos(angle), z: track.cz + rz * Math.sin(angle) };
-}
+function ellipsePoint(rx, rz, angle) { return { x: mapBounds.cx + rx * Math.cos(angle), z: mapBounds.cz + rz * Math.sin(angle) }; }
 
-function buildWorld(t, obstacles, boostPads) {
-    track = t;
+function buildWorld(state) {
+    mapBounds = state.map.bounds;
+    mapTheme = state.map.theme;
+    const b = mapBounds, th = mapTheme;
 
-    // ground
-    const ground = new THREE.Mesh(new THREE.PlaneGeometry(600, 600), new THREE.MeshStandardMaterial({ color: 0x3f9142 }));
+    scene.background = new THREE.Color(th.sky);
+    scene.fog = new THREE.Fog(th.sky, 90, 320);
+
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(600, 600), new THREE.MeshStandardMaterial({ color: th.ground }));
     ground.rotation.x = -Math.PI / 2;
     ground.position.y = -0.05;
     scene.add(ground);
 
-    // track ring
-    const innerRatio = t.rxInner / t.rxOuter;
+    const innerRatio = b.rxInner / b.rxOuter;
     const ring = new THREE.Mesh(new THREE.RingGeometry(innerRatio, 1, 72, 1), new THREE.MeshStandardMaterial({ color: 0x5b6472, side: THREE.DoubleSide }));
     ring.rotation.x = -Math.PI / 2;
-    ring.scale.set(t.rxOuter, t.rzOuter, 1);
+    ring.scale.set(b.rxOuter, b.rzOuter, 1);
     scene.add(ring);
 
-    // inner lake (fall hazard, no wall)
-    const lake = new THREE.Mesh(new THREE.CircleGeometry(1, 56), new THREE.MeshStandardMaterial({ color: 0x1d78d8 }));
-    lake.rotation.x = -Math.PI / 2;
-    lake.position.y = 0.001;
-    lake.scale.set(t.rxInner, t.rzInner, 1);
-    scene.add(lake);
+    const hazard = new THREE.Mesh(new THREE.CircleGeometry(1, 56), new THREE.MeshStandardMaterial({ color: th.hazard }));
+    hazard.rotation.x = -Math.PI / 2;
+    hazard.position.y = 0.001;
+    hazard.scale.set(b.rxInner, b.rzInner, 1);
+    scene.add(hazard);
 
-    // start/finish line + checker arch
-    const startZ = t.cz - (t.rzOuter + t.rzInner) / 2;
-    const line = new THREE.Mesh(new THREE.PlaneGeometry(1.4, t.rzOuter - t.rzInner), new THREE.MeshBasicMaterial({ color: 0xffffff }));
-    line.rotation.x = -Math.PI / 2;
-    line.position.set(t.cx, 0.02, startZ);
-    scene.add(line);
-    buildStartArch(t.cx, startZ, t.rzOuter - t.rzInner);
+    if (state.mode === 'race') {
+        const startZ = b.cz - (b.rzOuter + b.rzInner) / 2;
+        const line = new THREE.Mesh(new THREE.PlaneGeometry(1.4, b.rzOuter - b.rzInner), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+        line.rotation.x = -Math.PI / 2;
+        line.position.set(b.cx, 0.02, startZ);
+        scene.add(line);
+        buildStartArch(b.cx, startZ, b.rzOuter - b.rzInner);
+    }
 
-    // colourful outer wall (this matches the server's solid bounce wall exactly)
     const wallSegs = 56;
     for (let i = 0; i < wallSegs; i++) {
         const a1 = (i / wallSegs) * Math.PI * 2;
-        const p1 = ellipsePoint(t.rxOuter, t.rzOuter, a1);
+        const p1 = ellipsePoint(b.rxOuter, b.rzOuter, a1);
         const a2 = ((i + 1) / wallSegs) * Math.PI * 2;
-        const p2 = ellipsePoint(t.rxOuter, t.rzOuter, a2);
+        const p2 = ellipsePoint(b.rxOuter, b.rzOuter, a2);
         const midX = (p1.x + p2.x) / 2, midZ = (p1.z + p2.z) / 2;
         const segLen = Math.hypot(p2.x - p1.x, p2.z - p1.z) * 1.08;
-        const wall = new THREE.Mesh(
-            new THREE.BoxGeometry(segLen, 1.6, 0.7),
-            new THREE.MeshStandardMaterial({ color: WALL_COLORS[i % 2] })
-        );
+        const wall = new THREE.Mesh(new THREE.BoxGeometry(segLen, 1.6, 0.7), new THREE.MeshStandardMaterial({ color: th.wallColors[i % 2] }));
         wall.position.set(midX, 0.8, midZ);
         wall.rotation.y = -Math.atan2(p2.z - p1.z, p2.x - p1.x);
         scene.add(wall);
     }
 
-    // obstacles (colourful traffic drums)
-    (obstacles || []).forEach(ob => {
+    (state.obstacles || []).forEach(ob => {
         const drum = new THREE.Group();
         const body = new THREE.Mesh(new THREE.CylinderGeometry(ob.radius, ob.radius, 1.8, 16), new THREE.MeshStandardMaterial({ color: 0xf97316 }));
         body.position.y = 0.9;
@@ -295,8 +438,7 @@ function buildWorld(t, obstacles, boostPads) {
         scene.add(drum);
     });
 
-    // boost pads (glowing pulsing arrows)
-    boostPadMeshes = (boostPads || []).map(pad => {
+    boostPadMeshes = (state.boostPads || []).map(pad => {
         const m = new THREE.Mesh(new THREE.CircleGeometry(pad.radius, 24), new THREE.MeshStandardMaterial({ color: 0x22d3ee, emissive: 0x0891b2, transparent: true, opacity: 0.85 }));
         m.rotation.x = -Math.PI / 2;
         m.position.set(pad.x, 0.03, pad.z);
@@ -304,7 +446,7 @@ function buildWorld(t, obstacles, boostPads) {
         return m;
     });
 
-    buildScenery(t);
+    buildScenery(b, th);
 }
 
 function buildStartArch(x, z, span) {
@@ -318,10 +460,7 @@ function buildStartArch(x, z, span) {
     const checkerCanvas = document.createElement('canvas');
     checkerCanvas.width = 128; checkerCanvas.height = 16;
     const cctx = checkerCanvas.getContext('2d');
-    for (let i = 0; i < 8; i++) {
-        cctx.fillStyle = i % 2 === 0 ? '#111' : '#fff';
-        cctx.fillRect(i * 16, 0, 16, 16);
-    }
+    for (let i = 0; i < 8; i++) { cctx.fillStyle = i % 2 === 0 ? '#111' : '#fff'; cctx.fillRect(i * 16, 0, 16, 16); }
     const checkerTex = new THREE.CanvasTexture(checkerCanvas);
     checkerTex.wrapS = THREE.RepeatWrapping;
     checkerTex.repeat.set(3, 1);
@@ -340,42 +479,79 @@ function makeFlag(color) {
     return g;
 }
 
-function buildScenery(t) {
-    // colourful bunting flags just outside the wall
+function makeCactus() {
+    const g = new THREE.Group();
+    const mat = new THREE.MeshStandardMaterial({ color: 0x2f855a });
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.4, 2.2, 8), mat);
+    trunk.position.y = 1.1;
+    g.add(trunk);
+    [[-0.4, 1.2, 0.4], [0.45, 1.6, -0.2]].forEach(([x, y, r]) => {
+        const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.22, 0.9, 6), mat);
+        arm.position.set(x, y, 0);
+        arm.rotation.z = r;
+        g.add(arm);
+    });
+    return g;
+}
+
+function makeGrandstand(color) {
+    const g = new THREE.Group();
+    for (let tier = 0; tier < 3; tier++) {
+        const seat = new THREE.Mesh(new THREE.BoxGeometry(6, 0.6, 1.4), new THREE.MeshStandardMaterial({ color: tier % 2 === 0 ? color : 0x4b5563 }));
+        seat.position.set(0, 0.6 + tier * 1.1, -tier * 0.8);
+        g.add(seat);
+    }
+    return g;
+}
+
+const FLAG_COLORS = [0xef4444, 0xf59e0b, 0x22c55e, 0x3b82f6, 0xa855f7, 0xeab308];
+
+function buildScenery(b, th) {
     const flagCount = 24;
     for (let i = 0; i < flagCount; i++) {
         const a = (i / flagCount) * Math.PI * 2;
-        const p = ellipsePoint(t.rxOuter + 2.5, t.rzOuter + 2.5, a);
+        const p = ellipsePoint(b.rxOuter + 2.5, b.rzOuter + 2.5, a);
         const flag = makeFlag(FLAG_COLORS[i % FLAG_COLORS.length]);
         flag.position.set(p.x, 0, p.z);
         flag.rotation.y = -a;
         scene.add(flag);
     }
 
-    // low-poly trees scattered further out
-    for (let i = 0; i < 26; i++) {
-        const a = Math.random() * Math.PI * 2;
-        const distMult = 1.35 + Math.random() * 0.5;
-        const p = ellipsePoint(t.rxOuter * distMult, t.rzOuter * distMult, a);
-        const tree = new THREE.Group();
-        const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.35, 1.6, 6), new THREE.MeshStandardMaterial({ color: 0x7c4a1e }));
-        trunk.position.y = 0.8;
-        const leaves = new THREE.Mesh(new THREE.ConeGeometry(1.3, 2.6, 8), new THREE.MeshStandardMaterial({ color: [0x22c55e, 0x16a34a, 0x15803d][i % 3] }));
-        leaves.position.y = 2.4;
-        tree.add(trunk); tree.add(leaves);
-        tree.position.set(p.x, 0, p.z);
-        tree.scale.setScalar(0.8 + Math.random() * 0.6);
-        scene.add(tree);
+    if (th.decor === 'stands') {
+        for (let i = 0; i < 16; i++) {
+            const a = (i / 16) * Math.PI * 2;
+            const p = ellipsePoint(b.rxOuter * 1.25, b.rzOuter * 1.25, a);
+            const stand = makeGrandstand(FLAG_COLORS[i % FLAG_COLORS.length]);
+            stand.position.set(p.x, 0, p.z);
+            stand.rotation.y = -a + Math.PI;
+            scene.add(stand);
+        }
+    } else {
+        for (let i = 0; i < 26; i++) {
+            const a = Math.random() * Math.PI * 2;
+            const distMult = 1.35 + Math.random() * 0.5;
+            const p = ellipsePoint(b.rxOuter * distMult, b.rzOuter * distMult, a);
+            let deco;
+            if (th.decor === 'cacti') {
+                deco = makeCactus();
+            } else {
+                deco = new THREE.Group();
+                const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.35, 1.6, 6), new THREE.MeshStandardMaterial({ color: 0x7c4a1e }));
+                trunk.position.y = 0.8;
+                const leaves = new THREE.Mesh(new THREE.ConeGeometry(1.3, 2.6, 8), new THREE.MeshStandardMaterial({ color: [0x22c55e, 0x16a34a, 0x15803d][i % 3] }));
+                leaves.position.y = 2.4;
+                deco.add(trunk); deco.add(leaves);
+            }
+            deco.position.set(p.x, 0, p.z);
+            deco.scale.setScalar(0.8 + Math.random() * 0.6);
+            scene.add(deco);
+        }
     }
 
-    // distant low-poly mountains
     for (let i = 0; i < 10; i++) {
         const a = (i / 10) * Math.PI * 2 + 0.2;
-        const p = ellipsePoint(t.rxOuter * 2.2, t.rzOuter * 2.2, a);
-        const mountain = new THREE.Mesh(
-            new THREE.ConeGeometry(10 + Math.random() * 8, 18 + Math.random() * 10, 6),
-            new THREE.MeshStandardMaterial({ color: 0x64748b })
-        );
+        const p = ellipsePoint(b.rxOuter * 2.2, b.rzOuter * 2.2, a);
+        const mountain = new THREE.Mesh(new THREE.ConeGeometry(10 + Math.random() * 8, 18 + Math.random() * 10, 6), new THREE.MeshStandardMaterial({ color: th.mountain }));
         mountain.position.set(p.x, 8, p.z);
         scene.add(mountain);
     }
@@ -395,45 +571,75 @@ function makeNameSprite(text) {
     const tex = new THREE.CanvasTexture(canvasEl);
     const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false }));
     sprite.scale.set(2.6, 0.65, 1);
-    sprite.position.set(0, 1.8, 0);
+    sprite.position.set(0, 1.9, 0);
     return sprite;
 }
 
 function createKart(color, name) {
     const group = new THREE.Group();
-    const body = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.55, 2.6), new THREE.MeshStandardMaterial({ color }));
-    body.position.y = 0.55;
-    group.add(body);
+    const bodyMat = new THREE.MeshStandardMaterial({ color, metalness: 0.25, roughness: 0.5 });
+    const darkMat = new THREE.MeshStandardMaterial({ color: 0x1f2937 });
 
-    const topper = new THREE.Mesh(new THREE.SphereGeometry(0.36, 14, 10), new THREE.MeshStandardMaterial({ color: 0xffe4b5 }));
-    topper.position.set(0, 1.05, 0.35);
-    group.add(topper);
+    // lower chassis (wider, flatter) + upper cockpit tier for a sleeker look
+    const chassis = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.35, 2.8), bodyMat);
+    chassis.position.y = 0.35;
+    group.add(chassis);
+    const cockpit = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.4, 1.5), bodyMat);
+    cockpit.position.set(0, 0.72, 0.15);
+    group.add(cockpit);
 
-    const gunBarrel = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 1.1, 8), new THREE.MeshStandardMaterial({ color: 0x1f2937 }));
+    const bumper = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.3, 0.3), darkMat);
+    bumper.position.set(0, 0.35, 1.5);
+    group.add(bumper);
+
+    const spoilerStand = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.5, 0.12), darkMat);
+    spoilerStand.position.set(0, 0.75, -1.35);
+    group.add(spoilerStand);
+    const spoilerWing = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.1, 0.5), bodyMat);
+    spoilerWing.position.set(0, 1.0, -1.35);
+    group.add(spoilerWing);
+
+    // driver: torso + helmet with a coloured visor stripe
+    const torso = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.5, 0.5), darkMat);
+    torso.position.set(0, 0.95, 0.3);
+    group.add(torso);
+    const helmet = new THREE.Mesh(new THREE.SphereGeometry(0.34, 14, 10), new THREE.MeshStandardMaterial({ color: 0xffe4b5 }));
+    helmet.position.set(0, 1.32, 0.35);
+    group.add(helmet);
+    const visor = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.14, 0.2), new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.3 }));
+    visor.position.set(0, 1.34, 0.55);
+    group.add(visor);
+
+    const gunBarrel = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 1.1, 8), darkMat);
     gunBarrel.rotation.x = Math.PI / 2;
-    gunBarrel.position.set(0, 0.75, 1.5);
+    gunBarrel.position.set(0, 0.75, 1.6);
     group.add(gunBarrel);
 
-    const wheelGeo = new THREE.CylinderGeometry(0.36, 0.36, 0.32, 12);
+    const wheelGeo = new THREE.CylinderGeometry(0.38, 0.38, 0.34, 14);
     const wheelMat = new THREE.MeshStandardMaterial({ color: 0x111827 });
+    const rimGeo = new THREE.CylinderGeometry(0.18, 0.18, 0.36, 10);
+    const rimMat = new THREE.MeshStandardMaterial({ color: 0xd1d5db, metalness: 0.6, roughness: 0.3 });
     const wheels = [];
-    [[-0.95, 0.36, 0.95], [0.95, 0.36, 0.95], [-0.95, 0.36, -0.95], [0.95, 0.36, -0.95]].forEach(([x, y, z]) => {
+    [[-0.95, 0.38, 1.0], [0.95, 0.38, 1.0], [-0.95, 0.38, -1.0], [0.95, 0.38, -1.0]].forEach(([x, y, z]) => {
         const w = new THREE.Mesh(wheelGeo, wheelMat);
         w.rotation.x = Math.PI / 2;
         w.position.set(x, y, z);
+        const rim = new THREE.Mesh(rimGeo, rimMat);
+        rim.rotation.x = Math.PI / 2;
+        w.add(rim);
         group.add(w);
         wheels.push(w);
     });
 
     const flame = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.9, 8), new THREE.MeshBasicMaterial({ color: 0xff8c00 }));
     flame.rotation.x = Math.PI / 2;
-    flame.position.set(0, 0.5, -1.6);
+    flame.position.set(0, 0.5, -1.7);
     flame.scale.set(0.001, 0.001, 0.001);
     group.add(flame);
 
     group.add(makeNameSprite(name));
     scene.add(group);
-    return { group, body, wheels, flame, lastAngle: 0, lastFellAt: 0 };
+    return { group, body: chassis, wheels, flame, lastAngle: 0, lastFellAt: 0 };
 }
 
 const karts = new Map();
@@ -449,6 +655,8 @@ function syncScene(state) {
         let k = karts.get(id);
         if (!k) { k = createKart(p.color, p.name); karts.set(id, k); }
         k.target = p;
+        const isDead = state.mode === 'battle' && p.alive === false;
+        k.group.visible = !isDead;
     });
     for (const [id, k] of karts) { if (!seen.has(id)) { scene.remove(k.group); karts.delete(id); } }
 
@@ -497,14 +705,14 @@ function syncScene(state) {
     for (const [id, m] of hazardMeshes) { if (!seenHz.has(id)) { scene.remove(m); hazardMeshes.delete(id); } }
 }
 
-// ===== Confetti (finish celebration) =====
+// ===== Confetti (win celebration) =====
 let confetti = [];
-function spawnConfetti() {
+function spawnConfetti(state) {
     const colors = [0xef4444, 0x3b82f6, 0x22c55e, 0xf59e0b, 0xa855f7, 0xeab308];
-    const startZ = track ? track.cz - (track.rzOuter + track.rzInner) / 2 : 0;
+    const spawnZ = state.mode === 'race' ? mapBounds.cz - (mapBounds.rzOuter + mapBounds.rzInner) / 2 : mapBounds.cz;
     for (let i = 0; i < 80; i++) {
         const m = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.25, 0.25), new THREE.MeshBasicMaterial({ color: colors[i % colors.length] }));
-        m.position.set(0, 6 + Math.random() * 4, startZ);
+        m.position.set(0, 6 + Math.random() * 4, spawnZ);
         m.userData.vel = new THREE.Vector3((Math.random() - 0.5) * 6, Math.random() * 4 + 2, (Math.random() - 0.5) * 6);
         m.userData.life = 2.5;
         scene.add(m);
@@ -528,17 +736,18 @@ function drawMinimap() {
     const w = minimapCanvas.width = 150 * dpr;
     const h = minimapCanvas.height = 110 * dpr;
     mmCtx.clearRect(0, 0, w, h);
-    if (!track || !latestState) return;
+    if (!mapBounds || !latestState) return;
     const pad = 10 * dpr;
-    const s = Math.min((w - pad * 2) / (track.rxOuter * 2), (h - pad * 2) / (track.rzOuter * 2));
+    const s = Math.min((w - pad * 2) / (mapBounds.rxOuter * 2), (h - pad * 2) / (mapBounds.rzOuter * 2));
     const cx = w / 2, cz = h / 2;
 
     mmCtx.strokeStyle = 'rgba(255,255,255,0.6)';
     mmCtx.lineWidth = 2;
-    mmCtx.beginPath(); mmCtx.ellipse(cx, cz, track.rxOuter * s, track.rzOuter * s, 0, 0, Math.PI * 2); mmCtx.stroke();
-    mmCtx.beginPath(); mmCtx.ellipse(cx, cz, track.rxInner * s, track.rzInner * s, 0, 0, Math.PI * 2); mmCtx.stroke();
+    mmCtx.beginPath(); mmCtx.ellipse(cx, cz, mapBounds.rxOuter * s, mapBounds.rzOuter * s, 0, 0, Math.PI * 2); mmCtx.stroke();
+    mmCtx.beginPath(); mmCtx.ellipse(cx, cz, mapBounds.rxInner * s, mapBounds.rzInner * s, 0, 0, Math.PI * 2); mmCtx.stroke();
 
     Object.entries(latestState.players).forEach(([id, p]) => {
+        if (latestState.mode === 'battle' && p.alive === false) return;
         mmCtx.fillStyle = p.color;
         mmCtx.beginPath();
         mmCtx.arc(cx + p.x * s, cz + p.z * s, id === myId ? 5 : 3.5, 0, Math.PI * 2);
@@ -556,7 +765,7 @@ function animate() {
 
     for (const [id, k] of karts) {
         const t = k.target;
-        if (!t) continue;
+        if (!t || !k.group.visible) continue;
         const smooth = 1 - Math.exp(-14 * dt);
 
         if (t.stunned) {
@@ -591,13 +800,10 @@ function animate() {
 
     itemBoxMeshes.forEach(m => { m.rotation.y += dt * 1.6; });
     projectileMeshes.forEach(m => { m.rotation.x += dt * 8; });
-    boostPadMeshes.forEach((m, i) => {
-        const pulse = 0.75 + Math.sin(time * 4 + i) * 0.2;
-        m.material.opacity = pulse;
-    });
+    boostPadMeshes.forEach((m, i) => { m.material.opacity = 0.75 + Math.sin(time * 4 + i) * 0.2; });
 
     const me = karts.get(myId);
-    if (me) {
+    if (me && me.group.visible) {
         const dist = 10, height = 5.4;
         const behindX = me.group.position.x - Math.cos(me.lastAngle) * dist;
         const behindZ = me.group.position.z - Math.sin(me.lastAngle) * dist;
@@ -605,12 +811,11 @@ function animate() {
         camera.position.x += (behindX - camera.position.x) * camSmooth;
         camera.position.z += (behindZ - camera.position.z) * camSmooth;
         camera.position.y += (height - camera.position.y) * camSmooth;
-        const lookAt = new THREE.Vector3(
+        camera.lookAt(
             me.group.position.x + Math.cos(me.lastAngle) * 6,
             0.2,
             me.group.position.z + Math.sin(me.lastAngle) * 6
         );
-        camera.lookAt(lookAt);
     }
 
     updateConfetti(dt);
