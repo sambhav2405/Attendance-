@@ -611,11 +611,17 @@ function buildWorld(state) {
 function buildTowerPlatforms(platforms, ramps, th) {
     platforms.forEach(plat => {
         if (plat.id === 0) return; // ground floor is already the base ring/ground mesh
-        const disk = new THREE.Mesh(new THREE.CylinderGeometry(plat.radius, plat.radius, 0.6, 48), new THREE.MeshStandardMaterial({ color: th.ground }));
+        const disk = new THREE.Mesh(new THREE.CylinderGeometry(plat.radius, plat.radius, 0.6, 56), new THREE.MeshStandardMaterial({ color: th.ground }));
         disk.position.set(plat.cx, plat.y - 0.3, plat.cz);
         scene.add(disk);
 
-        const segs = 40;
+        // glowing trim ring along the platform's edge - a premium accent light strip
+        const trim = new THREE.Mesh(new THREE.TorusGeometry(plat.radius, 0.12, 8, 64), new THREE.MeshStandardMaterial({ color: th.wallColors[0], emissive: th.wallColors[0], emissiveIntensity: 0.8 }));
+        trim.rotation.x = Math.PI / 2;
+        trim.position.set(plat.cx, plat.y + 0.02, plat.cz);
+        scene.add(trim);
+
+        const segs = Math.max(40, Math.round(plat.radius * 2.4));
         for (let i = 0; i < segs; i++) {
             const a1 = (i / segs) * Math.PI * 2, a2 = ((i + 1) / segs) * Math.PI * 2;
             const p1 = { x: plat.cx + plat.radius * Math.cos(a1), z: plat.cz + plat.radius * Math.sin(a1) };
@@ -626,11 +632,29 @@ function buildTowerPlatforms(platforms, ramps, th) {
             wall.position.set(midX, plat.y + 0.55, midZ);
             wall.rotation.y = -Math.atan2(p2.z - p1.z, p2.x - p1.x);
             scene.add(wall);
+
+            // corner lamp posts every few segments for a premium arena-at-night feel
+            if (i % 8 === 0) {
+                const lampGroup = new THREE.Group();
+                const post = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 1.8, 6), new THREE.MeshStandardMaterial({ color: 0x1f2937 }));
+                post.position.y = 0.9;
+                const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.28, 10, 8), new THREE.MeshStandardMaterial({ color: th.wallColors[1], emissive: th.wallColors[1], emissiveIntensity: 1.2 }));
+                bulb.position.y = 1.85;
+                lampGroup.add(post, bulb);
+                lampGroup.position.set(midX, plat.y + 0.55, midZ);
+                scene.add(lampGroup);
+            }
         }
 
-        const pillar = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.8, plat.y, 12), new THREE.MeshStandardMaterial({ color: th.mountain }));
-        pillar.position.set(plat.cx, plat.y / 2, plat.cz);
-        scene.add(pillar);
+        // multiple support pillars in a ring underneath - a wide platform needs more than one leg
+        const pillarCount = plat.radius > 18 ? 5 : 3;
+        const pillarRing = plat.radius * 0.55;
+        for (let i = 0; i < pillarCount; i++) {
+            const a = (i / pillarCount) * Math.PI * 2;
+            const pillar = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.5, plat.y, 12), new THREE.MeshStandardMaterial({ color: th.mountain }));
+            pillar.position.set(plat.cx + pillarRing * Math.cos(a), plat.y / 2, plat.cz + pillarRing * Math.sin(a));
+            scene.add(pillar);
+        }
     });
 
     ramps.forEach(ramp => {
@@ -1081,11 +1105,11 @@ function spawnImpactEffect(itemId, x, y, z) {
         spawnBurst(x, y, z, color, { count: 10, speed: 4, life: 0.4 });
     }
 }
-function spawnHazardEffect(itemId, x, z) {
+function spawnHazardEffect(itemId, x, y, z) {
     if (itemId === 'iceTrail') {
-        spawnBurst(x, 0.3, z, 0x93c5fd, { count: 10, speed: 2.5, life: 0.5, size: 0.14 });
+        spawnBurst(x, y, z, 0x93c5fd, { count: 10, speed: 2.5, life: 0.5, size: 0.14 });
     } else if (itemId === 'oil') {
-        spawnBurst(x, 0.3, z, 0x1c1917, { count: 10, speed: 2, life: 0.5, size: 0.2 });
+        spawnBurst(x, y, z, 0x1c1917, { count: 10, speed: 2, life: 0.5, size: 0.2 });
     }
 }
 
@@ -1169,7 +1193,7 @@ function syncScene(state) {
             scene.add(m);
             projectileMeshes.set(pr.id, m);
         }
-        m.position.set(pr.x, 0.6, pr.z);
+        m.position.set(pr.x, floorY(pr.floor) + 0.6, pr.z);
     });
     for (const [id, m] of projectileMeshes) {
         if (!seenProj.has(id)) {
@@ -1190,11 +1214,11 @@ function syncScene(state) {
             scene.add(m);
             hazardMeshes.set(hz.id, m);
         }
-        m.position.set(hz.x, 0.03, hz.z);
+        m.position.set(hz.x, floorY(hz.floor) + 0.03, hz.z);
     });
     for (const [id, m] of hazardMeshes) {
         if (!seenHz.has(id)) {
-            spawnHazardEffect(m.userData.itemId, m.position.x, m.position.z);
+            spawnHazardEffect(m.userData.itemId, m.position.x, m.position.y + 0.3, m.position.z);
             scene.remove(m);
             hazardMeshes.delete(id);
         }

@@ -26,9 +26,14 @@ Terminal me dikhega: `Desi Kart Battle 3D server running: http://localhost:3001`
 - 3 laps, jo pehle poore kare wo jeete. Track pe jump-ramps hain — tez speed pe unse hawa me udo!
 
 ### Battle Arena
-- 2 maps: **Colosseum** — dark dramatic arena jiske beech me ab asli **glowing lava pit** hai (girne pe seedha "Defeated"), aur uske upar ek **floating fighting platform** hai jahan do ramp se jump karke upar bhi lad sakte ho — platform ke kinare se lava ke upar hi gir gaye to seedha lava me splash! Ya **Sky Tower** — 3 manzil (floors) wala pura tower, har floor ramp/slide se juda hua, upar jaate jaate arena chhota aur intense hota jaata hai.
+- 2 maps, dono me ab **bade, proper fighting platforms** hain (chhoti floating disc nahi) jinpe alag-alag obstacles, item box aur boost pad milte hain:
+  - **Colosseum** — dark dramatic arena jiske beech me ab asli **glowing lava pit** hai (girne pe seedha "Defeated"), aur uske upar lava se bhi bada, khambo (pillars) pe tika ek **bada floating fighting platform** — do ramp se jump karke upar lado, apna alag obstacle-course aur item boxes bhi hain wahan. Galat kinare se lava ke upar hi gir gaye to seedha splash!
+  - **Sky Tower** — 3 manzil (floors) wala pura tower, har floor pehle se kaafi bada aur khud ek poora arena — ramp/slide se upar chado, upar jaate jaate arena thoda chhota par zyada intense hota jaata hai.
+  - Har floor **alag hai** — neeche wale floor ke gun/bomb/gravity-pulse/kart-collision upar wale floor ko touch nahi karte (aur ulta bhi nahi), taaki upar-neeche ki fighting bilkul fair aur clean rahe.
 - Kisi ko maaro to point milta hai, wo **5 second me respawn** hota hai (thodi der ke liye "spawn protection" bhi milti hai).
 - **Har attack ka apna animation/impact effect hai** — bomb/rocket explosion, freeze ray ka ice-shatter, gun/shrink/reverse ray ka spark, oil/ice trail ka splash, EMP blast ka expanding ring, gravity pulse ka pull-ring, aur teleport dash ka warp-flash — sabke liye alag particle burst, sirf khud ke liye nahi, arena ke sabhi players ke liye dikhta hai.
+- Gaadiyan aapas me seedha **takra bhi sakti hain** (dono same floor pe ho to) — takkar se dono thoda bounce back hote hain aur speed kam hoti hai, jaisa asli battle-kart game me hota hai.
+- Platforms ab premium arena jaisi dikhti hain — glowing trim-ring border, corner lamp-posts, aur ek se zyada support pillars.
 - **2 win conditions**: Time Attack (3 min, sabse zyada points wala jeete) ya First to 10 Points.
 - **Team Battle**: Room banate waqt "Team Battle (Red vs Blue)" chuno — players khud-ba-khud dono team me balance ho jaate hain, apni team ko maar nahi sakte (no friendly fire), aur team ka combined score jeetta hai.
 - **Quick Match rooms me kabhi bhi naya player drop-in kar sakta hai** — match beech me chal raha ho tab bhi, jab tak jagah hai.

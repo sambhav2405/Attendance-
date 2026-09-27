@@ -119,65 +119,84 @@ const RACE_RAMPS = [1.7, 4.4].map((angle, i) => {
     return { id: i, x: p.x, z: p.z, heading: Math.atan2(RACE_MID.rz * Math.cos(angle), -RACE_MID.rx * Math.sin(angle)) };
 });
 
-const ARENA_OBSTACLES = [0, 1, 2, 3, 4, 5].map(i => {
-    const a = (i / 6) * Math.PI * 2 + 0.3;
-    const r = ARENA_BOUNDS.rxOuter * (i % 2 === 0 ? 0.38 : 0.62);
-    return { id: i, x: ARENA_BOUNDS.cx + r * Math.cos(a), z: ARENA_BOUNDS.cz + r * Math.sin(a), radius: CAR.obstacleRadius };
+const ARENA_OBSTACLES = [0, 1, 2, 3, 4, 5, 6, 7].map(i => {
+    const a = (i / 8) * Math.PI * 2 + 0.3;
+    const r = ARENA_BOUNDS.rxOuter * (i % 2 === 0 ? 0.34 : 0.66);
+    return { id: i, floor: 0, x: ARENA_BOUNDS.cx + r * Math.cos(a), z: ARENA_BOUNDS.cz + r * Math.sin(a), radius: CAR.obstacleRadius };
 });
 const ARENA_BOOST_PADS = [0, Math.PI].map((a, i) => ({
-    id: i, x: ARENA_BOUNDS.cx + ARENA_BOUNDS.rxOuter * 0.45 * Math.cos(a), z: ARENA_BOUNDS.cz + ARENA_BOUNDS.rzOuter * 0.45 * Math.sin(a), radius: 3.4
+    id: i, floor: 0, x: ARENA_BOUNDS.cx + ARENA_BOUNDS.rxOuter * 0.45 * Math.cos(a), z: ARENA_BOUNDS.cz + ARENA_BOUNDS.rzOuter * 0.45 * Math.sin(a), radius: 3.4
 }));
-const ARENA_ITEM_POSITIONS = ellipseRing(ARENA_BOUNDS, ARENA_BOUNDS.rxOuter * 0.65, ARENA_BOUNDS.rzOuter * 0.65, 6, Math.PI / 6);
+const ARENA_ITEM_POSITIONS = ellipseRing(ARENA_BOUNDS, ARENA_BOUNDS.rxOuter * 0.68, ARENA_BOUNDS.rzOuter * 0.68, 6, Math.PI / 6).map(p => ({ ...p, floor: 0 }));
 const ARENA_SPAWN_POINTS = Array.from({ length: 8 }, (_, i) => {
     const a = (i / 8) * Math.PI * 2;
-    const x = ARENA_BOUNDS.cx + ARENA_BOUNDS.rxOuter * 0.78 * Math.cos(a);
-    const z = ARENA_BOUNDS.cz + ARENA_BOUNDS.rzOuter * 0.78 * Math.sin(a);
+    const x = ARENA_BOUNDS.cx + ARENA_BOUNDS.rxOuter * 0.86 * Math.cos(a);
+    const z = ARENA_BOUNDS.cz + ARENA_BOUNDS.rzOuter * 0.86 * Math.sin(a);
     return { x, z, heading: Math.atan2(ARENA_BOUNDS.cz - z, ARENA_BOUNDS.cx - x) };
 });
-const ARENA_RAMPS = [Math.PI / 2, Math.PI * 1.5].map((angle, i) => {
-    const x = ARENA_BOUNDS.cx + ARENA_BOUNDS.rxOuter * 0.4 * Math.cos(angle);
-    const z = ARENA_BOUNDS.cz + ARENA_BOUNDS.rzOuter * 0.4 * Math.sin(angle);
-    return { id: i, x, z, heading: angle + Math.PI };
-});
-// a fighting platform hovering directly above the lava pit - jump up to it via the
-// arena's ramps, and jumping/falling off its edge above the pit drops you straight into the lava
+// a BIG fighting platform hovering directly above the lava pit - a proper second stage,
+// not a small floating disc - jump up to it via two launch ramps just outside its rim.
+// Falling off its edge above the pit drops you straight into the lava.
+const ARENA_PLATFORM_RADIUS = 20;
 const ARENA_PLATFORMS = [
     { id: 0, y: 0, cx: ARENA_BOUNDS.cx, cz: ARENA_BOUNDS.cz, radius: ARENA_BOUNDS.rxOuter },
-    { id: 1, y: 7, cx: ARENA_BOUNDS.cx, cz: ARENA_BOUNDS.cz, radius: 11 }
+    { id: 1, y: 9, cx: ARENA_BOUNDS.cx, cz: ARENA_BOUNDS.cz, radius: ARENA_PLATFORM_RADIUS }
 ];
-const ARENA_TOWER_RAMPS = ARENA_RAMPS.map(r => ({ ...r, fromFloor: 0, toFloor: 1, power: 22 }));
-const ARENA_PLATFORM_ITEMS = [{ floor: 1, x: 5, z: 0 }, { floor: 1, x: -5, z: 0 }];
+const ARENA_RAMP_RADIUS = 26;
+const ARENA_TOWER_RAMPS = [Math.PI / 2, Math.PI * 1.5].map((angle, i) => ({
+    id: i, x: ARENA_BOUNDS.cx + ARENA_RAMP_RADIUS * Math.cos(angle), z: ARENA_BOUNDS.cz + ARENA_RAMP_RADIUS * Math.sin(angle),
+    heading: angle + Math.PI, fromFloor: 0, toFloor: 1, power: 25
+}));
+// obstacles + boost pad + item boxes spread across the big platform so it's worth fighting on
+const ARENA_PLATFORM_OBSTACLES = [0, 1, 2].map(i => {
+    const a = (i / 3) * Math.PI * 2 + 0.5;
+    return { id: 100 + i, floor: 1, x: ARENA_BOUNDS.cx + 10 * Math.cos(a), z: ARENA_BOUNDS.cz + 10 * Math.sin(a), radius: CAR.obstacleRadius };
+});
+const ARENA_PLATFORM_BOOST_PADS = [{ id: 2, floor: 1, x: ARENA_BOUNDS.cx, z: ARENA_BOUNDS.cz, radius: 3.4 }];
+const ARENA_PLATFORM_ITEMS = [
+    { floor: 1, x: 14, z: 0 }, { floor: 1, x: -14, z: 0 }, { floor: 1, x: 0, z: 14 }, { floor: 1, x: 0, z: -14 }
+];
 
 // ===== Sky Tower: a 3-storey battle arena. Every floor is a concentric circle
 // centred on the same point, connected by launch ramps that persistently move a
 // kart to the floor above (fromFloor/toFloor); driving off a floor's edge (or
 // missing a ramp) makes you fall back down to whatever floor is beneath you.
 const TOWER_BOUNDS = { cx: 0, cz: 0, rxOuter: 44, rzOuter: 44, rxInner: 0.5, rzInner: 0.5 };
+// big proper stages on every floor (not small floating discs) - floor1 is nearly
+// as wide as the ground ring, floor2 is still a full arena in its own right
 const TOWER_PLATFORMS = [
     { id: 0, y: 0, cx: 0, cz: 0, radius: 44 },
-    { id: 1, y: 8, cx: 0, cz: 0, radius: 17 },
-    { id: 2, y: 15, cx: 0, cz: 0, radius: 8 }
+    { id: 1, y: 9, cx: 0, cz: 0, radius: 24 },
+    { id: 2, y: 17, cx: 0, cz: 0, radius: 14 }
 ];
 const TOWER_RAMPS = [
-    { id: 0, x: 17, z: 0, heading: Math.PI, fromFloor: 0, toFloor: 1, power: 25 },
-    { id: 1, x: 8, z: 0, heading: Math.PI, fromFloor: 1, toFloor: 2, power: 23 }
+    { id: 0, x: 28, z: 0, heading: Math.PI, fromFloor: 0, toFloor: 1, power: 26 },
+    { id: 1, x: 18, z: 0, heading: Math.PI, fromFloor: 1, toFloor: 2, power: 21 }
 ];
 const TOWER_OBSTACLES = [
     { id: 0, floor: 0, x: 26, z: 26, radius: CAR.obstacleRadius },
     { id: 1, floor: 0, x: -26, z: 26, radius: CAR.obstacleRadius },
     { id: 2, floor: 0, x: 26, z: -26, radius: CAR.obstacleRadius },
     { id: 3, floor: 0, x: -26, z: -26, radius: CAR.obstacleRadius },
-    { id: 4, floor: 1, x: 10, z: 10, radius: CAR.obstacleRadius },
-    { id: 5, floor: 1, x: -10, z: -10, radius: CAR.obstacleRadius }
+    { id: 4, floor: 0, x: 0, z: 38, radius: CAR.obstacleRadius },
+    { id: 5, floor: 0, x: 0, z: -38, radius: CAR.obstacleRadius },
+    { id: 6, floor: 1, x: 13, z: 13, radius: CAR.obstacleRadius },
+    { id: 7, floor: 1, x: -13, z: 13, radius: CAR.obstacleRadius },
+    { id: 8, floor: 1, x: 13, z: -13, radius: CAR.obstacleRadius },
+    { id: 9, floor: 1, x: -13, z: -13, radius: CAR.obstacleRadius },
+    { id: 10, floor: 2, x: 7, z: 0, radius: CAR.obstacleRadius },
+    { id: 11, floor: 2, x: -7, z: 0, radius: CAR.obstacleRadius }
 ];
 const TOWER_BOOST_PADS = [
     { id: 0, floor: 0, x: 0, z: 32, radius: 3.4 },
-    { id: 1, floor: 1, x: 0, z: 13, radius: 3.4 }
+    { id: 1, floor: 0, x: 0, z: -32, radius: 3.4 },
+    { id: 2, floor: 1, x: 0, z: -18, radius: 3.4 },
+    { id: 3, floor: 2, x: 5, z: 5, radius: 3.4 }
 ];
 const TOWER_ITEM_POSITIONS = [
-    { floor: 0, x: 30, z: 0 }, { floor: 0, x: -30, z: 0 }, { floor: 0, x: 0, z: -32 },
-    { floor: 1, x: 12, z: 0 }, { floor: 1, x: -12, z: 0 },
-    { floor: 2, x: 0, z: 0 }
+    { floor: 0, x: 30, z: 15 }, { floor: 0, x: -30, z: 15 }, { floor: 0, x: 0, z: -32 },
+    { floor: 1, x: 16, z: 0 }, { floor: 1, x: -9.9, z: 9.9 }, { floor: 1, x: -9.9, z: -9.9 },
+    { floor: 2, x: 0, z: 6 }, { floor: 2, x: 0, z: -6 }
 ];
 const TOWER_SPAWN_POINTS = Array.from({ length: 8 }, (_, i) => {
     const a = (i / 8) * Math.PI * 2;
@@ -202,7 +221,8 @@ const MAPS = {
         id: 'colosseum', name: 'Colosseum', mode: 'battle',
         bounds: ARENA_BOUNDS, mid: null, checkpoints: 0,
         theme: { ground: 0x92400e, wallColors: [0x7c3aed, 0xfacc15], sky: 0x1e1b4b, mountain: 0x4c1d95, decor: 'stands', hazard: 0x1a0505 },
-        obstacles: ARENA_OBSTACLES, boostPads: ARENA_BOOST_PADS, itemBoxPositions: ARENA_ITEM_POSITIONS.concat(ARENA_PLATFORM_ITEMS),
+        obstacles: ARENA_OBSTACLES.concat(ARENA_PLATFORM_OBSTACLES), boostPads: ARENA_BOOST_PADS.concat(ARENA_PLATFORM_BOOST_PADS),
+        itemBoxPositions: ARENA_ITEM_POSITIONS.concat(ARENA_PLATFORM_ITEMS),
         spawnPoints: ARENA_SPAWN_POINTS, ramps: [], platforms: ARENA_PLATFORMS, towerRamps: ARENA_TOWER_RAMPS
     },
     skytower: {
@@ -470,6 +490,7 @@ function applyAoeEffect(room, id, def, now) {
     Object.keys(room.players).forEach(oid => {
         if (oid === id) return;
         const o = room.players[oid];
+        if ((o.currentFloor || 0) !== (p.currentFloor || 0)) return;
         if (Math.hypot(o.x - p.x, o.z - p.z) <= def.radius) {
             if (now < o.shieldUntil) { o.shieldUntil = 0; return; }
             o.empUntil = now + def.durationMs;
@@ -703,7 +724,7 @@ function tickRoom(code, room) {
                 p.lastGunFireAt = now;
                 p.ammo--;
                 room.projectiles.push({
-                    id: room.nextEntityId++, ownerId: id, itemId: '__gun',
+                    id: room.nextEntityId++, ownerId: id, itemId: '__gun', floor: p.currentFloor || 0,
                     x: p.x + Math.cos(p.angle) * 2, z: p.z + Math.sin(p.angle) * 2,
                     dx: Math.cos(p.angle), dz: Math.sin(p.angle), spawnedAt: now
                 });
@@ -719,6 +740,7 @@ function tickRoom(code, room) {
             activeIds.forEach(tid => {
                 if (tid === ownerId) return;
                 const t = room.players[tid];
+                if ((t.currentFloor || 0) !== (owner.currentFloor || 0)) return;
                 const dx = owner.x - t.x, dz = owner.z - t.z, d = Math.hypot(dx, dz);
                 if (d > 0.5 && d < PULSE_RADIUS) {
                     const pull = (1 - d / PULSE_RADIUS) * PULSE_STRENGTH;
@@ -731,6 +753,7 @@ function tickRoom(code, room) {
         for (let i = 0; i < activeIds.length; i++) {
             for (let j = i + 1; j < activeIds.length; j++) {
                 const a = room.players[activeIds[i]], b = room.players[activeIds[j]];
+                if ((a.currentFloor || 0) !== (b.currentFloor || 0)) continue; // different floors - not actually touching
                 const aSize = now < a.growUntil ? CAR.growScale : (now < a.shrinkUntil ? CAR.shrinkScale : 1);
                 const bSize = now < b.growUntil ? CAR.growScale : (now < b.shrinkUntil ? CAR.shrinkScale : 1);
                 const dx = b.x - a.x, dz = b.z - a.z;
@@ -762,6 +785,7 @@ function tickRoom(code, room) {
                 activeIds.forEach(id => {
                     if (id === pr.ownerId) return;
                     const t = room.players[id];
+                    if ((t.currentFloor || 0) !== (pr.floor || 0)) return;
                     const d = Math.hypot(t.x - pr.x, t.z - pr.z);
                     if (d < nd) { nd = d; nearest = t; }
                 });
@@ -782,6 +806,7 @@ function tickRoom(code, room) {
             for (const id of activeIds) {
                 if (id === pr.ownerId) continue;
                 const target = room.players[id];
+                if ((target.currentFloor || 0) !== (pr.floor || 0)) continue;
                 if (!canBeHit(room, target, now)) continue;
                 if (Math.hypot(target.x - pr.x, target.z - pr.z) < hitRadius) {
                     applyItemEffect(room, pr.ownerId, id, isGun ? { lethal: true, stunMs: GUN.stunMs, icon: 'gun' } : def, now);
@@ -797,6 +822,7 @@ function tickRoom(code, room) {
             for (const id of activeIds) {
                 if (id === hz.ownerId && now - hz.createdAt < 1000) continue;
                 const target = room.players[id];
+                if ((target.currentFloor || 0) !== (hz.floor || 0)) continue;
                 if (!canBeHit(room, target, now)) continue;
                 if (Math.hypot(target.x - hz.x, target.z - hz.z) < def.radius) {
                     applyItemEffect(room, hz.ownerId, id, def, now);
@@ -839,8 +865,8 @@ function tickRoom(code, room) {
         obstacles: map.obstacles, boostPads: map.boostPads, ramps: map.ramps,
         megaBoost: room.megaBoost.active ? { x: room.megaBoost.x, z: room.megaBoost.z, floor: room.megaBoost.floor } : null,
         itemBoxes: room.itemBoxes.map(b => ({ id: b.id, x: b.x, z: b.z, floor: b.floor, available: b.available, smashedAt: b.smashedAt || 0 })),
-        projectiles: room.projectiles.map(pr => ({ id: pr.id, x: pr.x, z: pr.z, itemId: pr.itemId })),
-        hazards: room.hazards.map(hz => ({ id: hz.id, x: hz.x, z: hz.z, itemId: hz.itemId })),
+        projectiles: room.projectiles.map(pr => ({ id: pr.id, x: pr.x, z: pr.z, itemId: pr.itemId, floor: pr.floor })),
+        hazards: room.hazards.map(hz => ({ id: hz.id, x: hz.x, z: hz.z, itemId: hz.itemId, floor: hz.floor })),
         players: Object.fromEntries(ids.map(id => {
             const p = room.players[id];
             const base = {
@@ -972,13 +998,13 @@ io.on('connection', (socket) => {
             applySelfEffect(room, socket.id, def, now);
         } else if (def.kind === 'projectile') {
             room.projectiles.push({
-                id: room.nextEntityId++, ownerId: socket.id, itemId: def.id,
+                id: room.nextEntityId++, ownerId: socket.id, itemId: def.id, floor: p.currentFloor || 0,
                 x: p.x + Math.cos(p.angle) * 2.6, z: p.z + Math.sin(p.angle) * 2.6,
                 dx: Math.cos(p.angle), dz: Math.sin(p.angle), spawnedAt: now
             });
         } else if (def.kind === 'hazard') {
             room.hazards.push({
-                id: room.nextEntityId++, ownerId: socket.id, itemId: def.id,
+                id: room.nextEntityId++, ownerId: socket.id, itemId: def.id, floor: p.currentFloor || 0,
                 x: p.x - Math.cos(p.angle) * 3, z: p.z - Math.sin(p.angle) * 3, createdAt: now
             });
         } else if (def.kind === 'aoe') {
