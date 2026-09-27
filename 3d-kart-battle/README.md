@@ -1,6 +1,6 @@
 # Desi Kart Battle 3D
 
-Ek local multiplayer **3D** kart racing + battle-arena game — dosto ke saath ek hi WiFi pe **rooms** bana kar ya **Quick Match** se turant khelo. Fully offline-capable — internet ki zaroorat sirf pehli baar `npm install` ke liye hai.
+Ek local multiplayer **3D** kart racing + battle-arena game — dosto ke saath ek hi WiFi pe **rooms** bana kar ya **Quick Match** se turant khelo, ya **Team Battle** khel kar squad ke against squad bhiro. Fully offline-capable — internet ki zaroorat sirf pehli baar `npm install` ke liye hai.
 
 ## Kaise chalayein (apne laptop pe)
 
@@ -17,7 +17,7 @@ Terminal me dikhega: `Desi Kart Battle 3D server running: http://localhost:3001`
 2. Naam daalo, **Racing** ya **Battle Arena** chuno.
 3. **Quick Match** — turant kisi bhi open match me daal deta hai (koi code share karne ki zaroorat nahi), ya **Naya Room Banao** se private code milega jo dost ko bhejo.
 4. Dost `http://<aapka-LAN-IP>:3001` khol kar wahi karein.
-5. Ek room me ab tak **12 players** tak aa sakte hain.
+5. Ek room me ab tak **14 players** tak aa sakte hain.
 
 ## Game Modes
 
@@ -26,9 +26,10 @@ Terminal me dikhega: `Desi Kart Battle 3D server running: http://localhost:3001`
 - 3 laps, jo pehle poore kare wo jeete. Track pe jump-ramps hain — tez speed pe unse hawa me udo!
 
 ### Battle Arena
-- Map: **Colosseum** — dark dramatic arena, grandstands, beech me khatarnak death-pit.
+- 2 maps: **Colosseum** — dark dramatic arena, grandstands, beech me khatarnak death-pit. Ya **Sky Tower** — 3 manzil (floors) wala tower, har floor ramp/slide se juda hua, upar jaate jaate arena chhota aur intense hota jaata hai.
 - Kisi ko maaro to point milta hai, wo **5 second me respawn** hota hai (thodi der ke liye "spawn protection" bhi milti hai).
 - **2 win conditions**: Time Attack (3 min, sabse zyada points wala jeete) ya First to 10 Points.
+- **Team Battle**: Room banate waqt "Team Battle (Red vs Blue)" chuno — players khud-ba-khud dono team me balance ho jaate hain, apni team ko maar nahi sakte (no friendly fire), aur team ka combined score jeetta hai.
 - **Quick Match rooms me kabhi bhi naya player drop-in kar sakta hai** — match beech me chal raha ho tab bhi, jab tak jagah hai.
 - Match khatam hone ke **10 second baad agla round khud shuru** ho jata hai.
 - Koi bhi player match ke beech me "Room Chhodo" dabakar exit kar sakta hai — baaki match chalta rehta hai.
@@ -48,19 +49,27 @@ Lobby me 3 gaadiyon me se chuno (sirf look alag hai, physics/hitbox same rehta h
 Track pe box "smash" karke random power-up milta hai. Poori list + icon "Power-up Manual" button me (lobby screen) dekh sakte ho:
 
 **Attack:** Bomb Shell, Oil Slick, Freeze Ray, Homing Rocket, Shrink Ray, Reverse Ray, Ice Trail, EMP Blast
-**Buff:** Nitro Boost, Shield, Mega Ram, Gravity Pulse, Teleport Dash, Ammo Overload, Phantom Cloak
+**Buff:** Nitro Boost, Shield, Mega Ram, Gravity Pulse, Teleport Dash, Ammo Overload, Phantom Cloak, **Enemy Radar** (naya!)
 
-Pehle 4 attack items (Bomb/Oil/Freeze/Homing) **knock-out** karte hain (Battle me point milta hai); baaki attack items sirf annoying debuff dete hain (knock-out nahi karte) — thoda strategy add karta hai.
+Pehle 4 attack items (Bomb/Oil/Freeze/Homing) **knock-out** karte hain (Battle me point milta hai); baaki attack items sirf annoying debuff dete hain (knock-out nahi karte) — thoda strategy add karta hai. Ab boxes bhi asli **mystery box** jaisa dikhte hain — bada "?" wala rotating box, bounce karta hua.
+
+## Mega Booster
+Har ~25 second me kisi boost-pad ke paas ek chamakta hua orange **Mega Booster** beacon spawn hota hai — usse le lo to kuch second ke liye normal nitro se bhi zyada tez speed milti hai. Sirf ek player le sakta hai, phir wapas timer pe respawn hota hai.
 
 ## Kya naya hai is version me
 - **3 alag vehicles** — apna procedural kart + 2 real open-source 3D models (Toy Racer, Milk Truck)
 - **Wall-clip bug fix** — kart ab colourful wall ke andar nahi ghusta, ek chhota gap rehta hai
 - **Jump ramps** — track pe udo
-- **Room capacity 12 tak**, aur **Quick Match rooms me drop-in join** (match ke beech me bhi)
+- **Room capacity 14 tak**, aur **Quick Match rooms me drop-in join** (match ke beech me bhi)
 - **Auto-next-round** (10 sec) aur **mid-match Room Chhodo** button
 - **Limited gun ammo** with regen
-- **15 unique power-ups** + in-game Manual
+- **16 unique power-ups** (including naya Enemy Radar) + in-game Manual
 - **Icons everywhere, koi emoji nahi** (custom SVG icon set)
+- **Sky Tower** — 3-floor battle map, ramps/slides se upar chado
+- **Mystery-box style item boxes** — bounce/rotate karta hua "?" box
+- **Mega Booster** — fixed interval pe spawn hone wala super-speed power-up
+- **Enemy Radar minimap reveal** — stealth players bhi dikhte hain jab radar active ho
+- **Team Battle mode** — Red vs Blue, auto-balanced teams, no friendly fire, combined team score
 
 ## Hosting — important, please read
 

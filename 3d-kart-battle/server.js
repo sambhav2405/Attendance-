@@ -45,15 +45,24 @@ const STUN_IMMUNITY_MS = 700; // brief immunity after a stun ends, so point-blan
 const SPAWN_PROTECTION_MS = 1500; // battle mode: can't be killed right after respawning
 const RESPAWN_DELAY_MS = 5000;
 const KILL_FEED_MAX = 6;
-const MAX_ROOM_SIZE = 12;
+const MAX_ROOM_SIZE = 14;
 const AUTO_NEXT_ROUND_MS = 10000;
 
 const JUMP_VY = 13, GRAVITY = 30, RAMP_RADIUS = 4.2, RAMP_MIN_SPEED = 8, RAMP_COOLDOWN_MS = 900;
+const TOWER_LAUNCH_SPEED = 14;
 const PULSE_RADIUS = 16, PULSE_STRENGTH = 22;
+
+const MEGA_BOOST_INTERVAL_MS = 25000;
+const MEGA_BOOST_RADIUS = 3.2;
+const MEGA_BOOST_MULT = 2.4;
+const MEGA_BOOST_DURATION_S = 2.5;
+
+const TEAM_IDS = ['red', 'blue'];
+const TEAM_COLORS = { red: '#ef4444', blue: '#3b82f6' };
 
 const COLORS = [
     '#ef4444', '#3b82f6', '#22c55e', '#f59e0b', '#a855f7', '#06b6d4', '#ec4899', '#eab308',
-    '#14b8a6', '#84cc16', '#6366f1', '#f43f5e'
+    '#14b8a6', '#84cc16', '#6366f1', '#f43f5e', '#0ea5e9', '#d946ef'
 ];
 const ROOM_CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
@@ -76,7 +85,8 @@ const ITEM_DEFS = {
     gravityPulse: { id: 'gravityPulse', name: 'Gravity Pulse', icon: 'gravity', desc: 'Paas ke opponents ko apni taraf khinchta hai.', kind: 'self', effect: 'pulse', durationMs: 2500 },
     teleportDash: { id: 'teleportDash', name: 'Teleport Dash', icon: 'teleport', desc: 'Turant aage ki taraf chhalaang.', kind: 'self', effect: 'teleport', distance: 14 },
     ammoOverload: { id: 'ammoOverload', name: 'Ammo Overload', icon: 'ammo', desc: 'Gun ammo full + kuch der double-fire speed.', kind: 'self', effect: 'ammo', durationMs: 4000 },
-    phantomCloak: { id: 'phantomCloak', name: 'Phantom Cloak', icon: 'cloak', desc: 'Kuch der ke liye dusron ko dhundhlaa dikhoge.', kind: 'self', effect: 'cloak', durationMs: 5000 }
+    phantomCloak: { id: 'phantomCloak', name: 'Phantom Cloak', icon: 'cloak', desc: 'Kuch der ke liye dusron ko dhundhlaa dikhoge.', kind: 'self', effect: 'cloak', durationMs: 5000 },
+    enemyRadar: { id: 'enemyRadar', name: 'Enemy Radar', icon: 'radar', desc: 'Kuch der ke liye sabki (stealth walon ki bhi) location minimap pe dikhti hai.', kind: 'self', effect: 'radar', durationMs: 7000 }
 };
 const ITEM_IDS = Object.keys(ITEM_DEFS);
 
@@ -130,6 +140,43 @@ const ARENA_RAMPS = [Math.PI / 2, Math.PI * 1.5].map((angle, i) => {
     return { id: i, x, z, heading: angle + Math.PI };
 });
 
+// ===== Sky Tower: a 3-storey battle arena. Every floor is a concentric circle
+// centred on the same point, connected by launch ramps that persistently move a
+// kart to the floor above (fromFloor/toFloor); driving off a floor's edge (or
+// missing a ramp) makes you fall back down to whatever floor is beneath you.
+const TOWER_BOUNDS = { cx: 0, cz: 0, rxOuter: 44, rzOuter: 44, rxInner: 0.5, rzInner: 0.5 };
+const TOWER_PLATFORMS = [
+    { id: 0, y: 0, cx: 0, cz: 0, radius: 44 },
+    { id: 1, y: 8, cx: 0, cz: 0, radius: 17 },
+    { id: 2, y: 15, cx: 0, cz: 0, radius: 8 }
+];
+const TOWER_RAMPS = [
+    { id: 0, x: 17, z: 0, heading: Math.PI, fromFloor: 0, toFloor: 1, power: 25 },
+    { id: 1, x: 8, z: 0, heading: Math.PI, fromFloor: 1, toFloor: 2, power: 23 }
+];
+const TOWER_OBSTACLES = [
+    { id: 0, floor: 0, x: 26, z: 26, radius: CAR.obstacleRadius },
+    { id: 1, floor: 0, x: -26, z: 26, radius: CAR.obstacleRadius },
+    { id: 2, floor: 0, x: 26, z: -26, radius: CAR.obstacleRadius },
+    { id: 3, floor: 0, x: -26, z: -26, radius: CAR.obstacleRadius },
+    { id: 4, floor: 1, x: 10, z: 10, radius: CAR.obstacleRadius },
+    { id: 5, floor: 1, x: -10, z: -10, radius: CAR.obstacleRadius }
+];
+const TOWER_BOOST_PADS = [
+    { id: 0, floor: 0, x: 0, z: 32, radius: 3.4 },
+    { id: 1, floor: 1, x: 0, z: 13, radius: 3.4 }
+];
+const TOWER_ITEM_POSITIONS = [
+    { floor: 0, x: 30, z: 0 }, { floor: 0, x: -30, z: 0 }, { floor: 0, x: 0, z: -32 },
+    { floor: 1, x: 12, z: 0 }, { floor: 1, x: -12, z: 0 },
+    { floor: 2, x: 0, z: 0 }
+];
+const TOWER_SPAWN_POINTS = Array.from({ length: 8 }, (_, i) => {
+    const a = (i / 8) * Math.PI * 2;
+    const x = TOWER_BOUNDS.cx + 36 * Math.cos(a), z = TOWER_BOUNDS.cz + 36 * Math.sin(a);
+    return { x, z, heading: Math.atan2(TOWER_BOUNDS.cz - z, TOWER_BOUNDS.cx - x), floor: 0 };
+});
+
 const MAPS = {
     classic: {
         id: 'classic', name: 'Classic Ring', mode: 'race',
@@ -149,6 +196,13 @@ const MAPS = {
         theme: { ground: 0x92400e, wallColors: [0x7c3aed, 0xfacc15], sky: 0x1e1b4b, mountain: 0x4c1d95, decor: 'stands', hazard: 0x1a0505 },
         obstacles: ARENA_OBSTACLES, boostPads: ARENA_BOOST_PADS, itemBoxPositions: ARENA_ITEM_POSITIONS,
         spawnPoints: ARENA_SPAWN_POINTS, ramps: ARENA_RAMPS
+    },
+    skytower: {
+        id: 'skytower', name: 'Sky Tower', mode: 'battle',
+        bounds: TOWER_BOUNDS, mid: null, checkpoints: 0,
+        theme: { ground: 0x312e81, wallColors: [0x22d3ee, 0xfacc15], sky: 0x0c0a1e, mountain: 0x3730a3, decor: 'stands', hazard: 0x1a0505 },
+        obstacles: TOWER_OBSTACLES, boostPads: TOWER_BOOST_PADS, itemBoxPositions: TOWER_ITEM_POSITIONS,
+        spawnPoints: TOWER_SPAWN_POINTS, ramps: [], platforms: TOWER_PLATFORMS, towerRamps: TOWER_RAMPS
     }
 };
 
@@ -167,6 +221,20 @@ function innerNorm(bounds, x, z) {
     return Math.sqrt(dx * dx + dz * dz);
 }
 function isOnTrack(bounds, x, z) { return outerNorm(bounds, x, z) <= 1.001 && innerNorm(bounds, x, z) >= 1; }
+
+// multi-floor "platform" maps: find the highest platform at/under maxY whose
+// footprint contains (x,z) - used only while actually falling, never while grounded,
+// so a walking player on a low floor is never yanked onto an overlapping floor above.
+function findLandingPlatform(map, x, z, maxY) {
+    let best = null;
+    for (const plat of map.platforms) {
+        if (plat.y > maxY + 0.01) continue;
+        if (Math.hypot(x - plat.cx, z - plat.cz) < plat.radius) {
+            if (!best || plat.y > best.y) best = plat;
+        }
+    }
+    return best || map.platforms[0];
+}
 
 function checkpointAngle(map, index) { return (index / map.checkpoints) * Math.PI * 2 - Math.PI / 2; }
 function checkpointWaypoint(map, index) {
@@ -193,7 +261,7 @@ function startPositions(map, n) {
 }
 
 function makeItemBoxes(mapId) {
-    return MAPS[mapId].itemBoxPositions.map((pos, i) => ({ id: i, x: pos.x, z: pos.z, available: true, respawnAt: 0 }));
+    return MAPS[mapId].itemBoxPositions.map((pos, i) => ({ id: i, x: pos.x, z: pos.z, floor: pos.floor, available: true, respawnAt: 0 }));
 }
 
 function generateRoomCode() {
@@ -204,10 +272,12 @@ function generateRoomCode() {
     return code;
 }
 
-function createRoomState(mapId, winCondition, isPublic) {
+function createRoomState(mapId, winCondition, isPublic, teams) {
     return {
         mapId, mode: MAPS[mapId].mode, winCondition: winCondition === 'score' ? 'score' : 'time',
         isPublic: !!isPublic,
+        teams: !!teams,
+        teamScores: { red: 0, blue: 0 },
         players: {},
         raceState: 'lobby', // lobby | countdown | racing | finished
         countdownValue: 0,
@@ -216,6 +286,7 @@ function createRoomState(mapId, winCondition, isPublic) {
         scores: {},
         killFeed: [],
         winnerId: null,
+        winnerTeam: null,
         scoreTarget: 10,
         battleDurationMs: 3 * 60 * 1000,
         battleEndsAt: 0,
@@ -224,6 +295,7 @@ function createRoomState(mapId, winCondition, isPublic) {
         projectiles: [],
         hazards: [],
         itemBoxes: makeItemBoxes(mapId),
+        megaBoost: { active: false, x: 0, z: 0, nextSpawnAt: Date.now() + MEGA_BOOST_INTERVAL_MS },
         countdownInterval: null,
         nextEntityId: 1
     };
@@ -231,10 +303,16 @@ function createRoomState(mapId, winCondition, isPublic) {
 
 const rooms = new Map(); // code -> room state
 
+function balanceTeam(room) {
+    const counts = { red: 0, blue: 0 };
+    Object.values(room.players).forEach(p => { if (p.team) counts[p.team]++; });
+    return counts.red <= counts.blue ? 'red' : 'blue';
+}
+
 function broadcastLobby(code, room) {
     io.to(code).emit('lobby', {
-        code, mapId: room.mapId, mode: room.mode, winCondition: room.winCondition,
-        players: Object.fromEntries(Object.entries(room.players).map(([id, p]) => [id, { name: p.name, color: p.color }]))
+        code, mapId: room.mapId, mode: room.mode, winCondition: room.winCondition, teams: room.teams,
+        players: Object.fromEntries(Object.entries(room.players).map(([id, p]) => [id, { name: p.name, color: p.color, team: p.team || null }]))
     });
 }
 
@@ -243,8 +321,8 @@ function freshPlayerState(base) {
         heldItem: null, boostTimer: 0,
         stunUntil: 0, stunImmuneUntil: 0, fellAt: 0,
         shieldUntil: 0, growUntil: 0, shrinkUntil: 0, reverseUntil: 0, slipUntil: 0, empUntil: 0,
-        pulseUntil: 0, stealthUntil: 0, ammoOverloadUntil: 0,
-        vy: 0, jumping: false, lastRampAt: 0,
+        pulseUntil: 0, stealthUntil: 0, ammoOverloadUntil: 0, radarUntil: 0, megaBoostUntil: 0,
+        vy: 0, jumping: false, lastRampAt: 0, currentFloor: 0, pendingFloor: null,
         ammo: GUN.maxAmmo, nextAmmoRegenAt: 0, lastGunFireAt: 0,
         input: { up: false, down: false, left: false, right: false, fire: false }
     });
@@ -277,10 +355,13 @@ function resetRace(room) {
         });
         room.killFeed = [];
         room.winnerId = null;
+        room.winnerTeam = null;
+        room.teamScores = { red: 0, blue: 0 };
     }
     room.projectiles = [];
     room.hazards = [];
     room.itemBoxes = makeItemBoxes(room.mapId);
+    room.megaBoost = { active: false, x: 0, z: 0, nextSpawnAt: Date.now() + MEGA_BOOST_INTERVAL_MS };
     room.raceState = 'lobby';
 }
 
@@ -294,6 +375,7 @@ function placeNewPlayer(room, map, id) {
         const sp = map.spawnPoints[Math.floor(Math.random() * map.spawnPoints.length)];
         p.x = sp.x; p.z = sp.z; p.angle = sp.heading; p.speed = 0;
         p.alive = true; p.spawnProtectedUntil = Date.now() + SPAWN_PROTECTION_MS;
+        p.currentFloor = sp.floor || 0; p.pendingFloor = null; p.y = 0; p.vy = 0;
         room.scores[id] = 0;
     }
 }
@@ -332,6 +414,8 @@ function canBeHit(room, target, now) {
 
 function applyItemEffect(room, attackerId, targetId, def, now) {
     const target = room.players[targetId];
+    const attacker = room.players[attackerId];
+    if (room.teams && attacker && attacker.team && attacker.team === target.team) return; // no friendly fire
     if (now < target.shieldUntil) { target.shieldUntil = 0; return; } // shield absorbs any single incoming effect
 
     if (def.lethal) {
@@ -340,7 +424,7 @@ function applyItemEffect(room, attackerId, targetId, def, now) {
             target.respawnAt = now + RESPAWN_DELAY_MS;
             target.speed = 0;
             room.scores[attackerId] = (room.scores[attackerId] || 0) + 1;
-            const attacker = room.players[attackerId];
+            if (room.teams && attacker && attacker.team) room.teamScores[attacker.team] = (room.teamScores[attacker.team] || 0) + 1;
             room.killFeed.push({ id: room.nextEntityId++, attacker: attacker ? attacker.name : '?', victim: target.name, weapon: def.icon, time: now });
             if (room.killFeed.length > KILL_FEED_MAX) room.killFeed.shift();
         } else {
@@ -368,6 +452,7 @@ function applySelfEffect(room, id, def, now) {
         case 'ammo': p.ammo = GUN.maxAmmo; p.ammoOverloadUntil = now + def.durationMs; break;
         case 'pulse': p.pulseUntil = now + def.durationMs; break;
         case 'cloak': p.stealthUntil = now + def.durationMs; break;
+        case 'radar': p.radarUntil = now + def.durationMs; break;
         default: break;
     }
 }
@@ -391,6 +476,7 @@ function respawnBattlePlayer(room, id, map) {
     p.x = sp.x; p.z = sp.z; p.angle = sp.heading; p.speed = 0; p.y = 0; p.vy = 0;
     p.alive = true; p.spawnProtectedUntil = now + SPAWN_PROTECTION_MS;
     p.heldItem = null; p.stunUntil = 0; p.stunImmuneUntil = 0;
+    p.currentFloor = sp.floor || 0; p.pendingFloor = null;
 }
 
 function tickRoom(code, room) {
@@ -402,6 +488,11 @@ function tickRoom(code, room) {
     room.itemBoxes.forEach(b => { if (!b.available && now >= b.respawnAt) b.available = true; });
 
     if (room.raceState === 'racing') {
+        if (!room.megaBoost.active && now >= room.megaBoost.nextSpawnAt) {
+            const spot = map.megaBoostSpots ? map.megaBoostSpots[Math.floor(Math.random() * map.megaBoostSpots.length)] : map.boostPads[0];
+            room.megaBoost.active = true; room.megaBoost.x = spot.x; room.megaBoost.z = spot.z; room.megaBoost.floor = spot.floor;
+        }
+
         ids.forEach(id => {
             const p = room.players[id];
             if (room.mode === 'race') {
@@ -423,9 +514,16 @@ function tickRoom(code, room) {
             const onTrack = isOnTrack(map.bounds, p.x, p.z);
             let sizeMult = grown ? CAR.growScale : (shrunk ? CAR.shrinkScale : 1);
             const speedSizeFactor = shrunk ? 0.7 : 1;
-            const maxSpeed = CAR.maxSpeed * (p.boostTimer > 0 ? CAR.itemBoostMult : 1) * (onTrack ? 1 : 0.6) * speedSizeFactor;
+            const megaBoosted = now < p.megaBoostUntil;
+            const boostMult = megaBoosted ? MEGA_BOOST_MULT : (p.boostTimer > 0 ? CAR.itemBoostMult : 1);
+            const maxSpeed = CAR.maxSpeed * boostMult * (onTrack ? 1 : 0.6) * speedSizeFactor;
 
-            if (stunned) {
+            // mid-air on a scripted tower ramp: hold a fixed launch speed so every
+            // player's arc covers the same distance, regardless of how fast they hit the ramp
+            const inTowerFlight = !!(map.platforms && p.jumping && p.pendingFloor != null);
+            if (inTowerFlight) {
+                p.speed = TOWER_LAUNCH_SPEED;
+            } else if (stunned) {
                 p.speed *= 0.9;
             } else if (inp.up) {
                 p.speed += CAR.accel * DT;
@@ -451,19 +549,59 @@ function tickRoom(code, room) {
             p.x += Math.cos(p.angle) * p.speed * DT;
             p.z += Math.sin(p.angle) * p.speed * DT;
 
-            // jump ramps
-            if (!p.jumping && p.speed > RAMP_MIN_SPEED && now - p.lastRampAt > RAMP_COOLDOWN_MS) {
-                for (const ramp of map.ramps || []) {
-                    if (Math.hypot(p.x - ramp.x, p.z - ramp.z) < RAMP_RADIUS) {
-                        p.vy = JUMP_VY; p.jumping = true; p.lastRampAt = now;
-                        break;
+            // jump ramps (flat maps) / floor-to-floor tower ramps (multi-platform maps)
+            if (map.platforms) {
+                if (!p.jumping && p.speed > RAMP_MIN_SPEED && now - p.lastRampAt > RAMP_COOLDOWN_MS) {
+                    for (const ramp of map.towerRamps || []) {
+                        if (ramp.fromFloor === p.currentFloor && Math.hypot(p.x - ramp.x, p.z - ramp.z) < RAMP_RADIUS) {
+                            p.vy = ramp.power; p.jumping = true; p.lastRampAt = now; p.pendingFloor = ramp.toFloor;
+                            break;
+                        }
                     }
                 }
-            }
-            if (p.jumping) {
-                p.vy -= GRAVITY * DT;
-                p.y += p.vy * DT;
-                if (p.y <= 0) { p.y = 0; p.vy = 0; p.jumping = false; }
+                if (!p.jumping) {
+                    const curPlat = map.platforms[p.currentFloor];
+                    if (Math.hypot(p.x - curPlat.cx, p.z - curPlat.cz) > curPlat.radius) {
+                        p.jumping = true; p.pendingFloor = null; // walked off the edge - start falling
+                    }
+                }
+                if (p.jumping) {
+                    p.vy -= GRAVITY * DT;
+                    p.y += p.vy * DT;
+                    if (p.vy <= 0) {
+                        if (p.pendingFloor != null) {
+                            const target = map.platforms[p.pendingFloor];
+                            if (p.y <= target.y) {
+                                if (Math.hypot(p.x - target.cx, p.z - target.cz) < target.radius) {
+                                    p.y = target.y; p.vy = 0; p.jumping = false;
+                                    p.currentFloor = p.pendingFloor; p.pendingFloor = null;
+                                } else {
+                                    p.pendingFloor = null; // missed the target floor - keep falling toward whatever is below
+                                }
+                            }
+                        } else {
+                            const landing = findLandingPlatform(map, p.x, p.z, p.y);
+                            if (p.y <= landing.y) {
+                                p.y = landing.y; p.vy = 0; p.jumping = false;
+                                p.currentFloor = landing.id;
+                            }
+                        }
+                    }
+                }
+            } else {
+                if (!p.jumping && p.speed > RAMP_MIN_SPEED && now - p.lastRampAt > RAMP_COOLDOWN_MS) {
+                    for (const ramp of map.ramps || []) {
+                        if (Math.hypot(p.x - ramp.x, p.z - ramp.z) < RAMP_RADIUS) {
+                            p.vy = JUMP_VY; p.jumping = true; p.lastRampAt = now;
+                            break;
+                        }
+                    }
+                }
+                if (p.jumping) {
+                    p.vy -= GRAVITY * DT;
+                    p.y += p.vy * DT;
+                    if (p.y <= 0) { p.y = 0; p.vy = 0; p.jumping = false; }
+                }
             }
 
             // solid colourful outer wall: clamp position back onto the boundary (with a
@@ -493,7 +631,9 @@ function tickRoom(code, room) {
             }
 
             // fell into the inner hole - a lake (race) or a death-pit (battle)
-            if (innerNorm(map.bounds, p.x, p.z) < 0.5) {
+            // (multi-floor maps only have a pit at ground level - upper platforms are stacked
+            // centered on the same x,z, so this must never trigger for a player standing above floor 0)
+            if ((!map.platforms || (p.currentFloor === 0 && !p.jumping)) && innerNorm(map.bounds, p.x, p.z) < 0.5) {
                 if (room.mode === 'race') {
                     const lastCp = (p.nextCheckpoint - 1 + map.checkpoints) % map.checkpoints;
                     const wp = checkpointWaypoint(map, lastCp);
@@ -509,6 +649,7 @@ function tickRoom(code, room) {
             }
 
             for (const ob of map.obstacles) {
+                if (ob.floor !== undefined && ob.floor !== p.currentFloor) continue;
                 const dist = Math.hypot(p.x - ob.x, p.z - ob.z);
                 const minDist = ob.radius + 0.9 * sizeMult;
                 if (dist < minDist && dist > 0) {
@@ -523,14 +664,22 @@ function tickRoom(code, room) {
             }
 
             for (const pad of map.boostPads) {
+                if (pad.floor !== undefined && pad.floor !== p.currentFloor) continue;
                 if (Math.hypot(p.x - pad.x, p.z - pad.z) < pad.radius) {
                     p.boostTimer = Math.max(p.boostTimer, CAR.padBoostDuration);
                 }
             }
 
+            if (room.megaBoost.active && (room.megaBoost.floor === undefined || room.megaBoost.floor === p.currentFloor) && Math.hypot(p.x - room.megaBoost.x, p.z - room.megaBoost.z) < MEGA_BOOST_RADIUS) {
+                p.megaBoostUntil = now + MEGA_BOOST_DURATION_S * 1000;
+                room.megaBoost.active = false;
+                room.megaBoost.nextSpawnAt = now + MEGA_BOOST_INTERVAL_MS;
+            }
+
             if (!p.heldItem) {
                 for (const box of room.itemBoxes) {
                     if (!box.available) continue;
+                    if (box.floor !== undefined && box.floor !== p.currentFloor) continue;
                     if (Math.hypot(p.x - box.x, p.z - box.z) < ITEM_PICKUP_RADIUS) {
                         p.heldItem = ITEM_IDS[Math.floor(Math.random() * ITEM_IDS.length)];
                         box.available = false;
@@ -627,12 +776,7 @@ function tickRoom(code, room) {
                 const target = room.players[id];
                 if (!canBeHit(room, target, now)) continue;
                 if (Math.hypot(target.x - pr.x, target.z - pr.z) < hitRadius) {
-                    if (isGun) {
-                        if (now < target.shieldUntil) { target.shieldUntil = 0; }
-                        else applyItemEffect(room, pr.ownerId, id, { lethal: true, stunMs: GUN.stunMs }, now);
-                    } else {
-                        applyItemEffect(room, pr.ownerId, id, def, now);
-                    }
+                    applyItemEffect(room, pr.ownerId, id, isGun ? { lethal: true, stunMs: GUN.stunMs, icon: 'gun' } : def, now);
                     return false;
                 }
             }
@@ -656,6 +800,14 @@ function tickRoom(code, room) {
 
         if (room.mode === 'race') {
             if (ids.length > 0 && ids.every(id => room.players[id].finished)) room.raceState = 'finished';
+        } else if (room.teams) {
+            if (room.winCondition === 'score') {
+                const winTeam = TEAM_IDS.find(t => (room.teamScores[t] || 0) >= room.scoreTarget);
+                if (winTeam) { room.raceState = 'finished'; room.winnerTeam = winTeam; }
+            } else if (now >= room.battleEndsAt) {
+                room.raceState = 'finished';
+                room.winnerTeam = room.teamScores.red === room.teamScores.blue ? null : (room.teamScores.red > room.teamScores.blue ? 'red' : 'blue');
+            }
         } else {
             if (room.winCondition === 'score') {
                 const winner = ids.find(id => (room.scores[id] || 0) >= room.scoreTarget);
@@ -675,20 +827,22 @@ function tickRoom(code, room) {
         mode: room.mode, mapId: room.mapId, now,
         raceState: room.raceState, countdownValue: room.countdownValue,
         nextRoundInMs: room.raceState === 'finished' ? Math.max(0, room.nextRoundAt - now) : 0,
-        map: { bounds: map.bounds, theme: map.theme },
+        map: { bounds: map.bounds, theme: map.theme, platforms: map.platforms, towerRamps: map.towerRamps },
         obstacles: map.obstacles, boostPads: map.boostPads, ramps: map.ramps,
-        itemBoxes: room.itemBoxes.map(b => ({ id: b.id, x: b.x, z: b.z, available: b.available, smashedAt: b.smashedAt || 0 })),
+        megaBoost: room.megaBoost.active ? { x: room.megaBoost.x, z: room.megaBoost.z, floor: room.megaBoost.floor } : null,
+        itemBoxes: room.itemBoxes.map(b => ({ id: b.id, x: b.x, z: b.z, floor: b.floor, available: b.available, smashedAt: b.smashedAt || 0 })),
         projectiles: room.projectiles.map(pr => ({ id: pr.id, x: pr.x, z: pr.z, itemId: pr.itemId })),
         hazards: room.hazards.map(hz => ({ id: hz.id, x: hz.x, z: hz.z, itemId: hz.itemId })),
         players: Object.fromEntries(ids.map(id => {
             const p = room.players[id];
             const base = {
                 name: p.name, color: p.color, vehicle: p.vehicle, x: p.x, y: p.y, z: p.z, angle: p.angle, speed: p.speed,
-                heldItem: p.heldItem, boosting: p.boostTimer > 0, stunned: now < p.stunUntil, fellAt: p.fellAt,
+                heldItem: p.heldItem, boosting: p.boostTimer > 0 || now < p.megaBoostUntil, stunned: now < p.stunUntil, fellAt: p.fellAt,
                 ammo: p.ammo, maxAmmo: GUN.maxAmmo,
                 shielded: now < p.shieldUntil, grown: now < p.growUntil, shrunk: now < p.shrinkUntil,
                 reversed: now < p.reverseUntil, slipped: now < p.slipUntil, empJammed: now < p.empUntil,
-                pulsing: now < p.pulseUntil, stealth: now < p.stealthUntil
+                pulsing: now < p.pulseUntil, stealth: now < p.stealthUntil, radar: now < p.radarUntil, team: p.team || null,
+                floor: p.currentFloor || 0
             };
             if (room.mode === 'race') return [id, { ...base, lap: p.lap, finished: p.finished }];
             return [id, { ...base, alive: p.alive, respawnAt: p.respawnAt, score: room.scores[id] || 0 }];
@@ -704,6 +858,9 @@ function tickRoom(code, room) {
         payload.scoreTarget = room.scoreTarget;
         payload.timeRemainingMs = Math.max(0, room.battleEndsAt - now);
         payload.winnerId = room.winnerId;
+        payload.teams = room.teams;
+        payload.teamScores = room.teamScores;
+        payload.winnerTeam = room.winnerTeam;
     }
     io.to(code).emit('state', payload);
 }
@@ -725,6 +882,7 @@ function addPlayerToRoom(socket, code, room, name, vehicle) {
         lap: 0, nextCheckpoint: 1, finished: false, finishTime: null,
         alive: true, respawnAt: 0, spawnProtectedUntil: 0
     });
+    if (room.teams) { p.team = balanceTeam(room); p.color = TEAM_COLORS[p.team]; }
     room.players[socket.id] = p;
     if (isMidMatch) {
         placeNewPlayer(room, map, socket.id);
@@ -740,18 +898,19 @@ io.on('connection', (socket) => {
         const mapId = MAPS[data && data.mapId] ? data.mapId : 'classic';
         const winCondition = (data && data.winCondition === 'score') ? 'score' : 'time';
         const code = generateRoomCode();
-        const room = createRoomState(mapId, winCondition, false);
+        const room = createRoomState(mapId, winCondition, false, MAPS[mapId].mode === 'battle' && !!(data && data.teams));
         rooms.set(code, room);
         addPlayerToRoom(socket, code, room, data && data.name, data && data.vehicle);
     });
 
     socket.on('quickMatch', (data) => {
         const mode = (data && data.mode === 'battle') ? 'battle' : 'race';
+        const wantTeams = mode === 'battle' && !!(data && data.teams);
         const defaultMapId = mode === 'battle' ? 'colosseum' : 'classic';
         let targetCode = null;
         for (const [c, r] of rooms) {
             // public (quick-match) rooms accept drop-in players any time, even mid-match
-            if (r.isPublic && r.mode === mode && Object.keys(r.players).length < MAX_ROOM_SIZE) {
+            if (r.isPublic && r.mode === mode && r.teams === wantTeams && Object.keys(r.players).length < MAX_ROOM_SIZE) {
                 targetCode = c; break;
             }
         }
@@ -760,7 +919,7 @@ io.on('connection', (socket) => {
             room = rooms.get(targetCode);
         } else {
             targetCode = generateRoomCode();
-            room = createRoomState(defaultMapId, 'time', true);
+            room = createRoomState(defaultMapId, 'time', true, wantTeams);
             rooms.set(targetCode, room);
         }
         addPlayerToRoom(socket, targetCode, room, data && data.name, data && data.vehicle);

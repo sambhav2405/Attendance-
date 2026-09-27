@@ -18,7 +18,8 @@ const ITEM_META = {
     gravityPulse: { name: 'Gravity Pulse', icon: 'orbit', desc: 'Paas ke opponents ko apni taraf khinchta hai.', cls: 'buff' },
     teleportDash: { name: 'Teleport Dash', icon: 'portal', desc: 'Turant aage ki taraf chhalaang.', cls: 'buff' },
     ammoOverload: { name: 'Ammo Overload', icon: 'ammo', desc: 'Gun ammo full + kuch der double-fire speed.', cls: 'buff' },
-    phantomCloak: { name: 'Phantom Cloak', icon: 'ghost', desc: 'Kuch der dusron ko dhundhlaa dikhoge.', cls: 'buff' }
+    phantomCloak: { name: 'Phantom Cloak', icon: 'ghost', desc: 'Kuch der dusron ko dhundhlaa dikhoge.', cls: 'buff' },
+    enemyRadar: { name: 'Enemy Radar', icon: 'radar', desc: 'Kuch der ke liye sabki (stealth walon ki bhi) location minimap pe dikhti hai.', cls: 'buff' }
 };
 
 // ===== DOM refs =====
@@ -33,6 +34,7 @@ const modeBattleBtn = document.getElementById('modeBattleBtn');
 const mapChoiceRace = document.getElementById('mapChoiceRace');
 const mapChoiceBattle = document.getElementById('mapChoiceBattle');
 const winConditionChoice = document.getElementById('winConditionChoice');
+const teamChoice = document.getElementById('teamChoice');
 const quickMatchBtn = document.getElementById('quickMatchBtn');
 const createRoomBtn = document.getElementById('createRoomBtn');
 const codeInput = document.getElementById('codeInput');
@@ -81,6 +83,7 @@ let selectedMapRace = 'classic';
 let selectedMapBattle = 'colosseum';
 let selectedWinCondition = 'time';
 let selectedVehicle = 'kart';
+let selectedTeams = false;
 
 function showScreen(screen) {
     [lobbyScreen, manualScreen, gameScreen, resultScreen].forEach(s => s.classList.add('hidden'));
@@ -135,6 +138,7 @@ function setMode(mode) {
     mapChoiceRace.classList.toggle('hidden', mode !== 'race');
     mapChoiceBattle.classList.toggle('hidden', mode !== 'battle');
     winConditionChoice.classList.toggle('hidden', mode !== 'battle');
+    teamChoice.classList.toggle('hidden', mode !== 'battle');
 }
 modeRaceBtn.addEventListener('click', () => setMode('race'));
 modeBattleBtn.addEventListener('click', () => setMode('battle'));
@@ -154,6 +158,11 @@ winConditionChoice.querySelectorAll('.choice-btn').forEach(btn => btn.addEventLi
     btn.classList.add('active');
     selectedWinCondition = btn.dataset.win;
 }));
+teamChoice.querySelectorAll('.choice-btn').forEach(btn => btn.addEventListener('click', () => {
+    teamChoice.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedTeams = btn.dataset.teams === '1';
+}));
 vehicleChoice.querySelectorAll('.choice-btn').forEach(btn => btn.addEventListener('click', () => {
     vehicleChoice.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
@@ -166,13 +175,14 @@ createRoomBtn.addEventListener('click', () => {
         name: nameInput.value.trim() || 'Player',
         mapId: currentMode === 'race' ? selectedMapRace : selectedMapBattle,
         winCondition: selectedWinCondition,
-        vehicle: selectedVehicle
+        vehicle: selectedVehicle,
+        teams: selectedTeams
     });
 });
 quickMatchBtn.addEventListener('click', () => {
     ensureAudio();
     lobbyMsg.textContent = 'Match dhoond rahe hain...';
-    socket.emit('quickMatch', { name: nameInput.value.trim() || 'Player', mode: currentMode, vehicle: selectedVehicle });
+    socket.emit('quickMatch', { name: nameInput.value.trim() || 'Player', mode: currentMode, vehicle: selectedVehicle, teams: selectedTeams });
 });
 joinRoomBtn.addEventListener('click', () => {
     ensureAudio();
@@ -259,7 +269,10 @@ socket.on('state', (state) => {
         }
     } else if (state.raceState === 'finished') {
         if (prevRaceState !== 'finished') {
-            const iWon = isBattle ? state.winnerId === myId : (state.finishOrder[0] && state.finishOrder[0].id === myId);
+            const myTeam = state.players[myId] ? state.players[myId].team : null;
+            const iWon = isBattle
+                ? (state.teams ? (state.winnerTeam ? state.winnerTeam === myTeam : false) : state.winnerId === myId)
+                : (state.finishOrder[0] && state.finishOrder[0].id === myId);
             if (iWon) { sfx.win(); spawnConfetti(state); } else sfx.lose();
         }
         showScreen(resultScreen);
@@ -308,6 +321,10 @@ socket.on('state', (state) => {
         if (state.winCondition === 'time') {
             const s = Math.max(0, Math.ceil(state.timeRemainingMs / 1000));
             battleTimerEl.innerHTML = iconSvg('clock', 'icon-sm') + ` ${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+        } else if (state.teams && newPlayer) {
+            const ts = state.teamScores || { red: 0, blue: 0 };
+            const my = ts[newPlayer.team] || 0;
+            battleTargetEl.innerHTML = iconSvg('target', 'icon-sm') + ` ${my}/${state.scoreTarget}`;
         } else {
             const my = newPlayer ? (newPlayer.score || 0) : 0;
             battleTargetEl.innerHTML = iconSvg('target', 'icon-sm') + ` ${my}/${state.scoreTarget}`;
@@ -334,6 +351,13 @@ function renderStatusRow(p) {
 }
 
 function renderScoreboard(state) {
+    if (state.teams) {
+        const ts = state.teamScores || { red: 0, blue: 0 };
+        scoreboardEl.innerHTML =
+            `<span class="sb-entry"><span class="sb-dot" style="background:#ef4444"></span>Red: ${ts.red || 0}</span>` +
+            `<span class="sb-entry"><span class="sb-dot" style="background:#3b82f6"></span>Blue: ${ts.blue || 0}</span>`;
+        return;
+    }
     const rows = Object.entries(state.players)
         .map(([id, p]) => ({ id, name: p.name, color: p.color, score: p.score || 0 }))
         .sort((a, b) => b.score - a.score);
@@ -367,12 +391,23 @@ function showHitMarker() {
 }
 
 function renderResults(state, isBattle) {
-    const iWon = isBattle ? state.winnerId === myId : (state.finishOrder[0] && state.finishOrder[0].id === myId);
+    const myTeam = state.players[myId] ? state.players[myId].team : null;
+    const iWon = isBattle
+        ? (state.teams ? (state.winnerTeam ? state.winnerTeam === myTeam : false) : state.winnerId === myId)
+        : (state.finishOrder[0] && state.finishOrder[0].id === myId);
     resultTitle.textContent = iWon ? 'Congratulations! You Won' : 'Defeated';
     resultTitle.className = iWon ? 'win' : 'lose';
     resultIcon.innerHTML = `<use href="#i-${iWon ? 'trophy' : 'skull'}"></use>`;
     resultIcon.style.color = iWon ? '#fbbf24' : '#94a3b8';
-    if (isBattle) {
+    if (isBattle && state.teams) {
+        const ts = state.teamScores || { red: 0, blue: 0 };
+        resultSub.textContent = state.winnerTeam
+            ? `${state.winnerTeam === 'red' ? 'Red' : 'Blue'} Team ne match jeeta!`
+            : 'Match draw raha!';
+        resultList.innerHTML =
+            `<li><span style="color:#ef4444">&#9679; Red Team</span><b>${ts.red || 0} pts</b></li>` +
+            `<li><span style="color:#3b82f6">&#9679; Blue Team</span><b>${ts.blue || 0} pts</b></li>`;
+    } else if (isBattle) {
         const winnerName = state.players[state.winnerId] ? state.players[state.winnerId].name : '?';
         resultSub.textContent = iWon ? 'Aap the strongest is arena me!' : `${winnerName} ne match jeeta.`;
         const rows = Object.entries(state.players).map(([id, p]) => ({ id, name: p.name, color: p.color, score: p.score || 0 }))
@@ -456,12 +491,19 @@ window.addEventListener('resize', () => {
 
 let mapBounds = null;
 let mapTheme = null;
+let mapPlatforms = null;
+function floorY(floor) {
+    if (floor === undefined || !mapPlatforms) return 0;
+    const p = mapPlatforms[floor];
+    return p ? p.y : 0;
+}
 
 function ellipsePoint(rx, rz, angle) { return { x: mapBounds.cx + rx * Math.cos(angle), z: mapBounds.cz + rz * Math.sin(angle) }; }
 
 function buildWorld(state) {
     mapBounds = state.map.bounds;
     mapTheme = state.map.theme;
+    mapPlatforms = state.map.platforms || null;
     const b = mapBounds, th = mapTheme;
 
     scene.background = new THREE.Color(th.sky);
@@ -517,14 +559,14 @@ function buildWorld(state) {
             stripe.position.y = 0.5 + s * 0.7;
             drum.add(stripe);
         }
-        drum.position.set(ob.x, 0, ob.z);
+        drum.position.set(ob.x, floorY(ob.floor), ob.z);
         scene.add(drum);
     });
 
     boostPadMeshes = (state.boostPads || []).map(pad => {
         const m = new THREE.Mesh(new THREE.CircleGeometry(pad.radius, 24), new THREE.MeshStandardMaterial({ color: 0x22d3ee, emissive: 0x0891b2, transparent: true, opacity: 0.85 }));
         m.rotation.x = -Math.PI / 2;
-        m.position.set(pad.x, 0.03, pad.z);
+        m.position.set(pad.x, floorY(pad.floor) + 0.03, pad.z);
         scene.add(m);
         return m;
     });
@@ -548,6 +590,56 @@ function buildWorld(state) {
     });
 
     buildScenery(b, th);
+
+    if (state.map.platforms) buildTowerPlatforms(state.map.platforms, state.map.towerRamps || [], th);
+}
+
+function buildTowerPlatforms(platforms, ramps, th) {
+    platforms.forEach(plat => {
+        if (plat.id === 0) return; // ground floor is already the base ring/ground mesh
+        const disk = new THREE.Mesh(new THREE.CylinderGeometry(plat.radius, plat.radius, 0.6, 48), new THREE.MeshStandardMaterial({ color: th.ground }));
+        disk.position.set(plat.cx, plat.y - 0.3, plat.cz);
+        scene.add(disk);
+
+        const segs = 40;
+        for (let i = 0; i < segs; i++) {
+            const a1 = (i / segs) * Math.PI * 2, a2 = ((i + 1) / segs) * Math.PI * 2;
+            const p1 = { x: plat.cx + plat.radius * Math.cos(a1), z: plat.cz + plat.radius * Math.sin(a1) };
+            const p2 = { x: plat.cx + plat.radius * Math.cos(a2), z: plat.cz + plat.radius * Math.sin(a2) };
+            const midX = (p1.x + p2.x) / 2, midZ = (p1.z + p2.z) / 2;
+            const segLen = Math.hypot(p2.x - p1.x, p2.z - p1.z) * 1.1;
+            const wall = new THREE.Mesh(new THREE.BoxGeometry(segLen, 1.1, 0.4), new THREE.MeshStandardMaterial({ color: th.wallColors[i % 2] }));
+            wall.position.set(midX, plat.y + 0.55, midZ);
+            wall.rotation.y = -Math.atan2(p2.z - p1.z, p2.x - p1.x);
+            scene.add(wall);
+        }
+
+        const pillar = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.8, plat.y, 12), new THREE.MeshStandardMaterial({ color: th.mountain }));
+        pillar.position.set(plat.cx, plat.y / 2, plat.cz);
+        scene.add(pillar);
+    });
+
+    ramps.forEach(ramp => {
+        const fromPlat = platforms[ramp.fromFloor], toPlat = platforms[ramp.toFloor];
+        const rise = toPlat.y - fromPlat.y;
+        const run = 9;
+        const slabLen = Math.hypot(run, rise);
+        const tilt = -Math.atan2(rise, run);
+        const g = new THREE.Group();
+        const slab = new THREE.Mesh(new THREE.BoxGeometry(4.5, 0.5, slabLen), new THREE.MeshStandardMaterial({ color: 0xfacc15 }));
+        slab.rotation.x = tilt;
+        slab.position.set(0, fromPlat.y + rise / 2 + 0.3, 0);
+        g.add(slab);
+        for (let s = -1; s <= 1; s += 2) {
+            const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.55, slabLen), new THREE.MeshStandardMaterial({ color: 0x1f2937 }));
+            stripe.rotation.x = tilt;
+            stripe.position.set(s * 1.6, fromPlat.y + rise / 2 + 0.32, 0);
+            g.add(stripe);
+        }
+        g.position.set(ramp.x, 0, ramp.z);
+        g.rotation.y = -ramp.heading + Math.PI / 2;
+        scene.add(g);
+    });
 }
 
 function buildStartArch(x, z, span) {
@@ -844,6 +936,30 @@ function createKart(color, name, vehicleId) {
     return { group, body: chassis, wheels, flame, shieldBubble, nameSprite, materials, lastAngle: 0, lastFellAt: 0, lastY: 0 };
 }
 
+function makeMysteryBoxTexture() {
+    const c = document.createElement('canvas');
+    c.width = 128; c.height = 128;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#fbbf24';
+    ctx.fillRect(0, 0, 128, 128);
+    ctx.strokeStyle = '#78350f';
+    ctx.lineWidth = 8;
+    ctx.strokeRect(4, 4, 120, 120);
+    ctx.fillStyle = '#78350f';
+    ctx.font = 'bold 84px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('?', 64, 70);
+    return new THREE.CanvasTexture(c);
+}
+const mysteryBoxTexture = makeMysteryBoxTexture();
+function makeMysteryBoxMesh() {
+    const mat = new THREE.MeshStandardMaterial({ map: mysteryBoxTexture, emissive: 0x92400e, emissiveIntensity: 0.35 });
+    const mesh = new THREE.Mesh(new THREE.BoxGeometry(1.3, 1.3, 1.3), mat);
+    mesh.userData.bobPhase = Math.random() * Math.PI * 2;
+    return mesh;
+}
+
 const karts = new Map();
 const itemBoxMeshes = new Map();
 const projectileMeshes = new Map();
@@ -879,8 +995,9 @@ function syncScene(state) {
         seenBoxes.add(b.id);
         let m = itemBoxMeshes.get(b.id);
         if (!m) {
-            m = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.1, 1.1), new THREE.MeshStandardMaterial({ color: 0xfacc15, emissive: 0x554400 }));
-            m.position.set(b.x, 0.8, b.z);
+            m = makeMysteryBoxMesh();
+            m.position.set(b.x, floorY(b.floor) + 0.9, b.z);
+            m.userData.baseY = m.position.y;
             m.userData.lastSmash = 0;
             scene.add(m);
             itemBoxMeshes.set(b.id, m);
@@ -921,6 +1038,30 @@ function syncScene(state) {
         m.position.set(hz.x, 0.03, hz.z);
     });
     for (const [id, m] of hazardMeshes) { if (!seenHz.has(id)) { scene.remove(m); hazardMeshes.delete(id); } }
+
+    if (state.megaBoost) {
+        if (!megaBoostMesh) megaBoostMesh = makeMegaBoostMesh();
+        megaBoostMesh.visible = true;
+        const baseY = floorY(state.megaBoost.floor);
+        megaBoostMesh.userData.baseY = baseY;
+        megaBoostMesh.position.set(state.megaBoost.x, baseY, state.megaBoost.z);
+    } else if (megaBoostMesh) {
+        megaBoostMesh.visible = false;
+    }
+}
+
+let megaBoostMesh = null;
+function makeMegaBoostMesh() {
+    const g = new THREE.Group();
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(2.4, 0.25, 10, 28), new THREE.MeshStandardMaterial({ color: 0xf97316, emissive: 0xf97316, emissiveIntensity: 0.6 }));
+    ring.rotation.x = Math.PI / 2;
+    ring.position.y = 0.3;
+    g.add(ring);
+    const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.9, 9, 16, 1, true), new THREE.MeshBasicMaterial({ color: 0xfbbf24, transparent: true, opacity: 0.35, side: THREE.DoubleSide }));
+    beam.position.y = 4.5;
+    g.add(beam);
+    scene.add(g);
+    return g;
 }
 
 // ===== Confetti (win celebration) =====
@@ -964,14 +1105,17 @@ function drawMinimap() {
     mmCtx.beginPath(); mmCtx.ellipse(cx, cz, mapBounds.rxOuter * s, mapBounds.rzOuter * s, 0, 0, Math.PI * 2); mmCtx.stroke();
     mmCtx.beginPath(); mmCtx.ellipse(cx, cz, mapBounds.rxInner * s, mapBounds.rzInner * s, 0, 0, Math.PI * 2); mmCtx.stroke();
 
+    const me = latestState.players[myId];
+    const radarActive = !!(me && me.radar);
     Object.entries(latestState.players).forEach(([id, p]) => {
         if (latestState.mode === 'battle' && p.alive === false) return;
-        if (p.stealth && id !== myId) return;
+        if (p.stealth && id !== myId && !radarActive) return;
         mmCtx.fillStyle = p.color;
         mmCtx.beginPath();
         mmCtx.arc(cx + p.x * s, cz + p.z * s, id === myId ? 5 : 3.5, 0, Math.PI * 2);
         mmCtx.fill();
         if (id === myId) { mmCtx.strokeStyle = '#fff'; mmCtx.lineWidth = 1.5; mmCtx.stroke(); }
+        else if (radarActive) { mmCtx.strokeStyle = 'rgba(248,113,113,0.9)'; mmCtx.lineWidth = 1.5; mmCtx.beginPath(); mmCtx.arc(cx + p.x * s, cz + p.z * s, 6, 0, Math.PI * 2); mmCtx.stroke(); }
     });
 }
 
@@ -1030,9 +1174,13 @@ function animate() {
         k.nameSprite.visible = !stealthed;
     }
 
-    itemBoxMeshes.forEach(m => { m.rotation.y += dt * 1.6; });
+    itemBoxMeshes.forEach(m => {
+        m.rotation.y += dt * 1.6;
+        m.position.y = m.userData.baseY + Math.sin(time * 2.4 + m.userData.bobPhase) * 0.18;
+    });
     projectileMeshes.forEach(m => { m.rotation.x += dt * 8; });
     boostPadMeshes.forEach((m, i) => { m.material.opacity = 0.75 + Math.sin(time * 4 + i) * 0.2; });
+    if (megaBoostMesh && megaBoostMesh.visible) { megaBoostMesh.rotation.y += dt * 2; megaBoostMesh.position.y = (megaBoostMesh.userData.baseY || 0) + Math.sin(time * 3) * 0.3; }
 
     const me = karts.get(myId);
     if (me && me.group.visible) {
