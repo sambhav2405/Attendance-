@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { GLTFLoader } from '/vendor/three/examples/jsm/loaders/GLTFLoader.js';
 
 const socket = io();
 
@@ -39,6 +40,7 @@ const joinRoomBtn = document.getElementById('joinRoomBtn');
 const manualBtn = document.getElementById('manualBtn');
 const manualBackBtn = document.getElementById('manualBackBtn');
 const manualList = document.getElementById('manualList');
+const vehicleChoice = document.getElementById('vehicleChoice');
 const roomInfo = document.getElementById('roomInfo');
 const roomModeLabel = document.getElementById('roomModeLabel');
 const roomCodeDisplay = document.getElementById('roomCodeDisplay');
@@ -78,6 +80,7 @@ let currentMode = 'race';
 let selectedMapRace = 'classic';
 let selectedMapBattle = 'colosseum';
 let selectedWinCondition = 'time';
+let selectedVehicle = 'kart';
 
 function showScreen(screen) {
     [lobbyScreen, manualScreen, gameScreen, resultScreen].forEach(s => s.classList.add('hidden'));
@@ -151,25 +154,31 @@ winConditionChoice.querySelectorAll('.choice-btn').forEach(btn => btn.addEventLi
     btn.classList.add('active');
     selectedWinCondition = btn.dataset.win;
 }));
+vehicleChoice.querySelectorAll('.choice-btn').forEach(btn => btn.addEventListener('click', () => {
+    vehicleChoice.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedVehicle = btn.dataset.vehicle;
+}));
 
 createRoomBtn.addEventListener('click', () => {
     ensureAudio();
     socket.emit('createRoom', {
         name: nameInput.value.trim() || 'Player',
         mapId: currentMode === 'race' ? selectedMapRace : selectedMapBattle,
-        winCondition: selectedWinCondition
+        winCondition: selectedWinCondition,
+        vehicle: selectedVehicle
     });
 });
 quickMatchBtn.addEventListener('click', () => {
     ensureAudio();
     lobbyMsg.textContent = 'Match dhoond rahe hain...';
-    socket.emit('quickMatch', { name: nameInput.value.trim() || 'Player', mode: currentMode });
+    socket.emit('quickMatch', { name: nameInput.value.trim() || 'Player', mode: currentMode, vehicle: selectedVehicle });
 });
 joinRoomBtn.addEventListener('click', () => {
     ensureAudio();
     const code = codeInput.value.trim().toUpperCase();
     if (!code) { lobbyMsg.textContent = 'Room code daalo!'; return; }
-    socket.emit('joinRoom', { name: nameInput.value.trim() || 'Player', code });
+    socket.emit('joinRoom', { name: nameInput.value.trim() || 'Player', code, vehicle: selectedVehicle });
 });
 codeInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') joinRoomBtn.click(); });
 nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') createRoomBtn.click(); });
@@ -680,8 +689,76 @@ function makeWedgeGeometry(width, height, depth, slopeFraction) {
     return geo;
 }
 
-function createKart(color, name) {
+// ===== Open-source vehicle models (loaded once, cloned per kart) =====
+// toycar.glb - Toy Car by Guido Odendahl, public domain (CC0)
+// milktruck.glb - Cesium Milk Truck, donated by Cesium for glTF testing, CC-BY 4.0
+const VEHICLE_DEFS = {
+    // targetLength: the desired real-world Z-size (forward axis) in game units, used to
+    // auto-derive a scale factor once the model's actual mesh size is known.
+    toycar: { url: '/models/toycar.glb', hideMeshes: ['Fabric'], targetLength: 3.2, yaw: 0, flameZ: -1.6, flameY: 0.25 },
+    milktruck: { url: '/models/milktruck.glb', hideMeshes: [], targetLength: 3.6, yaw: 0, flameZ: -1.9, flameY: 0.5 }
+};
+const vehicleTemplates = {};
+const gltfLoader = new GLTFLoader();
+Object.entries(VEHICLE_DEFS).forEach(([id, def]) => {
+    gltfLoader.load(def.url, (gltf) => {
+        // strip any decorative meshes (e.g. a photo-studio rug) that shouldn't render in-game
+        const toRemove = [];
+        gltf.scene.traverse(o => { if (o.isMesh && def.hideMeshes.includes(o.name)) toRemove.push(o); });
+        toRemove.forEach(o => o.parent.remove(o));
+
+        const box = new THREE.Box3().setFromObject(gltf.scene);
+        const size = new THREE.Vector3();
+        box.getSize(size);
+        def.scale = def.targetLength / size.z;
+        def.liftY = -box.min.y * def.scale;
+        def.centerX = -((box.min.x + box.max.x) / 2) * def.scale;
+        def.centerZ = -((box.min.z + box.max.z) / 2) * def.scale;
+        vehicleTemplates[id] = gltf.scene;
+    }, undefined, (err) => console.error('Vehicle model failed to load:', id, err));
+});
+
+function createKart(color, name, vehicleId) {
     const group = new THREE.Group();
+    const template = vehicleId && vehicleId !== 'kart' ? vehicleTemplates[vehicleId] : null;
+
+    if (template) {
+        const def = VEHICLE_DEFS[vehicleId];
+        const materials = [];
+        const model = template.clone(true);
+        model.traverse(o => {
+            if (o.isMesh && o.material) {
+                o.material = o.material.clone();
+                o.material.transparent = true;
+                materials.push(o.material);
+            }
+        });
+        const wrapper = new THREE.Group();
+        model.scale.setScalar(def.scale);
+        model.position.set(def.centerX, def.liftY, def.centerZ);
+        model.rotation.y = def.yaw;
+        wrapper.add(model);
+        group.add(wrapper);
+
+        const flame = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.9, 8), new THREE.MeshBasicMaterial({ color: 0xff8c00, transparent: true, opacity: 1 }));
+        flame.rotation.x = Math.PI / 2;
+        flame.position.set(0, def.flameY, def.flameZ);
+        flame.scale.set(0.001, 0.001, 0.001);
+        group.add(flame);
+
+        const shieldBubble = new THREE.Mesh(new THREE.SphereGeometry(2.1, 16, 12), new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.25, wireframe: true }));
+        shieldBubble.position.y = 0.9;
+        shieldBubble.visible = false;
+        group.add(shieldBubble);
+
+        const nameSprite = makeNameSprite(name);
+        nameSprite.position.y = 2.3;
+        group.add(nameSprite);
+
+        scene.add(group);
+        return { group, body: wrapper, wheels: [], flame, shieldBubble, nameSprite, materials, lastAngle: 0, lastFellAt: 0, lastY: 0 };
+    }
+
     const bodyMat = new THREE.MeshStandardMaterial({ color, metalness: 0.25, roughness: 0.5, transparent: true, opacity: 1 });
     const darkMat = new THREE.MeshStandardMaterial({ color: 0x1f2937, transparent: true, opacity: 1 });
     const glassMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, transparent: true, opacity: 0.6 });
@@ -790,7 +867,7 @@ function syncScene(state) {
     Object.entries(state.players).forEach(([id, p]) => {
         seen.add(id);
         let k = karts.get(id);
-        if (!k) { k = createKart(p.color, p.name); karts.set(id, k); }
+        if (!k) { k = createKart(p.color, p.name, p.vehicle); karts.set(id, k); }
         k.target = p;
         const isDead = state.mode === 'battle' && p.alive === false;
         k.group.visible = !isDead;

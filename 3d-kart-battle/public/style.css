@@ -26,6 +26,7 @@ button:active { transform: scale(0.97); }
 .mode-tab { background:transparent; box-shadow:none; color:#94a3b8; padding:9px 18px; margin:0; }
 .mode-tab.active { background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; }
 
+.vehicle-label { color:#94a3b8; font-size:0.82rem; margin:6px 0 4px; }
 .choice-row { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin-bottom:8px; }
 .choice-btn { background:#1e293b; border:2px solid #334155; color:#cbd5e1; box-shadow:none; font-size:0.85rem; padding:9px 14px; }
 .choice-btn.active { background:rgba(34,211,238,0.15); border-color:#22d3ee; color:#22d3ee; }

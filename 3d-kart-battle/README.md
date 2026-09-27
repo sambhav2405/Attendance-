@@ -38,6 +38,12 @@ Terminal me dikhega: `Desi Kart Battle 3D server running: http://localhost:3001`
 - **Space** (hold) — Gun — ab **limited ammo** (15 rounds, dheere-dheere regenerate hoti hai)
 - **E / Enter** — held power-up use karo
 
+## Vehicles
+Lobby me 3 gaadiyon me se chuno (sirf look alag hai, physics/hitbox same rehta hai — fair rehta hai sabke liye):
+- **Classic Kart** — apna khud ka procedural low-poly kart
+- **Toy Racer** — open-source "Toy Car" model (Guido Odendahl, public domain / CC0)
+- **Milk Truck** — open-source "Cesium Milk Truck" model (Cesium, CC-BY 4.0)
+
 ## 15 Power-ups
 Track pe box "smash" karke random power-up milta hai. Poori list + icon "Power-up Manual" button me (lobby screen) dekh sakte ho:
 
@@ -47,7 +53,7 @@ Track pe box "smash" karke random power-up milta hai. Poori list + icon "Power-u
 Pehle 4 attack items (Bomb/Oil/Freeze/Homing) **knock-out** karte hain (Battle me point milta hai); baaki attack items sirf annoying debuff dete hain (knock-out nahi karte) — thoda strategy add karta hai.
 
 ## Kya naya hai is version me
-- **Naya car model** — sloped hood/nose, windshield, spoiler, bumpers, alloy wheels
+- **3 alag vehicles** — apna procedural kart + 2 real open-source 3D models (Toy Racer, Milk Truck)
 - **Wall-clip bug fix** — kart ab colourful wall ke andar nahi ghusta, ek chhota gap rehta hai
 - **Jump ramps** — track pe udo
 - **Room capacity 12 tak**, aur **Quick Match rooms me drop-in join** (match ke beech me bhi)

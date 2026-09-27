@@ -11,6 +11,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/vendor/three.module.js', (req, res) => {
     res.sendFile(path.join(__dirname, 'node_modules', 'three', 'build', 'three.module.js'));
 });
+app.use('/vendor/three/examples/jsm', express.static(path.join(__dirname, 'node_modules', 'three', 'examples', 'jsm')));
 
 const TICK_RATE = 30;
 const DT = 1 / TICK_RATE;
@@ -682,7 +683,7 @@ function tickRoom(code, room) {
         players: Object.fromEntries(ids.map(id => {
             const p = room.players[id];
             const base = {
-                name: p.name, color: p.color, x: p.x, y: p.y, z: p.z, angle: p.angle, speed: p.speed,
+                name: p.name, color: p.color, vehicle: p.vehicle, x: p.x, y: p.y, z: p.z, angle: p.angle, speed: p.speed,
                 heldItem: p.heldItem, boosting: p.boostTimer > 0, stunned: now < p.stunUntil, fellAt: p.fellAt,
                 ammo: p.ammo, maxAmmo: GUN.maxAmmo,
                 shielded: now < p.shieldUntil, grown: now < p.growUntil, shrunk: now < p.shrinkUntil,
@@ -709,7 +710,9 @@ function tickRoom(code, room) {
 
 setInterval(() => { for (const [code, room] of rooms) tickRoom(code, room); }, 1000 / TICK_RATE);
 
-function addPlayerToRoom(socket, code, room, name) {
+const VEHICLE_IDS = ['kart', 'toycar', 'milktruck'];
+
+function addPlayerToRoom(socket, code, room, name, vehicle) {
     socket.join(code);
     socket.data.roomCode = code;
     const map = MAPS[room.mapId];
@@ -717,6 +720,7 @@ function addPlayerToRoom(socket, code, room, name) {
     const p = freshPlayerState({
         name: String(name || 'Player').slice(0, 14) || 'Player',
         color: COLORS[Object.keys(room.players).length % COLORS.length],
+        vehicle: VEHICLE_IDS.includes(vehicle) ? vehicle : 'kart',
         x: map.bounds.cx, y: 0, z: map.bounds.cz, angle: 0, speed: 0,
         lap: 0, nextCheckpoint: 1, finished: false, finishTime: null,
         alive: true, respawnAt: 0, spawnProtectedUntil: 0
@@ -738,7 +742,7 @@ io.on('connection', (socket) => {
         const code = generateRoomCode();
         const room = createRoomState(mapId, winCondition, false);
         rooms.set(code, room);
-        addPlayerToRoom(socket, code, room, data && data.name);
+        addPlayerToRoom(socket, code, room, data && data.name, data && data.vehicle);
     });
 
     socket.on('quickMatch', (data) => {
@@ -759,7 +763,7 @@ io.on('connection', (socket) => {
             room = createRoomState(defaultMapId, 'time', true);
             rooms.set(targetCode, room);
         }
-        addPlayerToRoom(socket, targetCode, room, data && data.name);
+        addPlayerToRoom(socket, targetCode, room, data && data.name, data && data.vehicle);
     });
 
     socket.on('joinRoom', (data) => {
@@ -775,7 +779,7 @@ io.on('connection', (socket) => {
             socket.emit('joinRejected', 'Match chal raha hai, thodi der wait karo!');
             return;
         }
-        addPlayerToRoom(socket, code, room, data && data.name);
+        addPlayerToRoom(socket, code, room, data && data.name, data && data.vehicle);
     });
 
     socket.on('input', (inp) => {

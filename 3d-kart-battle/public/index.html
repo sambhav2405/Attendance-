@@ -49,6 +49,9 @@
 <symbol id="i-ramp" viewBox="0 0 24 24"><path d="M3 20h6l12-9v9H3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
 <symbol id="i-users" viewBox="0 0 24 24"><circle cx="8" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17" cy="9" r="2.4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2.5 20c0-3.5 2.5-6 5.5-6s5.5 2.5 5.5 6M14.5 20c0-2.6 1.6-4.6 3.5-5.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
 <symbol id="i-hourglass" viewBox="0 0 24 24"><path d="M6 3h12M6 21h12M7 3c0 5 4 6 5 8-1 2-5 3-5 8M17 3c0 5-4 6-5 8 1 2 5 3 5 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+<symbol id="i-kart" viewBox="0 0 24 24"><path d="M3 16l1.5-5h5l1 2h7l1.5 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="6.5" cy="17.5" r="1.8" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17.5" cy="17.5" r="1.8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 11V8h2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+<symbol id="i-car" viewBox="0 0 24 24"><path d="M3.5 16v-3l2-4.5h13l2 4.5v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M3.5 13h17" stroke="currentColor" stroke-width="2"/><circle cx="7" cy="16.5" r="1.8" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17" cy="16.5" r="1.8" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+<symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 6h11v9H2zM13 10h4l3 3v2h-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="6.5" cy="17.5" r="1.8" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="16.5" cy="17.5" r="1.8" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
 </defs>
 </svg>
 
@@ -75,6 +78,13 @@
       <div id="winConditionChoice" class="choice-row hidden">
         <button class="choice-btn active" data-win="time"><svg class="icon"><use href="#i-clock"/></svg> Time Attack (3 min)</button>
         <button class="choice-btn" data-win="score"><svg class="icon"><use href="#i-target"/></svg> First to 10 Points</button>
+      </div>
+
+      <p class="vehicle-label">Apni gaadi chuno:</p>
+      <div id="vehicleChoice" class="choice-row">
+        <button class="choice-btn active" data-vehicle="kart"><svg class="icon"><use href="#i-kart"/></svg> Classic Kart</button>
+        <button class="choice-btn" data-vehicle="toycar"><svg class="icon"><use href="#i-car"/></svg> Toy Racer</button>
+        <button class="choice-btn" data-vehicle="milktruck"><svg class="icon"><use href="#i-truck"/></svg> Milk Truck</button>
       </div>
 
       <div class="action-row">
