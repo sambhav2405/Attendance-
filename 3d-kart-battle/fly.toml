@@ -1,0 +1,22 @@
+# Fly.io app config for Desi Kart Battle 3D.
+# Deploy with: fly apps create <your-unique-app-name>   (then update `app` below to match)
+#              fly deploy
+app = "desi-kart-battle-3d"
+primary_region = "bom"
+
+[build]
+
+[env]
+  PORT = "3001"
+
+[http_service]
+  internal_port = 3001
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"

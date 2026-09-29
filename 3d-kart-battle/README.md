@@ -88,21 +88,29 @@ Har ~25 second me kisi boost-pad ke paas ek chamakta hua orange **Mega Booster**
 - **Power-Slide mini-turbo** (drift boost) — asli kart-racing physics feel
 - **Floor-aware combat** — cross-floor gun/collision bugs fix, taaki multi-floor battle fair rahe
 
-## Hosting — important, please read
+## Hosting — Fly.io pe deploy (ready hai, bas ye steps karo)
 
-Maine backend Node.js + **Socket.io** (WebSockets) pe banaya hai kyunki real-time multiplayer (30 baar/second position updates) ke liye ek persistent, stateful server chahiye — sabhi players ka live game state RAM me rakhna padta hai.
+Backend Node.js + **Socket.io** (WebSockets) pe hai — isko real-time multiplayer ke liye ek continuously-running server chahiye (RAM me sabka live game state), isliye **Netlify pe seedha nahi chalega** (wo sirf static files + short-lived functions serve karta hai) aur **Cloudflare pe bina bade rewrite ke nahi chalega** (Socket.io Cloudflare Workers pe nahi chalta).
 
-**Netlify par seedha nahi chalega.** Netlify sirf static files + short-lived serverless functions serve karta hai — koi bhi function har request pe naya/stateless spin hota hai, wo continuously running server nahi hai jo WebSocket connections aur live game state hold kar sake. Aapki Attendance app (jo static HTML/JS hai) Netlify ke liye bilkul sahi hai, lekin ye game usi tarah "bas set ho jaye" nahi hoga.
+**Fly.io** free tier pe isi code ko **bina kisi rewrite ke** deploy kar sakte ho, aur (Render ke ulat) server 24x7 chalta rehta hai, sota nahi — 20-25 sessions ke liye ye kaafi hai. Maine deploy-ready files pehle se bana di hain (`Dockerfile`, `fly.toml`) — bas ye 4 commands chalao:
 
-**Cloudflare — haan, ho sakta hai, lekin free nahi "as-is":** Cloudflare Workers + **Durable Objects** real-time multiplayer WebSocket apps ke liye actually support karte hain, aur inka ek free tier bhi hai. Lekin iske liye current Node/Express/Socket.io backend ko Cloudflare Workers ke runtime ke liye **dobara likhna** padega (Socket.io library Cloudflare Workers pe nahi chalti — seedhe WebSocket API + Durable Objects use karne honge). Ye ek chhota tweak nahi hai, ek separate migration project hai.
+```
+# 1) Fly CLI install karo (ek baar, apne laptop pe)
+curl -L https://fly.io/install.sh | sh          # Mac/Linux
+# Windows: powershell -c "iwr https://fly.io/install.ps1 -useb | iex"
 
-**Sabse aasan free/sasta rasta abhi ke liye:**
-- **Render.com** — free tier pe Node web service directly deploy ho jata hai, Socket.io bina kisi rewrite ke chal jayega. (Free tier thodi der inactive rehne par so jata hai, first request slow ho sakta hai.)
-- **Railway.app** — similar, thoda paid-leaning free tier.
-- **Fly.io** — free allowance ke saath persistent Node apps.
+# 2) Fly account banao (GitHub se ho jata hai, free)
+fly auth signup
 
-**Agar chaho** to main:
-1. Isi code ko Render/Railway/Fly pe as-is deploy kar sakta hoon (sabse tez rasta, koi rewrite nahi), ya
-2. Cloudflare Workers + Durable Objects ke liye backend rewrite kar sakta hoon (zyada kaam, lekin phir Cloudflare ke generous free tier pe chalega)
+# 3) Is folder me jao aur app banao (naam unique hona chahiye, jo chaho rakho)
+cd 3d-kart-battle
+fly apps create tumhara-unique-naam-yaha
+# fly.toml file me pehli line "app = ..." ko bhi isi naam se replace kar dena
 
-Bata dena kaunsa rasta chahiye, us hisaab se aage badhta hoon.
+# 4) Deploy!
+fly deploy
+```
+
+2-3 minute me build hoga, aur link milega: `https://tumhara-unique-naam-yaha.fly.dev` — ye link kisi ko bhi bhejo, seedha browser me khulega, kuch install nahi karna, mobile pe bhi chalega. Server hamesha ON rehta hai (Render jaisa sona nahi hota).
+
+Agar `fly deploy` me koi error aaye, uska poora message bhejo — fix karne me madad kar dunga.
