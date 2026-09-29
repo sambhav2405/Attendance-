@@ -1009,10 +1009,19 @@ function createKart(color, name, vehicleId) {
     visor.position.set(0, 1.34, 0.55);
     group.add(visor);
 
-    const gunBarrel = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 1.1, 8), darkMat);
+    const gunMetal = new THREE.MeshStandardMaterial({ color: 0x27272a, metalness: 0.7, roughness: 0.3, transparent: true, opacity: 1 });
+    const gunMount = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.2, 0.4), gunMetal);
+    gunMount.position.set(0, 0.62, 1.55);
+    group.add(gunMount);
+    const gunBarrel = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.09, 1.1, 10), gunMetal);
     gunBarrel.rotation.x = Math.PI / 2;
     gunBarrel.position.set(0, 0.65, 1.9);
     group.add(gunBarrel);
+    const gunTipMat = new THREE.MeshStandardMaterial({ color: 0xdc2626, emissive: 0xdc2626, emissiveIntensity: 0.3, transparent: true, opacity: 1 });
+    const gunTip = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.08, 10), gunTipMat);
+    gunTip.rotation.x = Math.PI / 2;
+    gunTip.position.set(0, 0.65, 2.44);
+    group.add(gunTip);
 
     const wheelGeo = new THREE.CylinderGeometry(0.38, 0.38, 0.34, 14);
     const wheelMat = new THREE.MeshStandardMaterial({ color: 0x111827, transparent: true, opacity: 1 });
@@ -1044,7 +1053,7 @@ function createKart(color, name, vehicleId) {
     const nameSprite = makeNameSprite(name);
     group.add(nameSprite);
 
-    const materials = [bodyMat, darkMat, wheelMat, rimMat];
+    const materials = [bodyMat, darkMat, wheelMat, rimMat, gunMetal, gunTipMat];
     scene.add(group);
     return {
         group, body: chassis, wheels, flame, shieldBubble, nameSprite, materials,
@@ -1054,19 +1063,40 @@ function createKart(color, name, vehicleId) {
 
 function makeMysteryBoxTexture() {
     const c = document.createElement('canvas');
-    c.width = 128; c.height = 128;
+    c.width = 256; c.height = 256;
     const ctx = c.getContext('2d');
-    ctx.fillStyle = '#fbbf24';
-    ctx.fillRect(0, 0, 128, 128);
-    ctx.strokeStyle = '#78350f';
-    ctx.lineWidth = 8;
-    ctx.strokeRect(4, 4, 120, 120);
+    const grad = ctx.createRadialGradient(128, 100, 20, 128, 128, 190);
+    grad.addColorStop(0, '#fde68a');
+    grad.addColorStop(0.55, '#fbbf24');
+    grad.addColorStop(1, '#d97706');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 256, 256);
+    // beveled inner panel
+    ctx.strokeStyle = 'rgba(120,53,15,0.55)';
+    ctx.lineWidth = 6;
+    ctx.strokeRect(14, 14, 228, 228);
+    ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(20, 20, 216, 216);
+    // corner rivets
     ctx.fillStyle = '#78350f';
-    ctx.font = 'bold 84px Arial';
+    [[22, 22], [234, 22], [22, 234], [234, 234]].forEach(([x, y]) => {
+        ctx.beginPath(); ctx.arc(x, y, 7, 0, Math.PI * 2); ctx.fill();
+    });
+    // "?" with drop shadow + outline for a punchy, premium look
+    ctx.font = '900 168px Arial';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('?', 64, 70);
-    return new THREE.CanvasTexture(c);
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.fillText('?', 132, 144);
+    ctx.lineWidth = 8;
+    ctx.strokeStyle = '#78350f';
+    ctx.strokeText('?', 128, 138);
+    ctx.fillStyle = '#fffbeb';
+    ctx.fillText('?', 128, 138);
+    const tex = new THREE.CanvasTexture(c);
+    tex.anisotropy = 4;
+    return tex;
 }
 const mysteryBoxTexture = makeMysteryBoxTexture();
 
@@ -1094,10 +1124,30 @@ let lavaMesh = null;
 let lavaLight = null;
 let emberTimer = 0;
 function makeMysteryBoxMesh() {
-    const mat = new THREE.MeshStandardMaterial({ map: mysteryBoxTexture, emissive: 0x92400e, emissiveIntensity: 0.35 });
-    const mesh = new THREE.Mesh(new THREE.BoxGeometry(1.3, 1.3, 1.3), mat);
-    mesh.userData.bobPhase = Math.random() * Math.PI * 2;
-    return mesh;
+    const group = new THREE.Group();
+    const geo = new THREE.BoxGeometry(1.3, 1.3, 1.3);
+    const mat = new THREE.MeshStandardMaterial({ map: mysteryBoxTexture, emissive: 0x92400e, emissiveIntensity: 0.4, roughness: 0.35, metalness: 0.15 });
+    const body = new THREE.Mesh(geo, mat);
+    group.add(body);
+
+    // dark metal corner-brace trim, crisp premium "crate" edges
+    const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: 0x451a03, linewidth: 2 }));
+    edges.scale.setScalar(1.01);
+    group.add(edges);
+
+    // soft glow disc under the box
+    const glow = new THREE.Mesh(new THREE.CircleGeometry(1.1, 24), new THREE.MeshBasicMaterial({ color: 0xfbbf24, transparent: true, opacity: 0.35 }));
+    glow.rotation.x = -Math.PI / 2;
+    glow.position.y = -0.62;
+    group.add(glow);
+
+    const light = new THREE.PointLight(0xfbbf24, 0.6, 5);
+    light.position.y = 0.3;
+    group.add(light);
+
+    group.userData.bobPhase = Math.random() * Math.PI * 2;
+    group.userData.spinPart = body;
+    return group;
 }
 
 const karts = new Map();
@@ -1165,6 +1215,74 @@ const PROJECTILE_COLORS = {
     reverseRay: 0xa855f7, freezeRay: 0x60a5fa, bomb: 0xdc2626
 };
 function projectileColor(itemId) { return PROJECTILE_COLORS[itemId] || 0xdc2626; }
+
+// premium, weapon-specific projectile silhouettes instead of one generic sphere
+function makeProjectileMesh(itemId) {
+    const color = projectileColor(itemId);
+    let obj;
+    if (itemId === '__gun') {
+        // wrap in a group so the outer rotation.y (set each frame to face travel direction) never
+        // fights with the capsule's own fixed lie-flat rotation - child and parent transforms compose cleanly
+        const g = new THREE.Group();
+        const bolt = new THREE.Mesh(new THREE.CapsuleGeometry(0.09, 0.35, 4, 8), new THREE.MeshBasicMaterial({ color }));
+        bolt.rotation.z = Math.PI / 2; // lie the capsule flat along local X
+        g.add(bolt);
+        obj = g;
+        obj.userData.forward = true;
+    } else if (itemId === 'bomb') {
+        const g = new THREE.Group();
+        const body = new THREE.Mesh(new THREE.SphereGeometry(0.42, 14, 12), new THREE.MeshStandardMaterial({ color: 0x1c1917, roughness: 0.4, metalness: 0.3 }));
+        g.add(body);
+        const band = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.05, 6, 20), new THREE.MeshStandardMaterial({ color: 0xdc2626, emissive: 0xdc2626, emissiveIntensity: 0.5 }));
+        band.rotation.x = Math.PI / 2;
+        g.add(band);
+        const fuse = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.3, 6), new THREE.MeshStandardMaterial({ color: 0x78350f }));
+        fuse.position.set(0, 0.5, 0);
+        fuse.rotation.z = 0.4;
+        g.add(fuse);
+        const spark = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 6), new THREE.MeshBasicMaterial({ color: 0xfbbf24 }));
+        spark.position.set(0.12, 0.62, 0);
+        g.add(spark);
+        const light = new THREE.PointLight(0xfbbf24, 0.7, 3);
+        light.position.copy(spark.position);
+        g.add(light);
+        obj = g;
+    } else if (itemId === 'homingRocket') {
+        const g = new THREE.Group();
+        const body = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.6, 10), new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.5, roughness: 0.3 }));
+        body.rotation.z = Math.PI / 2;
+        g.add(body);
+        const nose = new THREE.Mesh(new THREE.ConeGeometry(0.14, 0.3, 10), new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.4 }));
+        nose.rotation.z = -Math.PI / 2;
+        nose.position.x = 0.45;
+        g.add(nose);
+        [0.6, -0.6].forEach(a => {
+            const fin = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.02, 0.16), new THREE.MeshStandardMaterial({ color: 0x475569 }));
+            fin.position.set(-0.24, Math.sin(a) * 0.14, Math.cos(a) * 0.14);
+            g.add(fin);
+        });
+        const flame = new THREE.Mesh(new THREE.ConeGeometry(0.11, 0.4, 8), new THREE.MeshBasicMaterial({ color: 0xfb923c, transparent: true, opacity: 0.85 }));
+        flame.rotation.z = Math.PI / 2;
+        flame.position.x = -0.5;
+        g.add(flame);
+        obj = g;
+        obj.userData.forward = true;
+    } else if (itemId === 'freezeRay') {
+        obj = new THREE.Mesh(new THREE.OctahedronGeometry(0.32, 0), new THREE.MeshStandardMaterial({ color: 0xe0f2fe, emissive: 0x60a5fa, emissiveIntensity: 0.6, transparent: true, opacity: 0.9, roughness: 0.1 }));
+    } else if (itemId === 'shrinkRay' || itemId === 'reverseRay') {
+        const g = new THREE.Group();
+        const orb = new THREE.Mesh(new THREE.SphereGeometry(0.26, 12, 10), new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.6 }));
+        g.add(orb);
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.04, 6, 24), new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.7 }));
+        g.add(ring);
+        g.userData.spinRing = ring;
+        obj = g;
+    } else {
+        obj = new THREE.Mesh(new THREE.SphereGeometry(0.4, 10, 8), new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.4 }));
+    }
+    obj.userData.itemId = itemId;
+    return obj;
+}
 
 function spawnImpactEffect(itemId, x, y, z) {
     const color = projectileColor(itemId);
@@ -1264,14 +1382,12 @@ function syncScene(state) {
         seenProj.add(pr.id);
         let m = projectileMeshes.get(pr.id);
         if (!m) {
-            const isGun = pr.itemId === '__gun';
-            const color = projectileColor(pr.itemId);
-            m = new THREE.Mesh(new THREE.SphereGeometry(isGun ? 0.22 : 0.4, 10, 8), new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.4 }));
-            m.userData.itemId = pr.itemId;
+            m = makeProjectileMesh(pr.itemId);
             scene.add(m);
             projectileMeshes.set(pr.id, m);
         }
         m.position.set(pr.x, floorY(pr.floor) + 0.6, pr.z);
+        if (m.userData.forward && pr.dx !== undefined) m.rotation.y = -Math.atan2(pr.dz, pr.dx);
     });
     for (const [id, m] of projectileMeshes) {
         if (!seenProj.has(id)) {
@@ -1465,7 +1581,11 @@ function animate() {
         m.rotation.y += dt * 1.6;
         m.position.y = m.userData.baseY + Math.sin(time * 2.4 + m.userData.bobPhase) * 0.18;
     });
-    projectileMeshes.forEach(m => { m.rotation.x += dt * 8; });
+    projectileMeshes.forEach(m => {
+        if (m.userData.forward) { /* stays pointed along its travel direction, no tumble */ }
+        else if (m.userData.spinRing) m.userData.spinRing.rotation.x += dt * 6;
+        else m.rotation.x += dt * 8;
+    });
     boostPadMeshes.forEach((m, i) => { m.material.opacity = 0.75 + Math.sin(time * 4 + i) * 0.2; });
     if (megaBoostMesh && megaBoostMesh.visible) { megaBoostMesh.rotation.y += dt * 2; megaBoostMesh.position.y = (megaBoostMesh.userData.baseY || 0) + Math.sin(time * 3) * 0.3; }
 

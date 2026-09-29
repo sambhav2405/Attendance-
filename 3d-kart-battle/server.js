@@ -896,7 +896,7 @@ function tickRoom(code, room) {
         obstacles: map.obstacles, boostPads: map.boostPads, ramps: map.ramps,
         megaBoost: room.megaBoost.active ? { x: room.megaBoost.x, z: room.megaBoost.z, floor: room.megaBoost.floor } : null,
         itemBoxes: room.itemBoxes.map(b => ({ id: b.id, x: b.x, z: b.z, floor: b.floor, available: b.available, smashedAt: b.smashedAt || 0 })),
-        projectiles: room.projectiles.map(pr => ({ id: pr.id, x: pr.x, z: pr.z, itemId: pr.itemId, floor: pr.floor })),
+        projectiles: room.projectiles.map(pr => ({ id: pr.id, x: pr.x, z: pr.z, dx: pr.dx, dz: pr.dz, itemId: pr.itemId, floor: pr.floor })),
         hazards: room.hazards.map(hz => ({ id: hz.id, x: hz.x, z: hz.z, itemId: hz.itemId, floor: hz.floor })),
         players: Object.fromEntries(ids.map(id => {
             const p = room.players[id];
