@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: desi-kart-battle-3d
+    runtime: node
+    rootDir: 3d-kart-battle
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 20.11.0
