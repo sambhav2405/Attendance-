@@ -88,29 +88,16 @@ Har ~25 second me kisi boost-pad ke paas ek chamakta hua orange **Mega Booster**
 - **Power-Slide mini-turbo** (drift boost) — asli kart-racing physics feel
 - **Floor-aware combat** — cross-floor gun/collision bugs fix, taaki multi-floor battle fair rahe
 
-## Hosting — Fly.io pe deploy (ready hai, bas ye steps karo)
+## Hosting — Render.com pe deploy (bilkul free, koi card nahi)
 
-Backend Node.js + **Socket.io** (WebSockets) pe hai — isko real-time multiplayer ke liye ek continuously-running server chahiye (RAM me sabka live game state), isliye **Netlify pe seedha nahi chalega** (wo sirf static files + short-lived functions serve karta hai) aur **Cloudflare pe bina bade rewrite ke nahi chalega** (Socket.io Cloudflare Workers pe nahi chalta).
+Backend Node.js + **Socket.io** (WebSockets) pe hai — isko ek continuously-running server chahiye, isliye **Netlify pe seedha nahi chalega** aur **Cloudflare pe bina bade rewrite ke nahi chalega**. Fly.io ab free tier ke liye bhi card maangta hai, isliye **Render.com** best rasta hai — bilkul free, **koi payment info bilkul nahi lagti**.
 
-**Fly.io** free tier pe isi code ko **bina kisi rewrite ke** deploy kar sakte ho, aur (Render ke ulat) server 24x7 chalta rehta hai, sota nahi — 20-25 sessions ke liye ye kaafi hai. Maine deploy-ready files pehle se bana di hain (`Dockerfile`, `fly.toml`) — bas ye 4 commands chalao:
+Repo me `render.yaml` (Blueprint) pehle se ready hai — Render usse khud padh lega, kuch type nahi karna:
 
-```
-# 1) Fly CLI install karo (ek baar, apne laptop pe)
-curl -L https://fly.io/install.sh | sh          # Mac/Linux
-# Windows: powershell -c "iwr https://fly.io/install.ps1 -useb | iex"
+1. **[render.com](https://dashboard.render.com/register)** kholo → **"Sign up with GitHub"** (usi account se jisme ye repo hai)
+2. Dashboard me **"New +"** → **"Blueprint"** → apni `Attendance-` repo select karo, branch `claude/zealous-bardeen-13tlno` choose karo
+3. Render `render.yaml` khud detect kar lega — bas **"Apply"** dabao
 
-# 2) Fly account banao (GitHub se ho jata hai, free)
-fly auth signup
+2-3 minute me live link milega jaisе `https://desi-kart-battle-3d.onrender.com` — ye link kisi ko bhi bhejo, seedha browser me khulega, kuch install nahi karna, mobile pe bhi chalega.
 
-# 3) Is folder me jao aur app banao (naam unique hona chahiye, jo chaho rakho)
-cd 3d-kart-battle
-fly apps create tumhara-unique-naam-yaha
-# fly.toml file me pehli line "app = ..." ko bhi isi naam se replace kar dena
-
-# 4) Deploy!
-fly deploy
-```
-
-2-3 minute me build hoga, aur link milega: `https://tumhara-unique-naam-yaha.fly.dev` — ye link kisi ko bhi bhejo, seedha browser me khulega, kuch install nahi karna, mobile pe bhi chalega. Server hamesha ON rehta hai (Render jaisa sona nahi hota).
-
-Agar `fly deploy` me koi error aaye, uska poora message bhejo — fix karne me madad kar dunga.
+**Ek cheez dhyaan me rakho:** free tier pe 15 min koi na khele to server so jata hai — agli baar koi khole to **pehli request 15-20 second slow** hogi, uske baad sab normal fast chalega. Ye Render ke free tier ka hi tareeka hai, koi bug nahi.
