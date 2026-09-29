@@ -450,23 +450,98 @@ function setKey(code, val) {
     }
 }
 
-document.querySelectorAll('[data-key]').forEach(btn => {
-    const k = btn.getAttribute('data-key');
-    const press = (v) => { keys[k] = v; sendInput(); };
-    btn.addEventListener('touchstart', (e) => { e.preventDefault(); press(true); }, { passive: false });
-    btn.addEventListener('touchend', (e) => { e.preventDefault(); press(false); }, { passive: false });
-    btn.addEventListener('mousedown', () => press(true));
-    btn.addEventListener('mouseup', () => press(false));
-    btn.addEventListener('mouseleave', () => press(false));
+// ===== Analog joystick (mobile) =====
+// Tracks one specific touch by its identifier from touchstart through touchmove/touchend/touchcancel,
+// listening on the whole window while active - this is what a single set of per-button touchstart/touchend
+// listeners can't do: if a finger slides off one button onto another, or the OS interrupts the touch
+// (notification, multi-touch), a button-based d-pad leaves a direction permanently "stuck" pressed.
+// An angle+deadzone read off one tracked touch has no such gap: every path ends in the same touchend/
+// touchcancel handler that clears all keys, so nothing can get left on.
+const joystickEl = document.getElementById('joystick');
+const joystickKnob = document.getElementById('joystickKnob');
+const JOY_DEADZONE = 0.22;
+let joyTouchId = null;
+let joyCenter = { x: 0, y: 0 };
+const JOY_MAX_RADIUS = 46;
+
+function joyUpdateFromPoint(clientX, clientY) {
+    let dx = clientX - joyCenter.x, dy = clientY - joyCenter.y;
+    const dist = Math.hypot(dx, dy);
+    const clamped = Math.min(dist, JOY_MAX_RADIUS);
+    if (dist > 0) { dx = (dx / dist) * clamped; dy = (dy / dist) * clamped; }
+    joystickKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+
+    const mag = clamped / JOY_MAX_RADIUS;
+    if (mag < JOY_DEADZONE) {
+        keys.up = keys.down = keys.left = keys.right = false;
+    } else {
+        const angle = Math.atan2(dy, dx); // 0 = right, PI/2 = down (screen space)
+        keys.right = angle > -Math.PI * 0.375 && angle < Math.PI * 0.375;
+        keys.left = angle > Math.PI * 0.625 || angle < -Math.PI * 0.625;
+        keys.down = angle > Math.PI * 0.125 && angle < Math.PI * 0.875;
+        keys.up = angle < -Math.PI * 0.125 && angle > -Math.PI * 0.875;
+    }
+    sendInput();
+}
+
+function joyReset() {
+    joyTouchId = null;
+    joystickEl.classList.remove('active');
+    joystickKnob.style.transform = 'translate(-50%, -50%)';
+    keys.up = keys.down = keys.left = keys.right = false;
+    sendInput();
+}
+
+joystickEl.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    if (joyTouchId !== null) return;
+    const t = e.changedTouches[0];
+    const rect = joystickEl.getBoundingClientRect();
+    joyCenter = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+    joyTouchId = t.identifier;
+    joystickEl.classList.add('active');
+    joyUpdateFromPoint(t.clientX, t.clientY);
+}, { passive: false });
+
+window.addEventListener('touchmove', (e) => {
+    if (joyTouchId === null) return;
+    const t = Array.from(e.changedTouches).find(t => t.identifier === joyTouchId);
+    if (!t) return;
+    e.preventDefault();
+    joyUpdateFromPoint(t.clientX, t.clientY);
+}, { passive: false });
+
+function joyEndHandler(e) {
+    if (joyTouchId === null) return;
+    const t = Array.from(e.changedTouches).find(t => t.identifier === joyTouchId);
+    if (!t) return;
+    joyReset();
+}
+window.addEventListener('touchend', joyEndHandler);
+window.addEventListener('touchcancel', joyEndHandler);
+
+// mouse fallback for desktop testing
+let joyMouseDown = false;
+joystickEl.addEventListener('mousedown', (e) => {
+    joyMouseDown = true;
+    const rect = joystickEl.getBoundingClientRect();
+    joyCenter = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+    joystickEl.classList.add('active');
+    joyUpdateFromPoint(e.clientX, e.clientY);
 });
+window.addEventListener('mousemove', (e) => { if (joyMouseDown) joyUpdateFromPoint(e.clientX, e.clientY); });
+window.addEventListener('mouseup', () => { if (joyMouseDown) { joyMouseDown = false; joyReset(); } });
+
 const useItemTouch = document.getElementById('useItemTouch');
 useItemTouch.addEventListener('touchstart', (e) => { e.preventDefault(); useItem(); }, { passive: false });
 useItemTouch.addEventListener('click', () => useItem());
 const fireTouch = document.getElementById('fireTouch');
 fireTouch.addEventListener('touchstart', (e) => { e.preventDefault(); keys.fire = true; sendInput(); }, { passive: false });
 fireTouch.addEventListener('touchend', (e) => { e.preventDefault(); keys.fire = false; sendInput(); }, { passive: false });
+fireTouch.addEventListener('touchcancel', (e) => { e.preventDefault(); keys.fire = false; sendInput(); }, { passive: false });
 fireTouch.addEventListener('mousedown', () => { keys.fire = true; sendInput(); });
 fireTouch.addEventListener('mouseup', () => { keys.fire = false; sendInput(); });
+fireTouch.addEventListener('mouseleave', () => { keys.fire = false; sendInput(); });
 
 // ===== Three.js scene =====
 const canvas = document.getElementById('gl');
