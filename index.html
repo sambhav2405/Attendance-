@@ -817,6 +817,12 @@
         [data-theme="dark"] .sub-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.4); }
         .sub-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
         .sub-name { font-weight: 700; font-size: 0.95rem; color: var(--text-main); flex: 1; padding-right: 15px; word-wrap: break-word; line-height: 1.3; }
+        .lab-calc { margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: rgba(245,158,11,.1); border: 1px dashed #f59e0b; }
+        .lab-calc-title { font-size: .78rem; font-weight: 800; color: #d97706; margin-bottom: 8px; }
+        .lab-calc-row { display: flex; gap: 10px; margin-bottom: 8px; }
+        .lab-calc-row label { flex: 1; font-size: .78rem; font-weight: 700; color: var(--text-light); }
+        .lab-calc-row input { width: 100%; box-sizing: border-box; margin-top: 4px; padding: 8px; }
+        .lab-calc-out { font-size: .85rem; font-weight: 600; color: var(--text-main); line-height: 1.5; }
         .sub-percent { font-weight: 800; font-size: 1.1rem; white-space: nowrap; }
         
         .progress-track { width: 100%; height: 10px; background: #f3f4f6; border-radius: 10px; overflow: hidden; margin-bottom: 10px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); }
@@ -2230,7 +2236,7 @@ let g_present = 0;
 let g_total = 0;
 let g_percent = 0;
 let g_labWeight = 2;
-try { const w = parseInt(localStorage.getItem('lab_weight_v1')); if (w >= 1 && w <= 3) g_labWeight = w; } catch (e) {}
+try { const w = parseInt(localStorage.getItem('lab_weight_v1')); if (w >= 1 && w <= 4) g_labWeight = w; } catch (e) {}
 let g_subjects = [];
 let g_chart = null;
 let g_currentFilter = 'all';
@@ -2824,11 +2830,28 @@ function applyLabWeight() {
 }
 
 // Attendance needed -> how many labs that is (1 lab = g_labWeight attendance)
+let g_labCalc = {};
+function labCalc(idx, row, quiet) {
+    const sub = g_subjects[idx];
+    const ins = row.querySelectorAll('input');
+    const a = Math.max(0, parseInt(ins[0].value) || 0), b = Math.max(0, parseInt(ins[1].value) || 0);
+    g_labCalc[idx] = { a, b };
+    const att = sub.attended + a * g_labWeight;
+    const tot = sub.total + (a + b) * g_labWeight;
+    const now = sub.attended / sub.total * 100, pct = att / tot * 100, d = pct - now;
+    const ok = pct >= 75;
+    let tip;
+    if (ok) { const more = Math.floor((att / 0.75 - tot) / g_labWeight); tip = more > 0 ? `✅ Aur <b>${more}</b> lab bunk kar sakte ho` : `⚠️ Ab bunk mat karna`; }
+    else { tip = `❌ 75% ke liye <b>${Math.ceil((0.75 * tot - att) / 0.25 / g_labWeight)}</b> lab aur attend karo`; }
+    row.parentNode.querySelector('.lab-calc-out').innerHTML =
+        `${att}/${tot} → <b style="color:${ok ? '#10b981' : '#ef4444'}">${pct.toFixed(2)}%</b> (${d >= 0 ? '+' : ''}${d.toFixed(2)}%) · ${tip}`;
+}
+
 function labsFor(n) { return Math.ceil(n / g_labWeight); }
 function labsWithin(n) { return Math.floor(n / g_labWeight); }
 
 function setLabWeight(w) {
-    w = Math.max(1, Math.min(3, w));
+    w = Math.max(1, Math.min(4, w));
     if (w === g_labWeight) return;
     haptic(30);
     g_labWeight = w;
@@ -2853,9 +2876,9 @@ function renderLabControls() {
             <div class="lab-weight-row">
                 <button class="lab-w-btn" onclick="setLabWeight(${g_labWeight - 1})" ${g_labWeight <= 1 ? 'disabled' : ''}>−</button>
                 <span class="lab-w-val">${g_labWeight}</span>
-                <button class="lab-w-btn" onclick="setLabWeight(${g_labWeight + 1})" ${g_labWeight >= 3 ? 'disabled' : ''}>+</button>
+                <button class="lab-w-btn" onclick="setLabWeight(${g_labWeight + 1})" ${g_labWeight >= 4 ? 'disabled' : ''}>+</button>
                 <span class="lab-w-presets">
-                    ${[1, 2, 3].map(n => `<button class="lab-w-chip ${n === g_labWeight ? 'active' : ''}" onclick="setLabWeight(${n})">${n}</button>`).join('')}
+                    ${[1, 2, 3, 4].map(n => `<button class="lab-w-chip ${n === g_labWeight ? 'active' : ''}" onclick="setLabWeight(${n})">${n}</button>`).join('')}
                 </span>
             </div>
             <div class="lab-ratio">
@@ -2930,6 +2953,20 @@ function renderCardList(containerId, list) {
             </div>
         `;
 
+        if (sub.type === 'lab') {
+            const idx = g_subjects.indexOf(sub);
+            const box = document.createElement('div');
+            box.className = 'lab-calc';
+            box.innerHTML = `
+                <div class="lab-calc-title">🧮 Attend / Bunk (labs)</div>
+                <div class="lab-calc-row">
+                    <label>Attend <input type="number" min="0" value="${(g_labCalc[idx] || {}).a || 0}" oninput="labCalc(${idx}, this.parentNode.parentNode)"></label>
+                    <label>Bunk <input type="number" min="0" value="${(g_labCalc[idx] || {}).b || 0}" oninput="labCalc(${idx}, this.parentNode.parentNode)"></label>
+                </div>
+                <div class="lab-calc-out"></div>`;
+            card.appendChild(box);
+            setTimeout(() => labCalc(idx, box.querySelector('.lab-calc-row'), true), 0);
+        }
         container.appendChild(card);
 
         requestAnimationFrame(() => {
