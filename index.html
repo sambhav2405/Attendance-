@@ -2813,15 +2813,19 @@ function sortSubjects(order, btn) {
 function applyLabWeight() {
     g_present = 0; g_total = 0;
     g_subjects.forEach(sub => {
-        const w = sub.type === 'lab' ? g_labWeight : 1;
-        sub.attended = sub.rawAttended * w;
-        sub.total = sub.rawTotal * w;
+        // Report already counts 1 lab = N attendance, so numbers stay as-is.
+        sub.attended = sub.rawAttended;
+        sub.total = sub.rawTotal;
         sub.percent = ((sub.attended / sub.total) * 100).toFixed(2);
         g_present += sub.attended;
         g_total += sub.total;
     });
     g_percent = g_total ? ((g_present / g_total) * 100).toFixed(2) : '0.00';
 }
+
+// Attendance needed -> how many labs that is (1 lab = g_labWeight attendance)
+function labsFor(n) { return Math.ceil(n / g_labWeight); }
+function labsWithin(n) { return Math.floor(n / g_labWeight); }
 
 function setLabWeight(w) {
     w = Math.max(1, Math.min(3, w));
@@ -2838,15 +2842,14 @@ function renderLabControls() {
     if (!el) return;
     const labs = g_subjects.filter(s => s.type === 'lab');
     const lecs = g_subjects.filter(s => s.type !== 'lab');
-    const labRaw = labs.reduce((a, s) => a + s.rawTotal, 0);
+    const labEff = labs.reduce((a, s) => a + s.total, 0);
     const lecTotal = lecs.reduce((a, s) => a + s.total, 0);
-    const labEff = labRaw * g_labWeight;
     const all = lecTotal + labEff;
     const labShare = all ? ((labEff / all) * 100).toFixed(1) : '0.0';
     const lecShare = all ? (100 - labShare).toFixed(1) : '0.0';
     el.innerHTML = `
         <div class="lab-weight-box">
-            <div class="lab-weight-title"><b>1 Lab = ${g_labWeight} Class${g_labWeight > 1 ? 'es' : ''}</b></div>
+            <div class="lab-weight-title"><b>1 Lab = ${g_labWeight} Hour${g_labWeight > 1 ? 's' : ''} = ${g_labWeight} Attendance</b></div>
             <div class="lab-weight-row">
                 <button class="lab-w-btn" onclick="setLabWeight(${g_labWeight - 1})" ${g_labWeight <= 1 ? 'disabled' : ''}>−</button>
                 <span class="lab-w-val">${g_labWeight}</span>
@@ -2856,7 +2859,7 @@ function renderLabControls() {
                 </span>
             </div>
             <div class="lab-ratio">
-                <b>Lab : Lecture ratio</b> &nbsp;${labEff} : ${lecTotal}
+                <b>Lab : Lecture attendance</b> &nbsp;${labEff} : ${lecTotal}
                 <span class="lab-ratio-sub">(Lab ${labShare}% · Lecture ${lecShare}%)</span>
             </div>
             <div class="lab-ratio-bar"><div style="width:${labShare}%"></div></div>
@@ -2899,11 +2902,13 @@ function renderCardList(containerId, list) {
 
         if (p < 75) {
             const reqClasses = Math.ceil((0.75 * sub.total - sub.attended) / 0.25);
-            msgHtml = `<div class="sub-msg msg-danger"><i class="fas fa-exclamation-triangle"></i> Attend <b>${reqClasses}</b> more</div>`;
+            const labNote = sub.type === 'lab' ? ` = <b>${labsFor(reqClasses)}</b> lab${labsFor(reqClasses) > 1 ? 's' : ''}` : '';
+            msgHtml = `<div class="sub-msg msg-danger"><i class="fas fa-exclamation-triangle"></i> Attend <b>${reqClasses}</b> more${labNote}</div>`;
         } else {
             const bunks = Math.floor((sub.attended / 0.75) - sub.total);
+            const bunkLabNote = sub.type === 'lab' && labsWithin(bunks) > 0 ? ` = <b>${labsWithin(bunks)}</b> lab${labsWithin(bunks) > 1 ? 's' : ''}` : '';
             msgHtml = bunks > 0
-                ? `<div class="sub-msg msg-safe"><i class="fas fa-check-circle"></i> Safe to bunk <b>${bunks}</b></div>`
+                ? `<div class="sub-msg msg-safe"><i class="fas fa-check-circle"></i> Safe to bunk <b>${bunks}</b>${bunkLabNote}</div>`
                 : `<div class="sub-msg msg-warning">Near 75%. Don't bunk!</div>`;
         }
 
@@ -2920,7 +2925,7 @@ function renderCardList(containerId, list) {
                 <div class="progress-fill" style="width:0%; background:${color};" data-target="${sub.percent}"></div>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:0.8rem; font-weight:700; color:var(--text-light);">${sub.attended}/${sub.total} classes${sub.type === 'lab' && g_labWeight > 1 ? ` <small>(${sub.rawAttended}/${sub.rawTotal} labs × ${g_labWeight})</small>` : ''}</span>
+                <span style="font-size:0.8rem; font-weight:700; color:var(--text-light);">${sub.attended}/${sub.total} ${sub.type === 'lab' ? 'attendance' : 'classes'}${sub.type === 'lab' ? ` <small>(≈ ${Math.round(sub.rawAttended / g_labWeight)}/${Math.round(sub.rawTotal / g_labWeight)} labs)</small>` : ''}</span>
                 ${msgHtml}
             </div>
         `;
@@ -3124,7 +3129,7 @@ function calcTarget() {
     haptic(40);
     const required = Math.ceil((p * g_total - g_present) / (1 - p));
     document.getElementById('targetResult').innerHTML =
-        `You need to attend <b>${required}</b> more classes continuously.`;
+        `You need to attend <b>${required}</b> more classes continuously.<br><small>If only labs: ${labsFor(required)} lab${labsFor(required) > 1 ? 's' : ''} (1 lab = ${g_labWeight} attendance)</small>`;
     showToast(`🎯 Need ${required} classes for ${target}%`, 'info');
 }
 
