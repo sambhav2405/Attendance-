@@ -789,6 +789,24 @@
         .filter-btn.active { background: var(--theme-color); border-color: var(--theme-color); color: white; box-shadow: 0 3px 10px rgba(79, 70, 229, 0.3); }
         [data-theme="dark"] .filter-btn:hover:not(.active) { background: rgba(79, 70, 229, 0.15); border-color: rgba(79, 70, 229, 0.5); }
 
+
+        /* ===== LAB BREAKDOWN ===== */
+        .lab-toggle { border: 2px solid #f59e0b; border-left: 6px solid #f59e0b; background: rgba(245, 158, 11, 0.08); font-weight: 800; }
+        .lab-toggle b { font-weight: 800; font-size: 1.05rem; letter-spacing: .3px; }
+        .lab-weight-box { background: rgba(245, 158, 11, 0.1); border: 2px solid #f59e0b; border-radius: 16px; padding: 16px; margin-bottom: 15px; }
+        .lab-weight-title { font-size: 1.05rem; font-weight: 800; color: #d97706; margin-bottom: 10px; text-align: center; }
+        .lab-weight-row { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+        .lab-w-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: #f59e0b; color: #fff; font-size: 1.4rem; font-weight: 800; cursor: pointer; }
+        .lab-w-btn:disabled { opacity: .35; cursor: not-allowed; }
+        .lab-w-val { font-size: 1.6rem; font-weight: 800; min-width: 32px; text-align: center; color: var(--text-main); }
+        .lab-w-presets { display: flex; gap: 6px; margin-left: 8px; }
+        .lab-w-chip { padding: 6px 14px; border-radius: 50px; border: 2px solid #f59e0b; background: var(--card-bg); color: #d97706; font-weight: 800; cursor: pointer; }
+        .lab-w-chip.active { background: #f59e0b; color: #fff; }
+        .lab-ratio { text-align: center; font-size: .95rem; color: var(--text-main); font-weight: 700; }
+        .lab-ratio-sub { display: block; font-size: .78rem; color: var(--text-light); font-weight: 600; margin-top: 2px; }
+        .lab-ratio-bar { height: 10px; border-radius: 10px; background: #3b82f6; overflow: hidden; margin-top: 10px; }
+        .lab-ratio-bar > div { height: 100%; background: #f59e0b; transition: width .4s; }
+
         /* ===== SUBJECT CARDS ===== */
         .sub-card {
             background: var(--card-bg); padding: 18px; border-radius: 16px; margin-bottom: 15px;
@@ -1186,6 +1204,20 @@
                             <button class="filter-btn" onclick="sortSubjects('desc', this)"><i class="fas fa-sort-amount-down"></i> High→Low</button>
                         </div>
                         <div id="subjectCards"></div>
+                    </div>
+
+                    <button class="toggle-btn lab-toggle" onclick="toggleSection('labList', this)">
+                        <div style="display:flex; align-items:center;">
+                            <i class="fas fa-flask" style="margin-right:12px; font-size:1.2rem; color:#d97706;"></i>
+                            <b>🧪 LAB BREAKDOWN</b>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </button>
+                    <div id="labList" class="collapsible-content">
+                        <div id="labControls"></div>
+                        <div id="labCards"></div>
                     </div>
 
                     <div class="divider"><span>⚙️ PREDICTION TOOLS</span></div>
@@ -2197,6 +2229,8 @@ function endTour() {
 let g_present = 0;
 let g_total = 0;
 let g_percent = 0;
+let g_labWeight = 2;
+try { const w = parseInt(localStorage.getItem('lab_weight_v1')); if (w >= 1 && w <= 3) g_labWeight = w; } catch (e) {}
 let g_subjects = [];
 let g_chart = null;
 let g_currentFilter = 'all';
@@ -2622,7 +2656,12 @@ function processReport() {
             const match = line.trim().match(regex);
             if (match) {
                 found = true;
-                const rawName = match[1].replace(/^\d+\s+/, '').trim();
+                let rawName = match[1].replace(/^\d+\s+/, '').trim();
+                let type = null;
+                const tm = rawName.match(/\s(Lecture|Lab)\s*$/i);
+                if (tm) { type = tm[1].toLowerCase(); rawName = rawName.slice(0, tm.index).trim(); }
+                rawName = rawName.replace(/\s+/g, ' ');
+                if (!type) type = (/\blab\b/i.test(rawName) || /^[A-Z]{3,4}P\d/.test(rawName)) ? 'lab' : 'lecture';
                 const present = parseInt(match[2]);
                 const od = parseInt(match[3]);
                 const makeup = parseInt(match[4]);
@@ -2631,9 +2670,7 @@ function processReport() {
                 const total = present + od + absent;
 
                 if (total > 0) {
-                    g_present += attended;
-                    g_total += total;
-                    g_subjects.push({ name: rawName, attended, total, percent: ((attended / total) * 100).toFixed(2) });
+                    g_subjects.push({ name: rawName, type, rawAttended: attended, rawTotal: total, attended, total, percent: '0' });
                 }
             }
         });
@@ -2647,7 +2684,7 @@ function processReport() {
         }
 
         localStorage.setItem('academic_data_v8', text);
-        g_percent = ((g_present / g_total) * 100).toFixed(2);
+        applyLabWeight();
 
         document.getElementById('skeleton-loader').style.display = 'none';
         updateDashboard();
@@ -2655,7 +2692,7 @@ function processReport() {
 }
 
 // ===== UPDATE DASHBOARD =====
-function updateDashboard() {
+function updateDashboard(silent) {
     const mainCard = document.getElementById('mainContainer');
     const statusBadge = document.getElementById('statusBadge');
     const funnyMsg = document.getElementById('funnyMsg');
@@ -2690,13 +2727,19 @@ function updateDashboard() {
     animateCountUp('totalVal', g_total);
     animateCircle(p);
 
-    g_currentFilter = 'all';
-    g_currentSort = null;
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    document.querySelector('.filter-btn').classList.add('active'); 
+    if (!silent) {
+        g_currentFilter = 'all';
+        g_currentSort = null;
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector('.filter-btn').classList.add('active');
+    }
     renderSubjectCards();
 
     document.getElementById('dashboard').style.display = 'block';
+    if (silent) {
+        if (g_chart) renderChart(g_chart.config.type === 'bar' ? 'bar' : 'doughnut');
+        return;
+    }
     haptic(p >= 75 ? [50, 30, 80] : [100, 50, 100]);
 
     if (p >= 75) {
@@ -2766,6 +2809,60 @@ function sortSubjects(order, btn) {
     renderSubjectCards();
 }
 
+// ===== LAB WEIGHT (1 lab = N lecture classes) =====
+function applyLabWeight() {
+    g_present = 0; g_total = 0;
+    g_subjects.forEach(sub => {
+        const w = sub.type === 'lab' ? g_labWeight : 1;
+        sub.attended = sub.rawAttended * w;
+        sub.total = sub.rawTotal * w;
+        sub.percent = ((sub.attended / sub.total) * 100).toFixed(2);
+        g_present += sub.attended;
+        g_total += sub.total;
+    });
+    g_percent = g_total ? ((g_present / g_total) * 100).toFixed(2) : '0.00';
+}
+
+function setLabWeight(w) {
+    w = Math.max(1, Math.min(3, w));
+    if (w === g_labWeight) return;
+    haptic(30);
+    g_labWeight = w;
+    try { localStorage.setItem('lab_weight_v1', String(w)); } catch (e) {}
+    applyLabWeight();
+    updateDashboard(true);
+}
+
+function renderLabControls() {
+    const el = document.getElementById('labControls');
+    if (!el) return;
+    const labs = g_subjects.filter(s => s.type === 'lab');
+    const lecs = g_subjects.filter(s => s.type !== 'lab');
+    const labRaw = labs.reduce((a, s) => a + s.rawTotal, 0);
+    const lecTotal = lecs.reduce((a, s) => a + s.total, 0);
+    const labEff = labRaw * g_labWeight;
+    const all = lecTotal + labEff;
+    const labShare = all ? ((labEff / all) * 100).toFixed(1) : '0.0';
+    const lecShare = all ? (100 - labShare).toFixed(1) : '0.0';
+    el.innerHTML = `
+        <div class="lab-weight-box">
+            <div class="lab-weight-title"><b>1 Lab = ${g_labWeight} Class${g_labWeight > 1 ? 'es' : ''}</b></div>
+            <div class="lab-weight-row">
+                <button class="lab-w-btn" onclick="setLabWeight(${g_labWeight - 1})" ${g_labWeight <= 1 ? 'disabled' : ''}>−</button>
+                <span class="lab-w-val">${g_labWeight}</span>
+                <button class="lab-w-btn" onclick="setLabWeight(${g_labWeight + 1})" ${g_labWeight >= 3 ? 'disabled' : ''}>+</button>
+                <span class="lab-w-presets">
+                    ${[1, 2, 3].map(n => `<button class="lab-w-chip ${n === g_labWeight ? 'active' : ''}" onclick="setLabWeight(${n})">${n}</button>`).join('')}
+                </span>
+            </div>
+            <div class="lab-ratio">
+                <b>Lab : Lecture ratio</b> &nbsp;${labEff} : ${lecTotal}
+                <span class="lab-ratio-sub">(Lab ${labShare}% · Lecture ${lecShare}%)</span>
+            </div>
+            <div class="lab-ratio-bar"><div style="width:${labShare}%"></div></div>
+        </div>`;
+}
+
 function renderSubjects() {
     g_currentFilter = 'all';
     g_currentSort = null;
@@ -2773,10 +2870,16 @@ function renderSubjects() {
 }
 
 function renderSubjectCards() {
-    const container = document.getElementById('subjectCards');
+    renderLabControls();
+    renderCardList('subjectCards', g_subjects.filter(s => s.type !== 'lab'));
+    renderCardList('labCards', g_subjects.filter(s => s.type === 'lab'));
+}
+
+function renderCardList(containerId, list) {
+    const container = document.getElementById(containerId);
     container.innerHTML = '';
 
-    let subjects = [...g_subjects];
+    let subjects = [...list];
 
     if (g_currentFilter === 'danger') subjects = subjects.filter(s => parseFloat(s.percent) < 75);
     else if (g_currentFilter === 'safe') subjects = subjects.filter(s => parseFloat(s.percent) >= 75);
@@ -2817,7 +2920,7 @@ function renderSubjectCards() {
                 <div class="progress-fill" style="width:0%; background:${color};" data-target="${sub.percent}"></div>
             </div>
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:0.8rem; font-weight:700; color:var(--text-light);">${sub.attended}/${sub.total} classes</span>
+                <span style="font-size:0.8rem; font-weight:700; color:var(--text-light);">${sub.attended}/${sub.total} classes${sub.type === 'lab' && g_labWeight > 1 ? ` <small>(${sub.rawAttended}/${sub.rawTotal} labs × ${g_labWeight})</small>` : ''}</span>
                 ${msgHtml}
             </div>
         `;
