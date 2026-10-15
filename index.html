@@ -807,6 +807,19 @@
         .lab-ratio-bar { height: 10px; border-radius: 10px; background: #3b82f6; overflow: hidden; margin-top: 10px; }
         .lab-ratio-bar > div { height: 100%; background: #f59e0b; transition: width .4s; }
 
+
+        /* ===== SUBJECT CALCULATOR ===== */
+        .calc-box { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px; margin-bottom: 15px; }
+        .calc-label { display: block; font-size: .8rem; font-weight: 700; color: var(--text-light); margin-bottom: 6px; }
+        .calc-select { width: 100%; padding: 12px; border: 2px solid var(--card-border); border-radius: 12px; background: var(--card-bg); color: var(--text-main); font-weight: 700; font-size: .95rem; margin-bottom: 12px; }
+        .calc-unit-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+        .calc-unit-row small { color: var(--text-light); font-weight: 600; }
+        .calc-inputs { display: flex; gap: 12px; margin-bottom: 12px; }
+        .calc-inputs > div { flex: 1; }
+        .calc-inputs input { width: 100%; box-sizing: border-box; }
+        .calc-result { font-size: .95rem; font-weight: 600; color: var(--text-main); line-height: 1.6; }
+        .calc-big { font-size: 1.6rem; font-weight: 800; }
+
         /* ===== SUBJECT CARDS ===== */
         .sub-card {
             background: var(--card-bg); padding: 18px; border-radius: 16px; margin-bottom: 15px;
@@ -1218,6 +1231,32 @@
                     <div id="labList" class="collapsible-content">
                         <div id="labControls"></div>
                         <div id="labCards"></div>
+                    </div>
+
+                    <button class="toggle-btn" onclick="toggleSection('subCalc', this)">
+                        <div style="display:flex; align-items:center;">
+                            <i class="fas fa-calculator" style="margin-right:12px; font-size:1.2rem; color:#0ea5e9;"></i>
+                            <b>Subject Calculator (Attend + Bunk)</b>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </button>
+                    <div id="subCalc" class="collapsible-content">
+                        <div class="calc-box">
+                            <label class="calc-label">Subject</label>
+                            <select id="calcSubject" class="calc-select" onchange="calcSubjectChanged()"></select>
+                            <div id="calcUnitRow" class="calc-unit-row" style="display:none;">
+                                <button id="calcUnitLab" class="lab-w-chip active" onclick="setCalcUnit('lab')">Labs</button>
+                                <button id="calcUnitAtt" class="lab-w-chip" onclick="setCalcUnit('att')">Attendance</button>
+                                <small id="calcUnitHint"></small>
+                            </div>
+                            <div class="calc-inputs">
+                                <div><label class="calc-label" id="calcAttLabel">Attend</label><input type="number" id="calcAttend" min="0" value="0" oninput="runSubjectCalc()"></div>
+                                <div><label class="calc-label" id="calcBunkLabel">Bunk</label><input type="number" id="calcBunk" min="0" value="0" oninput="runSubjectCalc()"></div>
+                            </div>
+                            <div id="calcResult" class="calc-result"></div>
+                        </div>
                     </div>
 
                     <div class="divider"><span>⚙️ PREDICTION TOOLS</span></div>
@@ -2230,7 +2269,7 @@ let g_present = 0;
 let g_total = 0;
 let g_percent = 0;
 let g_labWeight = 2;
-try { const w = parseInt(localStorage.getItem('lab_weight_v1')); if (w >= 1 && w <= 3) g_labWeight = w; } catch (e) {}
+try { const w = parseInt(localStorage.getItem('lab_weight_v1')); if (w >= 1 && w <= 4) g_labWeight = w; } catch (e) {}
 let g_subjects = [];
 let g_chart = null;
 let g_currentFilter = 'all';
@@ -2809,6 +2848,71 @@ function sortSubjects(order, btn) {
     renderSubjectCards();
 }
 
+// ===== PER-SUBJECT CALCULATOR (attend + bunk together) =====
+let g_calcUnit = 'lab';
+
+function populateCalcSubjects() {
+    const sel = document.getElementById('calcSubject');
+    if (!sel) return;
+    const prev = sel.value;
+    sel.innerHTML = g_subjects.map((s, i) => `<option value="${i}">${s.type === 'lab' ? '🧪 ' : '📘 '}${s.name}</option>`).join('');
+    if (prev !== '' && g_subjects[prev]) sel.value = prev;
+    calcSubjectChanged(true);
+}
+
+function calcSubjectChanged(keep) {
+    const sub = g_subjects[document.getElementById('calcSubject').value];
+    if (!sub) return;
+    const isLab = sub.type === 'lab';
+    document.getElementById('calcUnitRow').style.display = isLab ? 'flex' : 'none';
+    document.getElementById('calcUnitHint').innerText = isLab ? `1 lab = ${g_labWeight} attendance` : '';
+    if (!keep) { document.getElementById('calcAttend').value = 0; document.getElementById('calcBunk').value = 0; }
+    setCalcUnit(g_calcUnit);
+}
+
+function setCalcUnit(u) {
+    g_calcUnit = u === 'lab' ? 'lab' : 'att';
+    const sub = g_subjects[document.getElementById('calcSubject').value];
+    const inLabs = sub && sub.type === 'lab' && g_calcUnit === 'lab';
+    document.getElementById('calcUnitLab').classList.toggle('active', inLabs);
+    document.getElementById('calcUnitAtt').classList.toggle('active', !inLabs);
+    const unit = inLabs ? 'labs' : (sub && sub.type === 'lab' ? 'attendance' : 'classes');
+    document.getElementById('calcAttLabel').innerText = `Attend (${unit})`;
+    document.getElementById('calcBunkLabel').innerText = `Bunk (${unit})`;
+    runSubjectCalc();
+}
+
+function runSubjectCalc() {
+    const out = document.getElementById('calcResult');
+    const sub = g_subjects[document.getElementById('calcSubject').value];
+    if (!sub) { out.innerHTML = ''; return; }
+    const isLab = sub.type === 'lab';
+    const mult = (isLab && g_calcUnit === 'lab') ? g_labWeight : 1;
+    const a = Math.max(0, parseInt(document.getElementById('calcAttend').value) || 0) * mult;
+    const b = Math.max(0, parseInt(document.getElementById('calcBunk').value) || 0) * mult;
+    const att = sub.attended + a;
+    const tot = sub.total + a + b;
+    const now = (sub.attended / sub.total) * 100;
+    const pct = (att / tot) * 100;
+    const diff = pct - now;
+    const ok = pct >= 75;
+    const color = ok ? '#10b981' : '#ef4444';
+    const fmt = n => isLab ? `${n} attendance (${labsFor(n)} lab${labsFor(n) === 1 ? '' : 's'})` : `${n} classes`;
+    let tip;
+    if (ok) {
+        const canBunk = Math.max(0, Math.floor(att / 0.75 - tot));
+        tip = canBunk > 0 ? `✅ Iske baad bhi <b>${isLab ? fmt(canBunk).replace('attendance (', 'attendance → ').replace(')', '') : canBunk + ' classes'}</b> aur bunk kar sakte ho.` : `⚠️ 75% ke bilkul upar ho, ab bunk mat karna.`;
+    } else {
+        const need = Math.ceil((0.75 * tot - att) / 0.25);
+        tip = `❌ 75% ke liye <b>${isLab ? fmt(need).replace('attendance (', 'attendance → ').replace(')', '') : need + ' classes'}</b> aur attend karni padengi.`;
+    }
+    out.innerHTML = `
+        <div>Abhi: <b>${sub.attended}/${sub.total}</b> = ${now.toFixed(2)}%</div>
+        <div>Baad mein: <b>${att}/${tot}</b></div>
+        <div class="calc-big" style="color:${color}">${pct.toFixed(2)}% <small style="font-size:.9rem">(${diff >= 0 ? '+' : ''}${diff.toFixed(2)}%)</small></div>
+        <div style="margin-top:6px">${tip}</div>`;
+}
+
 // ===== LAB WEIGHT (1 lab = N lecture classes) =====
 function applyLabWeight() {
     g_present = 0; g_total = 0;
@@ -2828,7 +2932,7 @@ function labsFor(n) { return Math.ceil(n / g_labWeight); }
 function labsWithin(n) { return Math.floor(n / g_labWeight); }
 
 function setLabWeight(w) {
-    w = Math.max(1, Math.min(3, w));
+    w = Math.max(1, Math.min(4, w));
     if (w === g_labWeight) return;
     haptic(30);
     g_labWeight = w;
@@ -2853,9 +2957,9 @@ function renderLabControls() {
             <div class="lab-weight-row">
                 <button class="lab-w-btn" onclick="setLabWeight(${g_labWeight - 1})" ${g_labWeight <= 1 ? 'disabled' : ''}>−</button>
                 <span class="lab-w-val">${g_labWeight}</span>
-                <button class="lab-w-btn" onclick="setLabWeight(${g_labWeight + 1})" ${g_labWeight >= 3 ? 'disabled' : ''}>+</button>
+                <button class="lab-w-btn" onclick="setLabWeight(${g_labWeight + 1})" ${g_labWeight >= 4 ? 'disabled' : ''}>+</button>
                 <span class="lab-w-presets">
-                    ${[1, 2, 3].map(n => `<button class="lab-w-chip ${n === g_labWeight ? 'active' : ''}" onclick="setLabWeight(${n})">${n}</button>`).join('')}
+                    ${[1, 2, 3, 4].map(n => `<button class="lab-w-chip ${n === g_labWeight ? 'active' : ''}" onclick="setLabWeight(${n})">${n}</button>`).join('')}
                 </span>
             </div>
             <div class="lab-ratio">
@@ -2874,6 +2978,7 @@ function renderSubjects() {
 
 function renderSubjectCards() {
     renderLabControls();
+    populateCalcSubjects();
     renderCardList('subjectCards', g_subjects.filter(s => s.type !== 'lab'));
     renderCardList('labCards', g_subjects.filter(s => s.type === 'lab'));
 }
