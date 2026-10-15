@@ -1,4 +1,4 @@
-const CACHE_NAME = 'academic-pro-v11'; // bumped so installed PWAs pick up Lab Breakdown
+const CACHE_NAME = 'academic-pro-v13'; // bumped so installed PWAs pick up Lab Breakdown
 const ASSETS = [
   '/',
   '/index.html',
