@@ -1,4 +1,4 @@
-const CACHE_NAME = 'academic-pro-v9'; // Version badal diya hai force update ke liye
+const CACHE_NAME = 'academic-pro-v10'; // bumped so installed PWAs pick up Lab Breakdown
 const ASSETS = [
   '/',
   '/index.html',
