@@ -717,6 +717,24 @@
         }
         [data-theme="dark"] .erp-btn { background-color: rgba(60, 90, 150, 0.3); color: #a9c4ff; border-color: rgba(124, 158, 255, 0.35); box-shadow: none; }
 
+        /* ===== EVENT / FEST HOURS BOX ===== */
+        .event-hours-box {
+            background: rgba(217, 119, 6, 0.08); border: 2px solid #d97706; border-radius: 16px;
+            padding: 16px; margin: 14px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+        .event-hours-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 1rem; color: #d97706; margin-bottom: 8px; }
+        .event-hours-tag { font-size: 0.7rem; font-weight: 800; background: #d97706; color: #fff; padding: 3px 9px; border-radius: 50px; }
+        .event-hours-sub { font-size: 0.82rem; color: var(--text-light); font-weight: 600; line-height: 1.5; margin: 0 0 10px; }
+        .event-hours-img { width: 100%; border-radius: 10px; border: 1px solid var(--card-border); display: block; margin-bottom: 12px; }
+        .event-hours-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .event-hours-field label { display: block; font-size: 0.72rem; font-weight: 700; color: var(--text-light); margin-bottom: 5px; text-transform: uppercase; }
+        .event-hours-field input {
+            width: 100%; padding: 10px 0; border: 2px solid var(--card-border); border-radius: 10px; text-align: center;
+            font-weight: 800; font-size: 1rem; background: var(--card-bg); color: var(--text-main); box-sizing: border-box;
+        }
+        .event-hours-field input:focus { border-color: #d97706; outline: none; box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.15); }
+        .event-hours-hint { font-size: 0.72rem; color: var(--text-light); font-weight: 600; margin: 10px 0 0; }
+
         /* ===== SKELETON LOADING ===== */
         #skeleton-loader { display: none; }
         .skeleton-card { background: var(--card-bg); border-radius: 16px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--card-border); border-left: 6px solid var(--skeleton-base); }
@@ -1054,10 +1072,34 @@
                 <button class="info-btn" onclick="toggleInfo('infoPaste')"><i class="fas fa-info-circle"></i></button>
             </p>
             <div id="infoPaste" class="info-text">
-                <b>Guide:</b> ERP Login करें > Reports > Student Aggregate Attendance पर जाएं। <b>सबसे ऊपर "Name : ... Aggregate : ... OD : ..." वाली line से लेकर नीचे टेबल के आखिर तक सब कुछ mouse से select करें</b> (सिर्फ ERP का "Copy" button मत दबाना — वो सिर्फ टेबल copy करता है, ऊपर की Aggregate line और Event table छूट जाती है)। फिर Ctrl+C करके यहाँ पेस्ट करें — इससे % बिल्कुल ERP जैसा सही आएगा।
+                <b>Guide:</b> ERP Login करें > Reports > Student Aggregate Attendance पर जाएं। पूरी टेबल (Subject से % तक) "Copy" button से कॉपी करें और यहाँ पेस्ट करें। अगर ERP पर ऊपर कोई <b>"Event" table</b> (जैसे किसी fest की) भी दिखे, तो नीचे दिए गए Event Hours box में उसके numbers ज़रूर भर दें — वरना % ERP के असली Aggregate से मैच नहीं करेगा।
             </div>
 
-            <textarea id="inputData" placeholder="Select everything from 'Name : ... Aggregate : ...' down to the end of the table on the ERP page, then paste here (don't use ERP's Copy button alone)."></textarea>
+            <div class="event-hours-box" id="eventHoursBox">
+                <div class="event-hours-head">
+                    <i class="fas fa-calendar-star"></i> <b>Event / Fest Hours</b>
+                    <span class="event-hours-tag">⚠️ ज़रूर check करें</span>
+                </div>
+                <p class="event-hours-sub">ERP के Attendance Report page पर टेबल से <b>ऊपर</b> अगर नीचे जैसा "Event" table दिखे (जैसे किसी fest/sports day का), तो उसके numbers यहाँ भरें — कोई event नहीं था तो सब 0 ही रहने दें।</p>
+                <img src="event-hours-guide.png" alt="ERP Event table — yahan se Present/Absent/Total hours copy karo" class="event-hours-img">
+                <div class="event-hours-row">
+                    <div class="event-hours-field">
+                        <label>Present hrs</label>
+                        <input type="number" id="evtPresent" min="0" step="0.01" placeholder="0" oninput="syncEventHours('present')">
+                    </div>
+                    <div class="event-hours-field">
+                        <label>Absent hrs</label>
+                        <input type="number" id="evtAbsent" min="0" step="0.01" placeholder="0" oninput="syncEventHours('absent')">
+                    </div>
+                    <div class="event-hours-field">
+                        <label>Total hrs</label>
+                        <input type="number" id="evtTotal" min="0" step="0.01" placeholder="0" oninput="syncEventHours('total')">
+                    </div>
+                </div>
+                <p class="event-hours-hint"><i class="fas fa-save"></i> ये values अपने आप save हो जाती हैं — अगली बार report paste करने पर तुम्हें दोबारा भरने की ज़रूरत नहीं, जब तक तुम खुद ना बदलो।</p>
+            </div>
+
+            <textarea id="inputData" placeholder="Copy full table from your ERP and paste here..."></textarea>
             <button class="btn-main" onclick="processReport()">Calculate Attendance 🚀</button>
 
             <!-- CLEAR BUTTON -->
@@ -2584,8 +2626,51 @@ function showToast(message, type = 'success', duration = 3000) {
     }, { passive: true });
 })();
 
+// ===== EVENT / FEST HOURS (manual, persisted) =====
+const EVENT_HOURS_KEY = 'event_hours_v1';
+
+function getEventHours() {
+    const present = parseFloat(document.getElementById('evtPresent').value) || 0;
+    const absent = parseFloat(document.getElementById('evtAbsent').value) || 0;
+    const total = parseFloat(document.getElementById('evtTotal').value) || 0;
+    return { present, absent, total: total || (present + absent) };
+}
+
+function saveEventHours() {
+    localStorage.setItem(EVENT_HOURS_KEY, JSON.stringify(getEventHours()));
+}
+
+function loadEventHours() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(EVENT_HOURS_KEY) || 'null');
+        if (saved) {
+            document.getElementById('evtPresent').value = saved.present || 0;
+            document.getElementById('evtAbsent').value = saved.absent || 0;
+            document.getElementById('evtTotal').value = saved.total || 0;
+        }
+    } catch (e) {}
+}
+
+// Present + Absent = Total, always — so filling any 2 of the 3 fields
+// auto-fills the 3rd instead of making the student do the math.
+function syncEventHours(changed) {
+    const p = document.getElementById('evtPresent');
+    const a = document.getElementById('evtAbsent');
+    const t = document.getElementById('evtTotal');
+    const pv = parseFloat(p.value), av = parseFloat(a.value), tv = parseFloat(t.value);
+
+    if (changed === 'present' || changed === 'absent') {
+        if (!isNaN(pv) && !isNaN(av)) t.value = +(pv + av).toFixed(2);
+    } else if (changed === 'total') {
+        if (!isNaN(tv) && !isNaN(av) && isNaN(pv)) p.value = +(tv - av).toFixed(2);
+        else if (!isNaN(tv) && !isNaN(pv)) a.value = +(tv - pv).toFixed(2);
+    }
+    saveEventHours();
+}
+
 // ===== ON LOAD =====
 window.addEventListener('load', () => {
+    loadEventHours();
     const saved = localStorage.getItem('academic_data_v8') || localStorage.getItem('academic_data_v7');
     if (saved) {
         document.getElementById('inputData').value = saved;
@@ -2693,21 +2778,13 @@ function processReport() {
             return;
         }
 
-        // Event rows (fests, sports days, etc.), e.g.:
-        // "Techpravah 2026   2026-10-12 - 2026-10-15   9.00   15.00   24.00"
-        // ERP note: "Event hours are included in aggregate attendance but
-        // are not assigned to individual lectures, labs, or days." These
-        // hours never appear in the subject table above, so they must be
-        // added here or the overall % won't match ERP's own Aggregate.
-        g_eventPresent = 0; g_eventTotal = 0;
-        const eventRegex = /^(.+?)\s+\d{4}-\d{2}-\d{2}\s*-\s*\d{4}-\d{2}-\d{2}\s+([0-9.]+)\s+([0-9.]+)\s+([0-9.]+)$/;
-        lines.forEach(line => {
-            const m = line.trim().match(eventRegex);
-            if (m) {
-                g_eventPresent += parseFloat(m[2]);
-                g_eventTotal += parseFloat(m[4]);
-            }
-        });
+        // Event/Fest hours (e.g. Techpravah) count toward ERP's Aggregate
+        // but are never listed in the subject table above, and ERP's own
+        // "Copy" button doesn't include them either — so they're taken
+        // from the manually-entered, auto-saved Event Hours box instead.
+        const evt = getEventHours();
+        g_eventPresent = evt.present;
+        g_eventTotal = evt.total;
 
         // Trust ERP's own stated "Aggregate : NN.NN" when present — it's
         // the ground truth and covers any other hidden adjustment beyond
