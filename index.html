@@ -2238,6 +2238,9 @@ let g_percent = 0;
 let g_labWeight = 2;
 try { const w = parseInt(localStorage.getItem('lab_weight_v1')); if (w >= 1 && w <= 4) g_labWeight = w; } catch (e) {}
 let g_subjects = [];
+let g_eventPresent = 0;
+let g_eventTotal = 0;
+let g_aggregateOverride = null;
 let g_chart = null;
 let g_currentFilter = 'all';
 let g_currentSort = null;
@@ -2631,7 +2634,8 @@ function resetApp() {
     });
     document.querySelectorAll('.info-text').forEach(i => i.style.display = 'none');
     g_subjects = [];
-    
+    g_eventPresent = 0; g_eventTotal = 0; g_aggregateOverride = null;
+
     _chartOpened.done = false;
     if (g_chart) { g_chart.destroy(); g_chart = null; }
     
@@ -2688,6 +2692,28 @@ function processReport() {
             haptic([100, 50, 100, 50, 100]);
             return;
         }
+
+        // Event rows (fests, sports days, etc.), e.g.:
+        // "Techpravah 2026   2026-10-12 - 2026-10-15   9.00   15.00   24.00"
+        // ERP note: "Event hours are included in aggregate attendance but
+        // are not assigned to individual lectures, labs, or days." These
+        // hours never appear in the subject table above, so they must be
+        // added here or the overall % won't match ERP's own Aggregate.
+        g_eventPresent = 0; g_eventTotal = 0;
+        const eventRegex = /^(.+?)\s+\d{4}-\d{2}-\d{2}\s*-\s*\d{4}-\d{2}-\d{2}\s+([0-9.]+)\s+([0-9.]+)\s+([0-9.]+)$/;
+        lines.forEach(line => {
+            const m = line.trim().match(eventRegex);
+            if (m) {
+                g_eventPresent += parseFloat(m[2]);
+                g_eventTotal += parseFloat(m[4]);
+            }
+        });
+
+        // Trust ERP's own stated "Aggregate : NN.NN" when present — it's
+        // the ground truth and covers any other hidden adjustment beyond
+        // just event hours.
+        const aggMatch = text.match(/Aggregate\s*:?\s*([0-9.]+)/i);
+        g_aggregateOverride = aggMatch ? parseFloat(aggMatch[1]) : null;
 
         localStorage.setItem('academic_data_v8', text);
         applyLabWeight();
@@ -2826,7 +2852,13 @@ function applyLabWeight() {
         g_present += sub.attended;
         g_total += sub.total;
     });
-    g_percent = g_total ? ((g_present / g_total) * 100).toFixed(2) : '0.00';
+    // Event hours (fests, etc.) count toward ERP's Aggregate but aren't
+    // attributed to any subject, so fold them in here only.
+    g_present += g_eventPresent || 0;
+    g_total += g_eventTotal || 0;
+    g_percent = (g_aggregateOverride != null)
+        ? g_aggregateOverride.toFixed(2)
+        : (g_total ? ((g_present / g_total) * 100).toFixed(2) : '0.00');
 }
 
 // Attendance needed -> how many labs that is (1 lab = g_labWeight attendance)
