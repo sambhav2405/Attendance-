@@ -1054,10 +1054,10 @@
                 <button class="info-btn" onclick="toggleInfo('infoPaste')"><i class="fas fa-info-circle"></i></button>
             </p>
             <div id="infoPaste" class="info-text">
-                <b>Guide:</b> ERP Login करें > Reports > Student Aggregate Attendance पर जाएं। पूरी टेबल (Subject से % तक) कॉपी करें और यहाँ पेस्ट करें।
+                <b>Guide:</b> ERP Login करें > Reports > Student Aggregate Attendance पर जाएं। <b>सबसे ऊपर "Name : ... Aggregate : ... OD : ..." वाली line से लेकर नीचे टेबल के आखिर तक सब कुछ mouse से select करें</b> (सिर्फ ERP का "Copy" button मत दबाना — वो सिर्फ टेबल copy करता है, ऊपर की Aggregate line और Event table छूट जाती है)। फिर Ctrl+C करके यहाँ पेस्ट करें — इससे % बिल्कुल ERP जैसा सही आएगा।
             </div>
 
-            <textarea id="inputData" placeholder="Copy full table from your ERP and paste here..."></textarea>
+            <textarea id="inputData" placeholder="Select everything from 'Name : ... Aggregate : ...' down to the end of the table on the ERP page, then paste here (don't use ERP's Copy button alone)."></textarea>
             <button class="btn-main" onclick="processReport()">Calculate Attendance 🚀</button>
 
             <!-- CLEAR BUTTON -->
