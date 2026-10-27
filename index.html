@@ -1467,14 +1467,14 @@
         <p style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 20px; font-weight:600;">Support the Developer ☕</p>
 
         <div class="qr-container">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=jainsambhav877@oksbi&pn=Sambhav&cu=INR"
+            <img id="supportQrImg" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=jainsambhav877@oksbi&pn=Sambhav&cu=INR"
                  alt="Scan to Pay" width="150" height="150" style="border-radius: 8px;">
         </div>
         <p style="font-size:0.8rem; color:var(--text-light); margin-top:10px;">Scan QR with any UPI App</p>
 
         <div style="margin-top:20px; background:var(--card-bg); border:2px dashed var(--card-border); padding:15px; border-radius:12px; display:flex; flex-direction:column; gap:10px; align-items:center;">
             <p style="margin:0; font-size:0.85rem; font-weight:700; color:var(--text-main);">Or Pay via UPI ID</p>
-            <div style="background:var(--input-bg); padding:10px 15px; border-radius:8px; font-family:monospace; font-size:0.95rem; font-weight:bold; color:var(--theme-color); letter-spacing:0.5px; width:100%; max-width:250px;">
+            <div id="supportUpiIdDisplay" style="background:var(--input-bg); padding:10px 15px; border-radius:8px; font-family:monospace; font-size:0.95rem; font-weight:bold; color:var(--theme-color); letter-spacing:0.5px; width:100%; max-width:250px;">
                 jainsambhav877@oksbi
             </div>
             <button onclick="copyUPI()" style="background:linear-gradient(135deg, #10b981, #059669); color:white; border:none; padding:10px 25px; border-radius:50px; font-weight:700; cursor:pointer; font-size:0.9rem; box-shadow:0 4px 12px rgba(16,185,129,0.3); transition:transform 0.2s; display:flex; align-items:center; gap:8px;">
@@ -1583,24 +1583,38 @@ let amazonCategories = [
 ];
 
 let globalConfig = null;
-let g_backendPromoCards = null; // from /.netlify/functions/promo-config, set via the admin.html panel
+let g_backendPromoCards = null; // from /.netlify/functions/site-config, set via the admin.html panel
+let g_backendDeals = null;
+let g_backendSupport = null;
 
-async function fetchBackendPromoCards() {
+async function fetchBackendConfig() {
     try {
-        const res = await fetch('/.netlify/functions/promo-config');
+        const res = await fetch('/.netlify/functions/site-config');
         const data = await res.json();
-        if (data.ok && Array.isArray(data.cards) && data.cards.length) {
-            g_backendPromoCards = data.cards;
+        if (!data.ok || !data.config) return; // nothing saved yet — fall back to Gist/defaults
+
+        const cfg = data.config;
+        if (Array.isArray(cfg.promoCards) && cfg.promoCards.length) {
+            g_backendPromoCards = cfg.promoCards;
             // If the popup is already open (user was fast), refresh its cards live.
             if (document.getElementById('offerPopup') && document.getElementById('offerPopup').style.display === 'flex') {
                 renderPromoPopup();
             }
         }
+        if (Array.isArray(cfg.amazonDeals) && cfg.amazonDeals.length) {
+            g_backendDeals = cfg.amazonDeals;
+            amazonCategories = cfg.amazonDeals;
+            renderVisualDeals();
+        }
+        if (cfg.support && typeof cfg.support === 'object') {
+            g_backendSupport = cfg.support;
+            applySupportConfig(cfg.support);
+        }
     } catch (e) {
         // Admin panel not configured yet, or offline — falls back to Gist/defaults.
     }
 }
-fetchBackendPromoCards();
+fetchBackendConfig();
 
 async function fetchRemoteConfig() {
     try {
@@ -1618,9 +1632,9 @@ async function fetchRemoteConfig() {
             // 2. Load Config JSON (For deals, promo cards, and texts)
             if(gistData.files["config.json"]) {
                 globalConfig = JSON.parse(gistData.files["config.json"].content);
-                if(globalConfig.deals) amazonCategories = globalConfig.deals;
-                // If the popup is already open (user was fast), refresh its cards live.
-                if(document.getElementById('offerPopup') && document.getElementById('offerPopup').style.display === 'flex') {
+                // Backend admin panel takes priority over the Gist for both.
+                if(globalConfig.deals && !g_backendDeals) { amazonCategories = globalConfig.deals; renderVisualDeals(); }
+                if(!g_backendPromoCards && document.getElementById('offerPopup') && document.getElementById('offerPopup').style.display === 'flex') {
                     renderPromoPopup();
                 }
             }
@@ -1813,12 +1827,33 @@ function searchAmazon() {
     window.open(url, '_blank');
 }
 
+let g_upiId = "jainsambhav877@oksbi";
+let g_upiPayeeName = "Sambhav";
+
 function copyUPI() {
-    navigator.clipboard.writeText("jainsambhav877@oksbi").then(() => {
+    navigator.clipboard.writeText(g_upiId).then(() => {
         showToast("✅ UPI ID Copied! Paste in GPay/PhonePe", "success");
     }).catch(err => {
         showToast("❌ Failed to copy", "error");
     });
+}
+
+// Applies an admin-configured { enabled, upiId, payeeName } to the support
+// section — hides the whole section when disabled, otherwise updates the
+// QR code, the displayed UPI ID, and what copyUPI() actually copies.
+function applySupportConfig(support) {
+    const section = document.getElementById('supportSection');
+    if (!section) return;
+    if (support.enabled === false) {
+        section.style.display = 'none';
+        return;
+    }
+    section.style.display = '';
+    g_upiId = support.upiId || g_upiId;
+    g_upiPayeeName = support.payeeName || g_upiPayeeName;
+    document.getElementById('supportUpiIdDisplay').textContent = g_upiId;
+    document.getElementById('supportQrImg').src =
+        `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=${encodeURIComponent(g_upiId)}&pn=${encodeURIComponent(g_upiPayeeName)}&cu=INR`;
 }
 
 document.addEventListener('DOMContentLoaded', () => {

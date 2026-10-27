@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin — Promo Cards</title>
+<title>Admin — Site Config</title>
 <meta name="robots" content="noindex, nofollow">
 <style>
     :root {
@@ -30,7 +30,7 @@
     #loginError { color: var(--danger); font-size: 0.85rem; margin-top: 10px; min-height: 18px; }
     #loginHint { font-size: 0.78rem; color: var(--text-light); margin-top: 16px; }
 
-    /* Card editor */
+    /* Shared field styles */
     #app { display: none; }
     .card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
     .card-head b { font-size: 0.95rem; }
@@ -48,12 +48,14 @@
     .btn-danger { background: #fee2e2; color: var(--danger); }
     .btn-accent { background: var(--accent); color: #fff; }
     .btn-ghost { background: var(--bg); color: var(--text); border: 1.5px solid var(--border); }
-    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; position: sticky; top: 0; background: var(--bg); padding: 10px 0; z-index: 5; }
     .status { font-size: 0.85rem; font-weight: 700; min-height: 20px; }
     .status.ok { color: var(--ok); }
     .status.err { color: var(--danger); }
     .thumb { width: 100%; max-height: 110px; object-fit: cover; border-radius: 8px; margin-top: 8px; border: 1px solid var(--border); display: none; }
     .help { font-size: 0.72rem; color: var(--text-light); margin-top: 4px; }
+    .section-title { font-size: 1.05rem; font-weight: 800; margin: 28px 0 4px; display: flex; align-items: center; gap: 8px; }
+    .section-sub { font-size: 0.8rem; color: var(--text-light); margin: 0 0 14px; }
 </style>
 </head>
 <body>
@@ -61,7 +63,7 @@
 
     <div id="loginBox">
         <h1>🔒 Admin Login</h1>
-        <p class="sub">Manage the promo popup's cards</p>
+        <p class="sub">Manage promo cards, Amazon deals & support section</p>
         <input type="password" id="pwInput" placeholder="Admin password" autocomplete="current-password">
         <button onclick="login()">Unlock</button>
         <div id="loginError"></div>
@@ -71,31 +73,96 @@
     <div id="app">
         <div class="topbar">
             <div>
-                <h1>🎛️ Promo Cards</h1>
+                <h1>🎛️ Site Config</h1>
                 <p class="sub" style="margin:0;">Changes go live immediately for everyone after you save.</p>
             </div>
-            <div style="display:flex; gap:8px;">
-                <button class="btn btn-ghost" onclick="addCard()">+ Add Card</button>
-                <button class="btn btn-accent" onclick="saveAll()">💾 Save All</button>
-            </div>
+            <button class="btn btn-accent" onclick="saveAll()">💾 Save All</button>
         </div>
         <div class="status" id="status"></div>
+
+        <div class="section-title">🎯 Promo Popup Cards</div>
+        <p class="section-sub">Swipeable cards shown ~2s after page load. These are the ones currently live — edit or remove any, or add a new one.</p>
         <div id="cardsList"></div>
+        <button class="btn btn-ghost" onclick="addCard()">+ Add Promo Card</button>
+
+        <div class="section-title">🛍️ Amazon Deals</div>
+        <p class="section-sub">The "Trending Top Picks" category carousel.</p>
+        <div id="dealsList"></div>
+        <button class="btn btn-ghost" onclick="addDeal()">+ Add Deal Category</button>
+
+        <div class="section-title">💳 Support / UPI Section</div>
+        <p class="section-sub">The QR + UPI ID box. Turn it off entirely if you don't want it shown.</p>
+        <div class="box" id="supportBox"></div>
     </div>
 
 </div>
 
 <script>
 let ADMIN_PASSWORD = '';
-const API = '/.netlify/functions/promo-config';
+const API = '/.netlify/functions/site-config';
 
+function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// ===== Defaults (mirrors what's hardcoded in index.html right now, so the
+// admin sees exactly what's live before anything has been saved here) =====
+function getDefaultPromoCards() {
+    return [
+        {
+            id: 'mcq-ras-upsc', enabled: true, percentage: 100, startDate: '', endDate: '',
+            image: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iMjgwIiB2aWV3Qm94PSIwIDAgNTAwIDI4MCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjNGY0NmU1Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzNiODJmNiIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjUwMCIgaGVpZ2h0PSIyODAiIGZpbGw9InVybCgjZykiLz4KICA8dGV4dCB4PSIyNTAiIHk9IjEzMCIgZm9udC1zaXplPSI3MiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+TnTwvdGV4dD4KICA8dGV4dCB4PSIyNTAiIHk9IjE5NSIgZm9udC1zaXplPSIzMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iODAwIiBmaWxsPSIjZmZmZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5EYWlseSBNQ1FzPC90ZXh0PgogIDx0ZXh0IHg9IjI1MCIgeT0iMjI4IiBmb250LXNpemU9IjE4IiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI2MDAiIGZpbGw9IiNlNWU3ZWIiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlJBUyAmYW1wOyBVUFNDPC90ZXh0Pgo8L3N2Zz4=', icon: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgdmlld0JveD0iMCAwIDgwIDgwIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ2kiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjNGY0NmU1Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzNiODJmNiIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiByeD0iMTgiIGZpbGw9InVybCgjZ2kpIi8+CiAgPHRleHQgeD0iNDAiIHk9IjQ0IiBmb250LXNpemU9IjM4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn46TPC90ZXh0Pgo8L3N2Zz4=',
+            title: '📝 Daily MCQs — RAS & UPSC',
+            text: 'Practice daily MCQs curated for RAS and UPSC aspirants.',
+            buttonText: 'Practice Now', link: 'https://play.google.com/store/apps/details?id=app.themcq.ias'
+        },
+        {
+            id: 'vyas-mindmap', enabled: true, percentage: 100, startDate: '', endDate: '',
+            image: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iMjgwIiB2aWV3Qm94PSIwIDAgNTAwIDI4MCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjN2MzYWVkIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2RiMjc3NyIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjUwMCIgaGVpZ2h0PSIyODAiIGZpbGw9InVybCgjZykiLz4KICA8dGV4dCB4PSIyNTAiIHk9IjEzMCIgZm9udC1zaXplPSI3MiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+noDwvdGV4dD4KICA8dGV4dCB4PSIyNTAiIHk9IjE5NSIgZm9udC1zaXplPSIzMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iODAwIiBmaWxsPSIjZmZmZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5NaW5kIE1hcHM8L3RleHQ+CiAgPHRleHQgeD0iMjUwIiB5PSIyMjgiIGZvbnQtc2l6ZT0iMTgiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjYwMCIgZmlsbD0iI2U1ZTdlYiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UkFTICZhbXA7IFVQU0M8L3RleHQ+Cjwvc3ZnPg==', icon: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgdmlld0JveD0iMCAwIDgwIDgwIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ2kiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjNGY0NmU1Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzNiODJmNiIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiByeD0iMTgiIGZpbGw9InVybCgjZ2kpIi8+CiAgPHRleHQgeD0iNDAiIHk9IjQ0IiBmb250LXNpemU9IjM4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn46TPC90ZXh0Pgo8L3N2Zz4=',
+            title: '🧠 Vyas Mind Maps — RAS & UPSC',
+            text: 'Topic-wise mind maps to revise faster for RAS and UPSC.',
+            buttonText: 'View Mind Maps', link: 'https://play.google.com/store/apps/details?id=app.themcq.ias'
+        },
+        {
+            id: 'topper-copies', enabled: true, percentage: 100, startDate: '', endDate: '',
+            image: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iMjgwIiB2aWV3Qm94PSIwIDAgNTAwIDI4MCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMDU5NjY5Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBlYTVlOSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjUwMCIgaGVpZ2h0PSIyODAiIGZpbGw9InVybCgjZykiLz4KICA8dGV4dCB4PSIyNTAiIHk9IjEzMCIgZm9udC1zaXplPSI3MiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+ThDwvdGV4dD4KICA8dGV4dCB4PSIyNTAiIHk9IjE5NSIgZm9udC1zaXplPSIzMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iODAwIiBmaWxsPSIjZmZmZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Ub3BwZXIgQ29waWVzPC90ZXh0PgogIDx0ZXh0IHg9IjI1MCIgeT0iMjI4IiBmb250LXNpemU9IjE4IiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI2MDAiIGZpbGw9IiNlNWU3ZWIiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlJBUyAmYW1wOyBVUFNDPC90ZXh0Pgo8L3N2Zz4=', icon: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgdmlld0JveD0iMCAwIDgwIDgwIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ2kiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjNGY0NmU1Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzNiODJmNiIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiByeD0iMTgiIGZpbGw9InVybCgjZ2kpIi8+CiAgPHRleHQgeD0iNDAiIHk9IjQ0IiBmb250LXNpemU9IjM4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn46TPC90ZXh0Pgo8L3N2Zz4=',
+            title: '📄 Topper Copies — RAS & UPSC',
+            text: 'See exactly how toppers structured their answers.',
+            buttonText: 'See Copies', link: 'https://play.google.com/store/apps/details?id=app.themcq.ias'
+        },
+        {
+            id: 'playstore-app', enabled: true, percentage: 100, startDate: '', endDate: '',
+            image: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iMjgwIiB2aWV3Qm94PSIwIDAgNTAwIDI4MCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjZDk3NzA2Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2VhNTgwYyIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjUwMCIgaGVpZ2h0PSIyODAiIGZpbGw9InVybCgjZykiLz4KICA8dGV4dCB4PSIyNTAiIHk9IjEzMCIgZm9udC1zaXplPSI3MiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+TsTwvdGV4dD4KICA8dGV4dCB4PSIyNTAiIHk9IjE5NSIgZm9udC1zaXplPSIzMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iODAwIiBmaWxsPSIjZmZmZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5HZXQgdGhlIEFwcDwvdGV4dD4KICA8dGV4dCB4PSIyNTAiIHk9IjIyOCIgZm9udC1zaXplPSIxOCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iNjAwIiBmaWxsPSIjZTVlN2ViIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5JbnN0YWxsIE5vdzwvdGV4dD4KPC9zdmc+', icon: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgdmlld0JveD0iMCAwIDgwIDgwIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ2kiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjNGY0NmU1Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzNiODJmNiIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiByeD0iMTgiIGZpbGw9InVybCgjZ2kpIi8+CiAgPHRleHQgeD0iNDAiIHk9IjQ0IiBmb250LXNpemU9IjM4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn46TPC90ZXh0Pgo8L3N2Zz4=',
+            title: '📱 Get the App',
+            text: 'Install our app from the Play Store for a faster experience.',
+            buttonText: 'Install App', link: 'https://play.google.com/store/apps/details?id=app.themcq.ias'
+        }
+    ];
+}
+
+function getDefaultDeals() {
+    return [
+        { id: 'dress_under_600', title: '👗 Dresses < ₹600', img: 'https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=400&q=80', keyword: 'beautiful dresses for women under 600' },
+        { id: 'dress_premium', title: '✨ Premium Dresses', img: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=400&q=80', keyword: 'premium party wear dresses for women' },
+        { id: 'laptop', title: '💻 College Laptops', img: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&q=80', keyword: 'laptops for college students' },
+        { id: 'gadget', title: '🎧 Tech Gadgets', img: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80', keyword: 'tech gadgets for students' },
+        { id: 'gift', title: '🎁 Unique Gifts', img: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=400&q=80', keyword: 'unique gifts for friends' },
+        { id: 'book', title: '📚 Engg. Books', img: 'https://images.unsplash.com/photo-1456406644174-8ddd4cd52a06?w=400&q=80', keyword: 'engineering books' }
+    ];
+}
+
+function getDefaultSupport() {
+    return { enabled: true, upiId: 'jainsambhav877@oksbi', payeeName: 'Sambhav' };
+}
+
+// ===== Login =====
 async function login() {
     const pw = document.getElementById('pwInput').value;
     if (!pw) return;
     const errEl = document.getElementById('loginError');
     errEl.textContent = 'Checking…';
     try {
-        // No `cards` field in the body = verify-only, doesn't save anything.
+        // No `config` field in the body = verify-only, doesn't save anything.
         const res = await fetch(API, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -108,25 +175,38 @@ async function login() {
         }
         ADMIN_PASSWORD = pw;
         errEl.textContent = '';
-        loadCards();
+        loadConfig();
     } catch (e) {
         errEl.textContent = 'Could not reach the server. Try again.';
     }
 }
 
-async function loadCards() {
+document.getElementById('pwInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') login();
+});
+
+// ===== Load =====
+let g_cards = [];
+let g_deals = [];
+let g_support = {};
+
+async function loadConfig() {
     try {
         const res = await fetch(API);
         const data = await res.json();
-        const cards = (data.ok && Array.isArray(data.cards)) ? data.cards : [];
+        const cfg = (data.ok && data.config) ? data.config : {};
         document.getElementById('loginBox').style.display = 'none';
         document.getElementById('app').style.display = 'block';
-        renderCards(cards.length ? cards : [blankCard()]);
+
+        renderCards((cfg.promoCards && cfg.promoCards.length) ? cfg.promoCards : getDefaultPromoCards());
+        renderDeals((cfg.amazonDeals && cfg.amazonDeals.length) ? cfg.amazonDeals : getDefaultDeals());
+        renderSupport(cfg.support || getDefaultSupport());
     } catch (e) {
         document.getElementById('loginError').textContent = 'Could not reach the server. Try again.';
     }
 }
 
+// ===== Promo Cards =====
 function blankCard() {
     return {
         id: 'card-' + Date.now().toString(36),
@@ -135,60 +215,58 @@ function blankCard() {
     };
 }
 
-let g_cards = [];
-
 function renderCards(cards) {
     g_cards = cards;
     const list = document.getElementById('cardsList');
     list.innerHTML = g_cards.map((c, i) => `
         <div class="box">
             <div class="card-head">
-                <b>Card #${i + 1} — <code>${c.id}</code></b>
+                <b>Card #${i + 1} — <code>${esc(c.id)}</code></b>
                 <button class="btn btn-danger" onclick="removeCard(${i})">🗑 Remove</button>
             </div>
 
             <div class="enable-row">
-                <input type="checkbox" id="en-${i}" ${c.enabled ? 'checked' : ''} onchange="updateField(${i}, 'enabled', this.checked)">
+                <input type="checkbox" id="en-${i}" ${c.enabled ? 'checked' : ''} onchange="updateCardField(${i}, 'enabled', this.checked)">
                 <label style="margin:0;" for="en-${i}">Enabled</label>
             </div>
 
             <label>Image URL</label>
-            <textarea oninput="updateField(${i}, 'image', this.value); updateThumb(${i})" id="img-${i}">${c.image || ''}</textarea>
-            <img class="thumb" id="thumb-${i}" src="${c.image || ''}" style="display:${c.image ? 'block' : 'none'};">
+            <textarea oninput="updateCardField(${i}, 'image', this.value); updateThumb(${i})" id="img-${i}">${esc(c.image || '')}</textarea>
+            <img class="thumb" id="thumb-${i}" src="${esc(c.image || '')}" style="display:${c.image ? 'block' : 'none'};">
             <p class="help">Any image URL works — including a data:image/... URI.</p>
 
             <label>Icon URL (optional, small square icon next to the title)</label>
-            <input type="text" value="${esc(c.icon || '')}" oninput="updateField(${i}, 'icon', this.value)">
+            <input type="text" value="${esc(c.icon || '')}" oninput="updateCardField(${i}, 'icon', this.value)">
 
             <div class="row2">
                 <div>
                     <label>Title</label>
-                    <input type="text" value="${esc(c.title || '')}" oninput="updateField(${i}, 'title', this.value)">
+                    <input type="text" value="${esc(c.title || '')}" oninput="updateCardField(${i}, 'title', this.value)">
                 </div>
                 <div>
                     <label>Button text</label>
-                    <input type="text" value="${esc(c.buttonText || '')}" oninput="updateField(${i}, 'buttonText', this.value)">
+                    <input type="text" value="${esc(c.buttonText || '')}" oninput="updateCardField(${i}, 'buttonText', this.value)">
                 </div>
             </div>
 
             <label>Description text</label>
-            <input type="text" value="${esc(c.text || '')}" oninput="updateField(${i}, 'text', this.value)">
+            <input type="text" value="${esc(c.text || '')}" oninput="updateCardField(${i}, 'text', this.value)">
 
             <label>Direct link (button opens this)</label>
-            <input type="url" value="${esc(c.link || '')}" oninput="updateField(${i}, 'link', this.value)">
+            <input type="url" value="${esc(c.link || '')}" oninput="updateCardField(${i}, 'link', this.value)">
 
             <div class="row3">
                 <div>
                     <label>Start date</label>
-                    <input type="date" value="${c.startDate || ''}" onchange="updateField(${i}, 'startDate', this.value)">
+                    <input type="date" value="${c.startDate || ''}" onchange="updateCardField(${i}, 'startDate', this.value)">
                 </div>
                 <div>
                     <label>End date</label>
-                    <input type="date" value="${c.endDate || ''}" onchange="updateField(${i}, 'endDate', this.value)">
+                    <input type="date" value="${c.endDate || ''}" onchange="updateCardField(${i}, 'endDate', this.value)">
                 </div>
                 <div>
                     <label>% of visitors</label>
-                    <input type="number" min="0" max="100" value="${c.percentage ?? 100}" onchange="updateField(${i}, 'percentage', Number(this.value))">
+                    <input type="number" min="0" max="100" value="${c.percentage ?? 100}" onchange="updateCardField(${i}, 'percentage', Number(this.value))">
                 </div>
             </div>
             <p class="help">Leave start/end blank for "always". % controls what share of visitors see this card.</p>
@@ -196,13 +274,7 @@ function renderCards(cards) {
     `).join('');
 }
 
-function esc(s) {
-    return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-
-function updateField(i, field, value) {
-    g_cards[i][field] = value;
-}
+function updateCardField(i, field, value) { g_cards[i][field] = value; }
 
 function updateThumb(i) {
     const img = document.getElementById(`thumb-${i}`);
@@ -211,17 +283,66 @@ function updateThumb(i) {
     img.style.display = val ? 'block' : 'none';
 }
 
-function addCard() {
-    g_cards.push(blankCard());
-    renderCards(g_cards);
-}
-
+function addCard() { g_cards.push(blankCard()); renderCards(g_cards); }
 function removeCard(i) {
     if (!confirm('Remove this card?')) return;
     g_cards.splice(i, 1);
     renderCards(g_cards);
 }
 
+// ===== Amazon Deals =====
+function blankDeal() {
+    return { id: 'deal-' + Date.now().toString(36), title: '', img: '', keyword: '' };
+}
+
+function renderDeals(deals) {
+    g_deals = deals;
+    const list = document.getElementById('dealsList');
+    list.innerHTML = g_deals.map((d, i) => `
+        <div class="box">
+            <div class="card-head">
+                <b>Deal #${i + 1} — <code>${esc(d.id)}</code></b>
+                <button class="btn btn-danger" onclick="removeDeal(${i})">🗑 Remove</button>
+            </div>
+            <label>Title (shown on the card)</label>
+            <input type="text" value="${esc(d.title || '')}" oninput="updateDealField(${i}, 'title', this.value)">
+            <label>Image URL</label>
+            <input type="text" value="${esc(d.img || '')}" oninput="updateDealField(${i}, 'img', this.value)">
+            <label>Amazon search keyword</label>
+            <input type="text" value="${esc(d.keyword || '')}" oninput="updateDealField(${i}, 'keyword', this.value)">
+            <p class="help">Tapping the card opens an Amazon search for this keyword (your affiliate tag is added automatically).</p>
+        </div>
+    `).join('');
+}
+
+function updateDealField(i, field, value) { g_deals[i][field] = value; }
+function addDeal() { g_deals.push(blankDeal()); renderDeals(g_deals); }
+function removeDeal(i) {
+    if (!confirm('Remove this deal category?')) return;
+    g_deals.splice(i, 1);
+    renderDeals(g_deals);
+}
+
+// ===== Support / UPI =====
+function renderSupport(support) {
+    g_support = support;
+    const box = document.getElementById('supportBox');
+    box.innerHTML = `
+        <div class="enable-row">
+            <input type="checkbox" id="support-en" ${g_support.enabled !== false ? 'checked' : ''} onchange="updateSupportField('enabled', this.checked)">
+            <label style="margin:0;" for="support-en">Show support section on the site</label>
+        </div>
+        <label>UPI ID</label>
+        <input type="text" value="${esc(g_support.upiId || '')}" oninput="updateSupportField('upiId', this.value)">
+        <label>Payee name (shown in UPI apps)</label>
+        <input type="text" value="${esc(g_support.payeeName || '')}" oninput="updateSupportField('payeeName', this.value)">
+        <p class="help">The QR code is generated automatically from the UPI ID + payee name above.</p>
+    `;
+}
+
+function updateSupportField(field, value) { g_support[field] = value; }
+
+// ===== Save =====
 async function saveAll() {
     const statusEl = document.getElementById('status');
     statusEl.textContent = 'Saving…';
@@ -230,7 +351,10 @@ async function saveAll() {
         const res = await fetch(API, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ password: ADMIN_PASSWORD, cards: g_cards })
+            body: JSON.stringify({
+                password: ADMIN_PASSWORD,
+                config: { promoCards: g_cards, amazonDeals: g_deals, support: g_support }
+            })
         });
         const data = await res.json();
         if (data.ok) {
@@ -245,10 +369,6 @@ async function saveAll() {
         statusEl.className = 'status err';
     }
 }
-
-document.getElementById('pwInput').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') login();
-});
 </script>
 </body>
 </html>
