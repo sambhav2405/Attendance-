@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Promo Cards</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+    :root {
+        --bg: #f1f2fa; --card: #ffffff; --text: #1f2937; --text-light: #6b7280;
+        --border: #e5e7eb; --accent: #4f46e5; --danger: #dc2626; --ok: #059669;
+    }
+    @media (prefers-color-scheme: dark) {
+        :root { --bg: #111622; --card: #181e2e; --text: #eef2f7; --text-light: #94a3b8; --border: #26314a; --accent: #7c9eff; }
+    }
+    * { box-sizing: border-box; }
+    body {
+        margin: 0; padding: 20px 15px 80px; background: var(--bg); color: var(--text);
+        font-family: 'Poppins', 'Segoe UI', sans-serif; line-height: 1.5;
+    }
+    .wrap { max-width: 720px; margin: 0 auto; }
+    h1 { font-size: 1.3rem; margin: 0 0 4px; }
+    .sub { font-size: 0.82rem; color: var(--text-light); margin: 0 0 24px; }
+    .box { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); }
+
+    /* Login screen */
+    #loginBox { max-width: 360px; margin: 60px auto; text-align: center; }
+    #loginBox input { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid var(--border); background: var(--bg); color: var(--text); font-size: 1rem; margin-bottom: 12px; }
+    #loginBox button { width: 100%; padding: 12px; border-radius: 10px; border: none; background: var(--accent); color: #fff; font-weight: 700; cursor: pointer; font-size: 1rem; }
+    #loginError { color: var(--danger); font-size: 0.85rem; margin-top: 10px; min-height: 18px; }
+    #loginHint { font-size: 0.78rem; color: var(--text-light); margin-top: 16px; }
+
+    /* Card editor */
+    #app { display: none; }
+    .card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+    .card-head b { font-size: 0.95rem; }
+    label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-light); margin: 10px 0 4px; text-transform: uppercase; }
+    input[type=text], input[type=url], input[type=date], input[type=number], textarea {
+        width: 100%; padding: 9px 10px; border-radius: 8px; border: 1.5px solid var(--border);
+        background: var(--bg); color: var(--text); font-size: 0.88rem; font-family: inherit;
+    }
+    textarea { resize: vertical; min-height: 50px; }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .enable-row { display: flex; align-items: center; gap: 8px; margin: 10px 0; }
+    .enable-row input { width: auto; }
+    .btn { padding: 9px 16px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; font-size: 0.85rem; }
+    .btn-danger { background: #fee2e2; color: var(--danger); }
+    .btn-accent { background: var(--accent); color: #fff; }
+    .btn-ghost { background: var(--bg); color: var(--text); border: 1.5px solid var(--border); }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .status { font-size: 0.85rem; font-weight: 700; min-height: 20px; }
+    .status.ok { color: var(--ok); }
+    .status.err { color: var(--danger); }
+    .thumb { width: 100%; max-height: 110px; object-fit: cover; border-radius: 8px; margin-top: 8px; border: 1px solid var(--border); display: none; }
+    .help { font-size: 0.72rem; color: var(--text-light); margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+    <div id="loginBox">
+        <h1>🔒 Admin Login</h1>
+        <p class="sub">Manage the promo popup's cards</p>
+        <input type="password" id="pwInput" placeholder="Admin password" autocomplete="current-password">
+        <button onclick="login()">Unlock</button>
+        <div id="loginError"></div>
+        <div id="loginHint">Password is set once in your Netlify/Cloudflare environment variables as <code>ADMIN_PASSWORD</code>.</div>
+    </div>
+
+    <div id="app">
+        <div class="topbar">
+            <div>
+                <h1>🎛️ Promo Cards</h1>
+                <p class="sub" style="margin:0;">Changes go live immediately for everyone after you save.</p>
+            </div>
+            <div style="display:flex; gap:8px;">
+                <button class="btn btn-ghost" onclick="addCard()">+ Add Card</button>
+                <button class="btn btn-accent" onclick="saveAll()">💾 Save All</button>
+            </div>
+        </div>
+        <div class="status" id="status"></div>
+        <div id="cardsList"></div>
+    </div>
+
+</div>
+
+<script>
+let ADMIN_PASSWORD = '';
+const API = '/.netlify/functions/promo-config';
+
+async function login() {
+    const pw = document.getElementById('pwInput').value;
+    if (!pw) return;
+    const errEl = document.getElementById('loginError');
+    errEl.textContent = 'Checking…';
+    try {
+        // No `cards` field in the body = verify-only, doesn't save anything.
+        const res = await fetch(API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: pw })
+        });
+        const data = await res.json();
+        if (!data.ok) {
+            errEl.textContent = data.error || 'Wrong password';
+            return;
+        }
+        ADMIN_PASSWORD = pw;
+        errEl.textContent = '';
+        loadCards();
+    } catch (e) {
+        errEl.textContent = 'Could not reach the server. Try again.';
+    }
+}
+
+async function loadCards() {
+    try {
+        const res = await fetch(API);
+        const data = await res.json();
+        const cards = (data.ok && Array.isArray(data.cards)) ? data.cards : [];
+        document.getElementById('loginBox').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        renderCards(cards.length ? cards : [blankCard()]);
+    } catch (e) {
+        document.getElementById('loginError').textContent = 'Could not reach the server. Try again.';
+    }
+}
+
+function blankCard() {
+    return {
+        id: 'card-' + Date.now().toString(36),
+        enabled: true, percentage: 100, startDate: '', endDate: '',
+        image: '', icon: '', title: '', text: '', buttonText: 'Open', link: ''
+    };
+}
+
+let g_cards = [];
+
+function renderCards(cards) {
+    g_cards = cards;
+    const list = document.getElementById('cardsList');
+    list.innerHTML = g_cards.map((c, i) => `
+        <div class="box">
+            <div class="card-head">
+                <b>Card #${i + 1} — <code>${c.id}</code></b>
+                <button class="btn btn-danger" onclick="removeCard(${i})">🗑 Remove</button>
+            </div>
+
+            <div class="enable-row">
+                <input type="checkbox" id="en-${i}" ${c.enabled ? 'checked' : ''} onchange="updateField(${i}, 'enabled', this.checked)">
+                <label style="margin:0;" for="en-${i}">Enabled</label>
+            </div>
+
+            <label>Image URL</label>
+            <textarea oninput="updateField(${i}, 'image', this.value); updateThumb(${i})" id="img-${i}">${c.image || ''}</textarea>
+            <img class="thumb" id="thumb-${i}" src="${c.image || ''}" style="display:${c.image ? 'block' : 'none'};">
+            <p class="help">Any image URL works — including a data:image/... URI.</p>
+
+            <label>Icon URL (optional, small square icon next to the title)</label>
+            <input type="text" value="${esc(c.icon || '')}" oninput="updateField(${i}, 'icon', this.value)">
+
+            <div class="row2">
+                <div>
+                    <label>Title</label>
+                    <input type="text" value="${esc(c.title || '')}" oninput="updateField(${i}, 'title', this.value)">
+                </div>
+                <div>
+                    <label>Button text</label>
+                    <input type="text" value="${esc(c.buttonText || '')}" oninput="updateField(${i}, 'buttonText', this.value)">
+                </div>
+            </div>
+
+            <label>Description text</label>
+            <input type="text" value="${esc(c.text || '')}" oninput="updateField(${i}, 'text', this.value)">
+
+            <label>Direct link (button opens this)</label>
+            <input type="url" value="${esc(c.link || '')}" oninput="updateField(${i}, 'link', this.value)">
+
+            <div class="row3">
+                <div>
+                    <label>Start date</label>
+                    <input type="date" value="${c.startDate || ''}" onchange="updateField(${i}, 'startDate', this.value)">
+                </div>
+                <div>
+                    <label>End date</label>
+                    <input type="date" value="${c.endDate || ''}" onchange="updateField(${i}, 'endDate', this.value)">
+                </div>
+                <div>
+                    <label>% of visitors</label>
+                    <input type="number" min="0" max="100" value="${c.percentage ?? 100}" onchange="updateField(${i}, 'percentage', Number(this.value))">
+                </div>
+            </div>
+            <p class="help">Leave start/end blank for "always". % controls what share of visitors see this card.</p>
+        </div>
+    `).join('');
+}
+
+function esc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function updateField(i, field, value) {
+    g_cards[i][field] = value;
+}
+
+function updateThumb(i) {
+    const img = document.getElementById(`thumb-${i}`);
+    const val = document.getElementById(`img-${i}`).value;
+    img.src = val;
+    img.style.display = val ? 'block' : 'none';
+}
+
+function addCard() {
+    g_cards.push(blankCard());
+    renderCards(g_cards);
+}
+
+function removeCard(i) {
+    if (!confirm('Remove this card?')) return;
+    g_cards.splice(i, 1);
+    renderCards(g_cards);
+}
+
+async function saveAll() {
+    const statusEl = document.getElementById('status');
+    statusEl.textContent = 'Saving…';
+    statusEl.className = 'status';
+    try {
+        const res = await fetch(API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: ADMIN_PASSWORD, cards: g_cards })
+        });
+        const data = await res.json();
+        if (data.ok) {
+            statusEl.textContent = '✅ Saved — live for everyone now.';
+            statusEl.className = 'status ok';
+        } else {
+            statusEl.textContent = '❌ ' + (data.error || 'Save failed');
+            statusEl.className = 'status err';
+        }
+    } catch (e) {
+        statusEl.textContent = '❌ Network error — try again.';
+        statusEl.className = 'status err';
+    }
+}
+
+document.getElementById('pwInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') login();
+});
+</script>
+</body>
+</html>

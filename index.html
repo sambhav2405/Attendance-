@@ -1583,6 +1583,24 @@ let amazonCategories = [
 ];
 
 let globalConfig = null;
+let g_backendPromoCards = null; // from /.netlify/functions/promo-config, set via the admin.html panel
+
+async function fetchBackendPromoCards() {
+    try {
+        const res = await fetch('/.netlify/functions/promo-config');
+        const data = await res.json();
+        if (data.ok && Array.isArray(data.cards) && data.cards.length) {
+            g_backendPromoCards = data.cards;
+            // If the popup is already open (user was fast), refresh its cards live.
+            if (document.getElementById('offerPopup') && document.getElementById('offerPopup').style.display === 'flex') {
+                renderPromoPopup();
+            }
+        }
+    } catch (e) {
+        // Admin panel not configured yet, or offline — falls back to Gist/defaults.
+    }
+}
+fetchBackendPromoCards();
 
 async function fetchRemoteConfig() {
     try {
@@ -1690,7 +1708,9 @@ function isPromoCardActive(card) {
 }
 
 function renderPromoPopup() {
-    const source = (globalConfig && Array.isArray(globalConfig.promoCards)) ? globalConfig.promoCards : getDefaultPromoCards();
+    const source = Array.isArray(g_backendPromoCards) ? g_backendPromoCards
+        : (globalConfig && Array.isArray(globalConfig.promoCards)) ? globalConfig.promoCards
+        : getDefaultPromoCards();
     g_promoCards = source.filter(isPromoCardActive);
 
     const track = document.getElementById('promoCardTrack');
