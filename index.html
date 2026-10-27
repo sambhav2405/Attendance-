@@ -1524,24 +1524,50 @@
     </div>
 
     <!-- ===== SPECIAL OFFER POPUP ===== -->
-    <div id="offerPopup" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter:blur(5px); z-index:9999; justify-content:center; align-items:center; opacity:0; transition:opacity 0.3s ease;">
-        <div style="background:var(--card-bg); border:1px solid var(--card-border); padding:25px; border-radius:20px; text-align:center; max-width:90%; width:350px; position:relative; transform:scale(0.8); transition:transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
-            <button onclick="closeOfferPopup()" style="position:absolute; top:10px; right:15px; background:none; border:none; color:var(--text-light); font-size:1.5rem; cursor:pointer;">&times;</button>
-            
-            <div id="popupEmoji" style="font-size:3rem; margin-bottom:10px;">🎁</div>
-            <h2 id="popupTitle" style="margin:0 0 10px 0; color:var(--text-main); font-size:1.3rem;">Student Special Deals!</h2>
-            <p id="popupSubtitle" style="margin:0 0 20px 0; color:var(--text-light); font-size:0.9rem;">What are you looking for today?</p>
-            
-            <div id="popupBtnContainer" style="display:flex; flex-direction:column; gap:10px;">
-                <button onclick="openVisualCategory('dress_under_600', 'beautiful dresses for women under 600'); closeOfferPopup();" style="background:linear-gradient(135deg, #ec4899, #be185d); color:white; border:none; padding:12px; border-radius:12px; font-weight:700; cursor:pointer; font-size:1rem; box-shadow:0 4px 10px rgba(236, 72, 153, 0.3);">
-                    👗 Dresses Under ₹600
-                </button>
-                <button onclick="openVisualCategory('dress_premium', 'premium party wear dresses for women'); closeOfferPopup();" style="background:linear-gradient(135deg, #8b5cf6, #6d28d9); color:white; border:none; padding:12px; border-radius:12px; font-weight:700; cursor:pointer; font-size:1rem; box-shadow:0 4px 10px rgba(139, 92, 246, 0.3);">
-                    ✨ Premium Dresses (Above ₹600)
-                </button>
-            </div>
+    <div id="offerPopup" class="promo-popup-overlay">
+        <div class="promo-popup-box">
+            <button onclick="closeOfferPopup()" class="promo-popup-close" aria-label="Close">&times;</button>
+            <div id="promoCardTrack" class="promo-card-track hide-scroll"></div>
+            <div id="promoDots" class="promo-dots"></div>
         </div>
     </div>
+
+    <style>
+        .promo-popup-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
+            z-index: 9999; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; padding: 20px;
+        }
+        .promo-popup-box { position: relative; width: 340px; max-width: 100%; }
+        .promo-popup-close {
+            position: absolute; top: -14px; right: -14px; z-index: 5; width: 32px; height: 32px; border-radius: 50%;
+            background: var(--card-bg); border: 1px solid var(--card-border); color: var(--text-main); font-size: 1.3rem;
+            cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center;
+            transform: scale(0.8); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .promo-card-track {
+            display: flex; overflow-x: auto; scroll-snap-type: x mandatory; border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.35); transform: scale(0.8); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .promo-card { position: relative; min-width: 100%; scroll-snap-align: center; background: var(--card-bg); }
+        .promo-card-img { width: 100%; height: 190px; object-fit: cover; display: block; background: var(--toggle-bg); }
+        .promo-card-body { padding: 18px 20px 22px; text-align: center; }
+        .promo-card-title { margin: 0 0 6px; font-size: 1.1rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .promo-card-icon { width: 26px; height: 26px; border-radius: 7px; object-fit: cover; flex-shrink: 0; }
+        .promo-card-text { margin: 0 0 16px; font-size: 0.84rem; color: var(--text-light); line-height: 1.45; }
+        .promo-card-btn {
+            display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, var(--theme-color), #3b82f6);
+            color: #fff; border: none; padding: 11px 24px; border-radius: 50px; font-weight: 700; font-size: 0.9rem;
+            cursor: pointer; text-decoration: none; box-shadow: 0 4px 12px rgba(79,70,229,0.35);
+        }
+        .promo-card-skip {
+            position: absolute; top: 10px; right: 10px; width: 28px; height: 28px; border-radius: 50%;
+            background: rgba(0,0,0,0.45); color: #fff; border: none; font-size: 0.95rem; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; z-index: 2; backdrop-filter: blur(3px);
+        }
+        .promo-dots { display: flex; justify-content: center; gap: 6px; margin-top: 14px; }
+        .promo-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.5); transition: all 0.25s; }
+        .promo-dot.active { width: 18px; border-radius: 4px; background: #fff; }
+    </style>
 
 <script>
 // ===== STUDENT DEALS & SUPPORT (AMAZON & UPI) =====
@@ -1571,25 +1597,13 @@ async function fetchRemoteConfig() {
                 document.head.appendChild(style);
             }
 
-            // 2. Load Config JSON (For deals, popups, and texts)
+            // 2. Load Config JSON (For deals, promo cards, and texts)
             if(gistData.files["config.json"]) {
                 globalConfig = JSON.parse(gistData.files["config.json"].content);
                 if(globalConfig.deals) amazonCategories = globalConfig.deals;
-                
-                // Update Popup UI
-                if(globalConfig.popup && globalConfig.popup.enabled) {
-                    document.getElementById('popupTitle').innerText = globalConfig.popup.title || 'Student Special Deals!';
-                    document.getElementById('popupEmoji').innerText = globalConfig.popup.emoji || '🎁';
-                    document.getElementById('popupSubtitle').innerText = globalConfig.popup.subtitle || 'What are you looking for today?';
-                    
-                    const btnContainer = document.getElementById('popupBtnContainer');
-                    if(globalConfig.popup.buttons && btnContainer) {
-                        btnContainer.innerHTML = globalConfig.popup.buttons.map(b => 
-                            `<button onclick="openVisualCategory('${b.keyword.replace(/\s/g,'_')}', '${b.keyword}'); closeOfferPopup();" style="background:linear-gradient(135deg, ${b.color1}, ${b.color2}); color:white; border:none; padding:12px; border-radius:12px; font-weight:700; cursor:pointer; font-size:1rem; box-shadow:0 4px 10px rgba(0,0,0,0.2);">
-                                ${b.text}
-                            </button>`
-                        ).join('');
-                    }
+                // If the popup is already open (user was fast), refresh its cards live.
+                if(document.getElementById('offerPopup') && document.getElementById('offerPopup').style.display === 'flex') {
+                    renderPromoPopup();
                 }
             }
 
@@ -1608,26 +1622,134 @@ async function fetchRemoteConfig() {
 // Call on load
 fetchRemoteConfig();
 
-function showOfferPopup() {
-    if (!sessionStorage.getItem('offer_seen')) {
-        setTimeout(() => {
-            const popup = document.getElementById('offerPopup');
-            if(popup) {
-                popup.style.display = 'flex';
-                // Trigger reflow
-                void popup.offsetWidth;
-                popup.style.opacity = '1';
-                popup.children[0].style.transform = 'scale(1)';
-            }
-        }, 2000); // 2 seconds after load
+// ===== PROMO CARD CAROUSEL (Zero-Deploy via Gist config.json: "promoCards") =====
+const DISMISSED_PROMO_KEY = 'dismissed_promo_ids_v1';
+let g_promoCards = [];
+
+// Shipped defaults — disabled until real images/links are added (via Gist
+// "promoCards", or by editing these directly). Admin can fully control
+// each card from the Gist: enabled, startDate/endDate ("kitne din"),
+// percentage (rollout %), image, text, and the button's direct link.
+function getDefaultPromoCards() {
+    return [
+        {
+            id: 'mcq-ras-upsc', enabled: false, percentage: 100, startDate: '', endDate: '',
+            image: '', icon: '',
+            title: '📝 Daily MCQs — RAS & UPSC',
+            text: 'Practice daily MCQs curated for RAS and UPSC aspirants.',
+            buttonText: 'Practice Now', link: ''
+        },
+        {
+            id: 'vyas-mindmap', enabled: false, percentage: 100, startDate: '', endDate: '',
+            image: '', icon: '',
+            title: '🧠 Vyas Mind Maps — RAS & UPSC',
+            text: 'Topic-wise mind maps to revise faster for RAS and UPSC.',
+            buttonText: 'View Mind Maps', link: ''
+        },
+        {
+            id: 'topper-copies', enabled: false, percentage: 100, startDate: '', endDate: '',
+            image: '', icon: '',
+            title: '📄 Topper Copies — RAS & UPSC',
+            text: 'See exactly how toppers structured their answers.',
+            buttonText: 'See Copies', link: ''
+        },
+        {
+            id: 'playstore-app', enabled: false, percentage: 100, startDate: '', endDate: '',
+            image: '', icon: '',
+            title: '📱 Get the App',
+            text: 'Install our app from the Play Store for a faster experience.',
+            buttonText: 'Install App', link: ''
+        }
+    ];
+}
+
+function getDismissedPromoIds() {
+    try { return JSON.parse(localStorage.getItem(DISMISSED_PROMO_KEY) || '[]'); }
+    catch (e) { return []; }
+}
+
+// Stable 0-99 bucket per (device, card) — same device always lands in the
+// same bucket for a given card, so a 30% rollout stays the same 30% of
+// visitors instead of re-rolling the dice on every page load.
+function hashToBucket(str) {
+    let h = 0;
+    for (let i = 0; i < str.length; i++) { h = (h * 31 + str.charCodeAt(i)) >>> 0; }
+    return h % 100;
+}
+
+function isPromoCardActive(card) {
+    if (!card.enabled) return false;
+    if (!card.image || !card.link) return false; // nothing to show / nowhere to send them
+    const today = new Date().toISOString().slice(0, 10);
+    if (card.startDate && today < card.startDate) return false;
+    if (card.endDate && today > card.endDate) return false;
+    const pct = (typeof card.percentage === 'number') ? card.percentage : 100;
+    if (pct < 100 && hashToBucket(getDeviceId() + '::' + card.id) >= pct) return false;
+    if (getDismissedPromoIds().includes(card.id)) return false;
+    return true;
+}
+
+function renderPromoPopup() {
+    const source = (globalConfig && Array.isArray(globalConfig.promoCards)) ? globalConfig.promoCards : getDefaultPromoCards();
+    g_promoCards = source.filter(isPromoCardActive);
+
+    const track = document.getElementById('promoCardTrack');
+    const dots = document.getElementById('promoDots');
+    if (!track || !dots) return;
+
+    track.innerHTML = g_promoCards.map(c => `
+        <div class="promo-card" data-id="${c.id}">
+            <button class="promo-card-skip" onclick="dismissPromoCard('${c.id}')" aria-label="Not interested"><i class="fas fa-times"></i></button>
+            <img src="${c.image}" class="promo-card-img" alt="${c.title}" loading="lazy">
+            <div class="promo-card-body">
+                <h3 class="promo-card-title">${c.icon ? `<img src="${c.icon}" class="promo-card-icon" alt="">` : ''}${c.title}</h3>
+                ${c.text ? `<p class="promo-card-text">${c.text}</p>` : ''}
+                <a href="${c.link}" target="_blank" rel="noopener" class="promo-card-btn" onclick="haptic(20)">${c.buttonText || 'Open'} <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    `).join('');
+
+    dots.innerHTML = g_promoCards.map((_, i) => `<span class="promo-dot${i === 0 ? ' active' : ''}"></span>`).join('');
+    track.onscroll = () => {
+        const idx = Math.round(track.scrollLeft / Math.max(track.clientWidth, 1));
+        [...dots.children].forEach((d, i) => d.classList.toggle('active', i === idx));
+    };
+}
+
+function dismissPromoCard(id) {
+    const list = getDismissedPromoIds();
+    if (!list.includes(id)) {
+        list.push(id);
+        localStorage.setItem(DISMISSED_PROMO_KEY, JSON.stringify(list));
     }
+    haptic(20);
+    g_promoCards = g_promoCards.filter(c => c.id !== id);
+    if (g_promoCards.length === 0) { closeOfferPopup(); return; }
+    renderPromoPopup();
+}
+
+function showOfferPopup() {
+    if (sessionStorage.getItem('offer_seen')) return;
+    renderPromoPopup();
+    if (g_promoCards.length === 0) return; // nothing active to show
+    setTimeout(() => {
+        const popup = document.getElementById('offerPopup');
+        if (popup) {
+            popup.style.display = 'flex';
+            void popup.offsetWidth; // trigger reflow
+            popup.style.opacity = '1';
+            popup.querySelector('.promo-popup-close').style.transform = 'scale(1)';
+            popup.querySelector('.promo-card-track').style.transform = 'scale(1)';
+        }
+    }, 2000); // 2 seconds after load
 }
 
 function closeOfferPopup() {
     const popup = document.getElementById('offerPopup');
     if(popup) {
         popup.style.opacity = '0';
-        popup.children[0].style.transform = 'scale(0.8)';
+        popup.querySelector('.promo-popup-close').style.transform = 'scale(0.8)';
+        popup.querySelector('.promo-card-track').style.transform = 'scale(0.8)';
         setTimeout(() => {
             popup.style.display = 'none';
             sessionStorage.setItem('offer_seen', 'true');
@@ -3458,6 +3580,10 @@ function shareResult() {
             </div>
         </div>
     </div>
+
+    <footer style="text-align:center; padding:20px 10px 10px; font-size:0.78rem; color:var(--text-light);">
+        <a href="/privacy.html" style="color:var(--text-light); text-decoration:underline;">Privacy Policy</a>
+    </footer>
 
 </body>
 </html>
