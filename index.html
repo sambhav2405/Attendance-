@@ -1633,32 +1633,32 @@ let g_promoCards = [];
 function getDefaultPromoCards() {
     return [
         {
-            id: 'mcq-ras-upsc', enabled: false, percentage: 100, startDate: '', endDate: '',
-            image: '', icon: '',
+            id: 'mcq-ras-upsc', enabled: true, percentage: 100, startDate: '', endDate: '',
+            image: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iMjgwIiB2aWV3Qm94PSIwIDAgNTAwIDI4MCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjNGY0NmU1Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzNiODJmNiIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjUwMCIgaGVpZ2h0PSIyODAiIGZpbGw9InVybCgjZykiLz4KICA8dGV4dCB4PSIyNTAiIHk9IjEzMCIgZm9udC1zaXplPSI3MiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+TnTwvdGV4dD4KICA8dGV4dCB4PSIyNTAiIHk9IjE5NSIgZm9udC1zaXplPSIzMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iODAwIiBmaWxsPSIjZmZmZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5EYWlseSBNQ1FzPC90ZXh0PgogIDx0ZXh0IHg9IjI1MCIgeT0iMjI4IiBmb250LXNpemU9IjE4IiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI2MDAiIGZpbGw9IiNlNWU3ZWIiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlJBUyAmYW1wOyBVUFNDPC90ZXh0Pgo8L3N2Zz4=', icon: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgdmlld0JveD0iMCAwIDgwIDgwIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ2kiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjNGY0NmU1Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzNiODJmNiIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiByeD0iMTgiIGZpbGw9InVybCgjZ2kpIi8+CiAgPHRleHQgeD0iNDAiIHk9IjQ0IiBmb250LXNpemU9IjM4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn46TPC90ZXh0Pgo8L3N2Zz4=',
             title: '📝 Daily MCQs — RAS & UPSC',
             text: 'Practice daily MCQs curated for RAS and UPSC aspirants.',
-            buttonText: 'Practice Now', link: ''
+            buttonText: 'Practice Now', link: 'https://play.google.com/store/apps/details?id=app.themcq.ias'
         },
         {
-            id: 'vyas-mindmap', enabled: false, percentage: 100, startDate: '', endDate: '',
-            image: '', icon: '',
+            id: 'vyas-mindmap', enabled: true, percentage: 100, startDate: '', endDate: '',
+            image: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iMjgwIiB2aWV3Qm94PSIwIDAgNTAwIDI4MCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjN2MzYWVkIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2RiMjc3NyIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjUwMCIgaGVpZ2h0PSIyODAiIGZpbGw9InVybCgjZykiLz4KICA8dGV4dCB4PSIyNTAiIHk9IjEzMCIgZm9udC1zaXplPSI3MiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+noDwvdGV4dD4KICA8dGV4dCB4PSIyNTAiIHk9IjE5NSIgZm9udC1zaXplPSIzMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iODAwIiBmaWxsPSIjZmZmZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5NaW5kIE1hcHM8L3RleHQ+CiAgPHRleHQgeD0iMjUwIiB5PSIyMjgiIGZvbnQtc2l6ZT0iMTgiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9IjYwMCIgZmlsbD0iI2U1ZTdlYiIgdGV4dC1hbmNob3I9Im1pZGRsZSI+UkFTICZhbXA7IFVQU0M8L3RleHQ+Cjwvc3ZnPg==', icon: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgdmlld0JveD0iMCAwIDgwIDgwIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ2kiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjNGY0NmU1Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzNiODJmNiIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiByeD0iMTgiIGZpbGw9InVybCgjZ2kpIi8+CiAgPHRleHQgeD0iNDAiIHk9IjQ0IiBmb250LXNpemU9IjM4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn46TPC90ZXh0Pgo8L3N2Zz4=',
             title: '🧠 Vyas Mind Maps — RAS & UPSC',
             text: 'Topic-wise mind maps to revise faster for RAS and UPSC.',
-            buttonText: 'View Mind Maps', link: ''
+            buttonText: 'View Mind Maps', link: 'https://www.google.com/search?q=Vyas+IAS+Mind+Maps+RAS+and+UPSC'
         },
         {
-            id: 'topper-copies', enabled: false, percentage: 100, startDate: '', endDate: '',
-            image: '', icon: '',
+            id: 'topper-copies', enabled: true, percentage: 100, startDate: '', endDate: '',
+            image: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iMjgwIiB2aWV3Qm94PSIwIDAgNTAwIDI4MCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjMDU5NjY5Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzBlYTVlOSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjUwMCIgaGVpZ2h0PSIyODAiIGZpbGw9InVybCgjZykiLz4KICA8dGV4dCB4PSIyNTAiIHk9IjEzMCIgZm9udC1zaXplPSI3MiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+ThDwvdGV4dD4KICA8dGV4dCB4PSIyNTAiIHk9IjE5NSIgZm9udC1zaXplPSIzMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iODAwIiBmaWxsPSIjZmZmZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Ub3BwZXIgQ29waWVzPC90ZXh0PgogIDx0ZXh0IHg9IjI1MCIgeT0iMjI4IiBmb250LXNpemU9IjE4IiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtd2VpZ2h0PSI2MDAiIGZpbGw9IiNlNWU3ZWIiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlJBUyAmYW1wOyBVUFNDPC90ZXh0Pgo8L3N2Zz4=', icon: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgdmlld0JveD0iMCAwIDgwIDgwIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ2kiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjNGY0NmU1Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzNiODJmNiIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiByeD0iMTgiIGZpbGw9InVybCgjZ2kpIi8+CiAgPHRleHQgeD0iNDAiIHk9IjQ0IiBmb250LXNpemU9IjM4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn46TPC90ZXh0Pgo8L3N2Zz4=',
             title: '📄 Topper Copies — RAS & UPSC',
             text: 'See exactly how toppers structured their answers.',
-            buttonText: 'See Copies', link: ''
+            buttonText: 'See Copies', link: 'https://www.google.com/search?q=RAS+and+UPSC+Topper+Answer+Copies'
         },
         {
-            id: 'playstore-app', enabled: false, percentage: 100, startDate: '', endDate: '',
-            image: '', icon: '',
+            id: 'playstore-app', enabled: true, percentage: 100, startDate: '', endDate: '',
+            image: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iMjgwIiB2aWV3Qm94PSIwIDAgNTAwIDI4MCI+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImciIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjZDk3NzA2Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2VhNTgwYyIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjUwMCIgaGVpZ2h0PSIyODAiIGZpbGw9InVybCgjZykiLz4KICA8dGV4dCB4PSIyNTAiIHk9IjEzMCIgZm9udC1zaXplPSI3MiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSI+8J+TsTwvdGV4dD4KICA8dGV4dCB4PSIyNTAiIHk9IjE5NSIgZm9udC1zaXplPSIzMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iODAwIiBmaWxsPSIjZmZmZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5HZXQgdGhlIEFwcDwvdGV4dD4KICA8dGV4dCB4PSIyNTAiIHk9IjIyOCIgZm9udC1zaXplPSIxOCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXdlaWdodD0iNjAwIiBmaWxsPSIjZTVlN2ViIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5JbnN0YWxsIE5vdzwvdGV4dD4KPC9zdmc+', icon: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgdmlld0JveD0iMCAwIDgwIDgwIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZ2kiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjNGY0NmU1Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzNiODJmNiIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiByeD0iMTgiIGZpbGw9InVybCgjZ2kpIi8+CiAgPHRleHQgeD0iNDAiIHk9IjQ0IiBmb250LXNpemU9IjM4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIj7wn46TPC90ZXh0Pgo8L3N2Zz4=',
             title: '📱 Get the App',
             text: 'Install our app from the Play Store for a faster experience.',
-            buttonText: 'Install App', link: ''
+            buttonText: 'Install App', link: 'https://play.google.com/store/apps/details?id=app.themcq.ias'
         }
     ];
 }
