@@ -1560,7 +1560,7 @@
             cursor: pointer; text-decoration: none; box-shadow: 0 4px 12px rgba(79,70,229,0.35);
         }
         .promo-card-skip {
-            position: absolute; top: 10px; right: 10px; width: 28px; height: 28px; border-radius: 50%;
+            position: absolute; top: 10px; left: 10px; width: 28px; height: 28px; border-radius: 50%;
             background: rgba(0,0,0,0.45); color: #fff; border: none; font-size: 0.95rem; cursor: pointer;
             display: flex; align-items: center; justify-content: center; z-index: 2; backdrop-filter: blur(3px);
         }
@@ -1714,11 +1714,23 @@ function isPromoCardActive(card) {
     return true;
 }
 
+// Fisher-Yates — so every card gets an equal shot at the first (most-seen)
+// position instead of the same one always leading, and the order differs
+// popup to popup.
+function shuffleArray(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
 function renderPromoPopup() {
     const source = Array.isArray(g_backendPromoCards) ? g_backendPromoCards
         : (globalConfig && Array.isArray(globalConfig.promoCards)) ? globalConfig.promoCards
         : getDefaultPromoCards();
-    g_promoCards = source.filter(isPromoCardActive);
+    g_promoCards = shuffleArray(source.filter(isPromoCardActive));
     renderPromoCardsDOM();
 }
 

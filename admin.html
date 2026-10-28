@@ -54,6 +54,11 @@
     .status.err { color: var(--danger); }
     .thumb { width: 100%; max-height: 110px; object-fit: cover; border-radius: 8px; margin-top: 8px; border: 1px solid var(--border); display: none; }
     .help { font-size: 0.72rem; color: var(--text-light); margin-top: 4px; }
+    .warn-badge {
+        align-items: center; gap: 8px; font-size: 0.78rem; font-weight: 700; color: #d97706;
+        background: rgba(217, 119, 6, 0.1); border: 1px solid rgba(217, 119, 6, 0.4);
+        border-radius: 8px; padding: 8px 10px; margin-bottom: 12px;
+    }
     .section-title { font-size: 1.05rem; font-weight: 800; margin: 28px 0 4px; display: flex; align-items: center; gap: 8px; }
     .section-sub { font-size: 0.8rem; color: var(--text-light); margin: 0 0 14px; }
 </style>
@@ -224,6 +229,9 @@ function renderCards(cards) {
                 <b>Card #${i + 1} — <code>${esc(c.id)}</code></b>
                 <button class="btn btn-danger" onclick="removeCard(${i})">🗑 Remove</button>
             </div>
+            <div class="warn-badge" id="warn-${i}" style="display:${(c.image && c.link) ? 'none' : 'flex'};">
+                ⚠️ Won't show on the site until both Image URL and Direct link are filled in.
+            </div>
 
             <div class="enable-row">
                 <input type="checkbox" id="en-${i}" ${c.enabled ? 'checked' : ''} onchange="updateCardField(${i}, 'enabled', this.checked)">
@@ -274,13 +282,23 @@ function renderCards(cards) {
     `).join('');
 }
 
-function updateCardField(i, field, value) { g_cards[i][field] = value; }
+function updateCardField(i, field, value) {
+    g_cards[i][field] = value;
+    updateCardWarning(i);
+}
 
 function updateThumb(i) {
     const img = document.getElementById(`thumb-${i}`);
     const val = document.getElementById(`img-${i}`).value;
     img.src = val;
     img.style.display = val ? 'block' : 'none';
+}
+
+function updateCardWarning(i) {
+    const warn = document.getElementById(`warn-${i}`);
+    if (!warn) return;
+    const c = g_cards[i];
+    warn.style.display = (c.image && c.link) ? 'none' : 'flex';
 }
 
 function addCard() { g_cards.push(blankCard()); renderCards(g_cards); }
