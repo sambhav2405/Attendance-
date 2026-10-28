@@ -1763,7 +1763,7 @@ function dismissPromoCard(id) {
 }
 
 function showOfferPopup() {
-    if (sessionStorage.getItem('offer_seen')) return;
+    // Shows on every page load/refresh, not just once per session.
     renderPromoPopup();
     if (g_promoCards.length === 0) return; // nothing active to show
     setTimeout(() => {
@@ -1786,7 +1786,6 @@ function closeOfferPopup() {
         popup.querySelector('.promo-card-track').style.transform = 'scale(0.8)';
         setTimeout(() => {
             popup.style.display = 'none';
-            sessionStorage.setItem('offer_seen', 'true');
         }, 300);
     }
 }
