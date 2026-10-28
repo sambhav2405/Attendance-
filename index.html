@@ -1655,7 +1655,6 @@ async function fetchRemoteConfig() {
 fetchRemoteConfig();
 
 // ===== PROMO CARD CAROUSEL (Zero-Deploy via Gist config.json: "promoCards") =====
-const DISMISSED_PROMO_KEY = 'dismissed_promo_ids_v1';
 let g_promoCards = [];
 
 // Shipped defaults — disabled until real images/links are added (via Gist
@@ -1695,11 +1694,6 @@ function getDefaultPromoCards() {
     ];
 }
 
-function getDismissedPromoIds() {
-    try { return JSON.parse(localStorage.getItem(DISMISSED_PROMO_KEY) || '[]'); }
-    catch (e) { return []; }
-}
-
 // Stable 0-99 bucket per (device, card) — same device always lands in the
 // same bucket for a given card, so a 30% rollout stays the same 30% of
 // visitors instead of re-rolling the dice on every page load.
@@ -1717,7 +1711,6 @@ function isPromoCardActive(card) {
     if (card.endDate && today > card.endDate) return false;
     const pct = (typeof card.percentage === 'number') ? card.percentage : 100;
     if (pct < 100 && hashToBucket(getDeviceId() + '::' + card.id) >= pct) return false;
-    if (getDismissedPromoIds().includes(card.id)) return false;
     return true;
 }
 
@@ -1726,7 +1719,13 @@ function renderPromoPopup() {
         : (globalConfig && Array.isArray(globalConfig.promoCards)) ? globalConfig.promoCards
         : getDefaultPromoCards();
     g_promoCards = source.filter(isPromoCardActive);
+    renderPromoCardsDOM();
+}
 
+// Renders whatever is currently in g_promoCards, without re-deriving it from
+// the source — so dismissing a card (X) only removes it from THIS popup
+// instance, instead of re-including it from the source array again.
+function renderPromoCardsDOM() {
     const track = document.getElementById('promoCardTrack');
     const dots = document.getElementById('promoDots');
     if (!track || !dots) return;
@@ -1750,16 +1749,13 @@ function renderPromoPopup() {
     };
 }
 
+// Removes a card from THIS popup instance only (like closing an ad) — it
+// will be back next time the popup shows (next refresh / Calculate click).
 function dismissPromoCard(id) {
-    const list = getDismissedPromoIds();
-    if (!list.includes(id)) {
-        list.push(id);
-        localStorage.setItem(DISMISSED_PROMO_KEY, JSON.stringify(list));
-    }
     haptic(20);
     g_promoCards = g_promoCards.filter(c => c.id !== id);
     if (g_promoCards.length === 0) { closeOfferPopup(); return; }
-    renderPromoPopup();
+    renderPromoCardsDOM();
 }
 
 function showOfferPopup() {
@@ -2843,6 +2839,7 @@ function syncEventHours() {
 // ===== ON LOAD =====
 window.addEventListener('load', () => {
     loadEventHours();
+    localStorage.removeItem('dismissed_promo_ids_v1'); // old permanent-dismiss list, no longer used
     const saved = localStorage.getItem('academic_data_v8') || localStorage.getItem('academic_data_v7');
     if (saved) {
         document.getElementById('inputData').value = saved;
@@ -3039,6 +3036,8 @@ function updateDashboard(silent) {
     } else {
         showToast(`📊 Report loaded! ${g_subjects.length} subjects found.`, 'info');
     }
+
+    showOfferPopup();
 }
 
 // ===== FEATURE 1: COUNT-UP ANIMATION =====
