@@ -16,7 +16,27 @@
 // 4. Redeploy.
 // 5. Set the Telegram webhook once (see telegram-webhook.js header for the URL to call).
 
-const { getSuggestionsStore } = require('./lib/blobs-store');
+const { getSuggestionsStore, getBlobStore } = require('./lib/blobs-store');
+
+// Rate limit: max 20 suggestions per device (and per IP) in any 30 minutes.
+const RATE_LIMIT = 20;
+const RATE_WINDOW_MS = 30 * 60 * 1000;
+
+// Returns true if this key is over the limit; otherwise records the hit.
+// Fails open: if the store is unavailable, the message is still allowed.
+async function isRateLimited(store, key) {
+  const safeKey = 'rl:' + key.replace(/[^a-zA-Z0-9_.:-]/g, '_').slice(0, 100);
+  const now = Date.now();
+  let hits = [];
+  try {
+    const saved = await store.get(safeKey, { type: 'json' });
+    if (Array.isArray(saved)) hits = saved.filter((t) => now - t < RATE_WINDOW_MS);
+  } catch (e) { /* treat as empty */ }
+  if (hits.length >= RATE_LIMIT) return true;
+  hits.push(now);
+  try { await store.setJSON(safeKey, hits); } catch (e) { console.error('rate limit store failed:', e); }
+  return false;
+}
 
 function genId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -42,6 +62,22 @@ exports.handler = async (event) => {
 
   if (!text) {
     return { statusCode: 400, body: JSON.stringify({ ok: false, error: 'Empty suggestion' }) };
+  }
+
+  // Rate limit by device id and by IP (so clearing site data doesn't bypass it).
+  try {
+    const store = getBlobStore('ratelimit');
+    const ip = (event.headers && (event.headers['x-nf-client-connection-ip'] || (event.headers['x-forwarded-for'] || '').split(',')[0].trim())) || '';
+    const keys = [];
+    if (deviceId) keys.push('d:' + deviceId);
+    if (ip) keys.push('ip:' + ip);
+    for (const k of keys) {
+      if (await isRateLimited(store, k)) {
+        return { statusCode: 429, body: JSON.stringify({ ok: false, error: 'rate_limited' }) };
+      }
+    }
+  } catch (e) {
+    console.error('rate limit check failed (allowing):', e);
   }
 
   const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
